@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OtoTamir.WEBUI", "OtoTamir.WEBUI\OtoTamir.WEBUI.csproj", "{2823CF70-1232-409C-8CAB-B8D909FF98FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OtoTamir.CORE", "OtoTamir.CORE\OtoTamir.CORE.csproj", "{443BE39E-6758-47FF-AC9F-599280394766}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OtoTamir.BLL", "OtoTamir.BLL\OtoTamir.BLL.csproj", "{DF306B22-63B8-4D30-989A-754F41DAD819}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OtoTamir.DAL", "OtoTamir.DAL\OtoTamir.DAL.csproj", "{F46F63C0-94BE-48B6-8256-65928DE9CEA0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2823CF70-1232-409C-8CAB-B8D909FF98FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2823CF70-1232-409C-8CAB-B8D909FF98FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2823CF70-1232-409C-8CAB-B8D909FF98FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2823CF70-1232-409C-8CAB-B8D909FF98FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{443BE39E-6758-47FF-AC9F-599280394766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{443BE39E-6758-47FF-AC9F-599280394766}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{443BE39E-6758-47FF-AC9F-599280394766}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{443BE39E-6758-47FF-AC9F-599280394766}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF306B22-63B8-4D30-989A-754F41DAD819}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF306B22-63B8-4D30-989A-754F41DAD819}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF306B22-63B8-4D30-989A-754F41DAD819}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF306B22-63B8-4D30-989A-754F41DAD819}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F46F63C0-94BE-48B6-8256-65928DE9CEA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F46F63C0-94BE-48B6-8256-65928DE9CEA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F46F63C0-94BE-48B6-8256-65928DE9CEA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F46F63C0-94BE-48B6-8256-65928DE9CEA0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {11818554-0650-4E45-B3FE-5F4507C5C7D5}
+	EndGlobalSection
+EndGlobal
