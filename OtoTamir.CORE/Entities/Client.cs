@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OtoTamir.CORE.Identity;
-
-namespace OtoTamir.CORE.Entities
+﻿namespace OtoTamir.CORE.Entities
 {
-    public class Client
+    public class Client : BaseEntity
     {
-        public int Id { get; set; }
+
         public string Name { get; set; }
-        public string Surname { get; set; }
+        public string Phone { get; set; }
         public double Balance { get; set; }
+        public string Notes { get; set; }
+
         public List<Vehicle> Vehicles { get; set; }
-        public bool Status { get; set; }
-        public List<Mechanic> Mechanics { get; set; }
+        public List<ClientMechanic> ClientMechanics { get; set; }
 
     }
 }

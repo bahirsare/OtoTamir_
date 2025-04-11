@@ -77,4 +77,9 @@
     <None Include="wwwroot\lib\jquery\dist\jquery.min.map" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OtoTamir.BLL\OtoTamir.BLL.csproj" />
+    <ProjectReference Include="..\OtoTamir.CORE\OtoTamir.CORE.csproj" />
+  </ItemGroup>
+
 </Project>

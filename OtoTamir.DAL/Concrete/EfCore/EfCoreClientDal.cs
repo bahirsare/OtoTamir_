@@ -1,0 +1,22 @@
+﻿using OtoTamir.CORE.Entities;
+using OtoTamir.DAL.Abstract;
+using OtoTamir.DAL.Context;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OtoTamir.DAL.Concrete.EfCore
+{
+    public class EfCoreClientDal:EfCoreGenericRepositoryDal<Client,DataContext>
+    {
+        private readonly DataContext _context;
+
+        public EfCoreClientDal(DataContext context) : base(context)
+        {
+            _context = context;
+
+        }
+    }
+}

@@ -6,14 +6,18 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.CORE.Entities
 {
-    public class Vehicle
+    public class Vehicle:BaseEntity
     {
-        public int Id { get; set; }
-        public string PlateNumber { get; set; }
-        public int ProductYear { get; set; }
+       
+        public string Plate { get; set; }
+        public string Brand{ get; set; }
+        public string Model { get; set; }
+        public int Year { get; set; }
+
         public Client Client { get; set; }
         public int ClientId { get; set; }
-        List<string> Complains { get; set; }
-        List<string> FoundProblems { get; set; }
+
+        public List<Symptom> Symptoms { get; set; }  // Araçtaki semptomlar
+        public List<ServiceRecord> ServiceRecords { get; set; }  // Servis geçmişi
     }
 }
