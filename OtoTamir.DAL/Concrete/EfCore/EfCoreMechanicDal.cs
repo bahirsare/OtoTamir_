@@ -1,5 +1,6 @@
 ﻿using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
+using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Context;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.DAL.Concrete.EfCore
 {
-    public class EfCoreMechanicDal:EfCoreGenericRepositoryDal<Mechanic, DataContext>
+    public class EfCoreMechanicDal:EfCoreGenericRepositoryDal<Mechanic, DataContext>,IMechanicDal
     {
         private readonly DataContext _context;
         public EfCoreMechanicDal(DataContext context) : base(context)

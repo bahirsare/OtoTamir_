@@ -1,65 +1,76 @@
-﻿using OtoTamir.CORE.Identity;
-using OtoTamir.DAL.Concrete.EfCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.Identity;
+using OtoTamir.DAL.Abstract;
+using System.Linq.Expressions;
 
 namespace OtoTamir.BLL.Concrete
 {
-    public class MechanicService
+    public class MechanicService : IMechanicService
     {
-        private readonly EfCoreMechanicDal _efCoreMechanicDal;
+        private readonly IMechanicDal _mechanicDal;
 
-        public MechanicService(EfCoreMechanicDal efCoreMechanicDal)
+        public MechanicService(IMechanicDal mechanicDal)
         {
-            _efCoreMechanicDal = efCoreMechanicDal;
+            _mechanicDal = mechanicDal;
         }
 
-       
-        public void CreateMechanic(string storeName, string email)
+        public int Create(Mechanic mechanic)
         {
-            
             var token = Guid.NewGuid().ToString();
-
-            
-            var mechanic = new Mechanic
-            {
-                StoreName = storeName,
-                Email = email,
-                PasswordResetToken = token,
-                ResetTokenExpiration = DateTime.UtcNow.AddHours(24)
-            };
-
-            
-            _efCoreMechanicDal.Create(mechanic);
-
-           
-            string resetLink = $"https://seninsite.com/Account/ResetPassword?token={token}";
-            EmailHelper.SendPasswordResetEmail(email, storeName, resetLink);
+            //string resetLink = $"https://seninsite.com/Account/ResetPassword?token={token}";
+            // EmailHelper.SendPasswordResetEmail(email, storeName, resetLink);
+            return _mechanicDal.Create(mechanic);
         }
 
-       
+        public int Delete(int id)
+        {
+            return _mechanicDal.Delete(id);
+        }
+
+        public List<Mechanic> GetAll()
+        {
+            return _mechanicDal.GetAll();
+        }
+
+        public List<Mechanic> GetAll(Expression<Func<Mechanic, bool>> filter = null)
+        {
+            return _mechanicDal.GetAll(filter);
+        }
+
+        public Mechanic? GetByResetToken(string token)
+        {
+            return _mechanicDal.GetByResetToken(token);
+        }
+
+        public Mechanic GetOne(int id)
+        {
+            return _mechanicDal.GetOne(id);
+        }
+
         public bool IsValidResetToken(string token)
         {
-            var mechanic = _efCoreMechanicDal.GetByResetToken(token);
+            var mechanic = _mechanicDal.GetByResetToken(token);
             return mechanic != null && mechanic.ResetTokenExpiration > DateTime.UtcNow;
         }
 
-        
+
         public bool ResetPassword(string token, string newPassword)
         {
-            var mechanic = _efCoreMechanicDal.GetByResetToken(token);
-
+            var mechanic = _mechanicDal.GetByResetToken(token);
             if (mechanic == null || mechanic.ResetTokenExpiration <= DateTime.UtcNow)
-                return false; 
-            mechanic.Password = newPassword;
-            mechanic.PasswordResetToken = null; 
-            mechanic.ResetTokenExpiration = null; 
-
-            _efCoreMechanicDal.Update(); 
+                return false;
+            // mechanic.Password = newPassword;
+            mechanic.PasswordResetToken = null;
+            mechanic.ResetTokenExpiration = null;
+            _mechanicDal.Update();
             return true;
         }
+
+        public int Update()
+        {
+            return _mechanicDal.Update(); ;
+        }
+
+
     }
 }

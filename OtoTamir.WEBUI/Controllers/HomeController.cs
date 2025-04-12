@@ -1,28 +1,38 @@
 using Microsoft.AspNetCore.Mvc;
+using OtoTamir.BLL.Abstract;
+
 using OtoTamir.WEBUI.Models;
 
 using System.Diagnostics;
+using System.Net.Http.Headers;
 
 namespace OtotamirWEBUI.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+       
+        private readonly IClientService _clientService;
+        private readonly IMechanicService _mechanicService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IClientService clientService, IMechanicService mechanicService)
         {
-            _logger = logger;
+            _clientService = clientService;
+            _mechanicService = mechanicService;
         }
+
+       
 
         public IActionResult Index()
         {
+            
             return View();
         }
 
         public IActionResult Clients()
 
         {
-            return View();
+            var clients = _clientService.GetAll();
+            return View(clients);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -1,15 +1,15 @@
-﻿using OtoTamir.CORE.Entities;
+﻿using OtoTamir.CORE.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace OtoTamir.DAL.Abstract
 {
-    public interface IClientDal: IGenericRepository<Client>
+    public interface IMechanicDal:IGenericRepository<Mechanic>
     {
-        
+        public Mechanic? GetByResetToken(string token);
+
     }
 }

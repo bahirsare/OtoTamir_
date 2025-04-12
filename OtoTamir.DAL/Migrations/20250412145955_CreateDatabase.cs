@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OtoTamir.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class createDatabase : Migration
+    public partial class CreateDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,6 +32,8 @@ namespace OtoTamir.DAL.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     StoreName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Skills = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ResetTokenExpiration = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -53,7 +55,7 @@ namespace OtoTamir.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Clients",
+                name: "Client",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -68,7 +70,7 @@ namespace OtoTamir.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Clients", x => x.Id);
+                    table.PrimaryKey("PK_Client", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -182,23 +184,22 @@ namespace OtoTamir.DAL.Migrations
                 columns: table => new
                 {
                     ClientId = table.Column<int>(type: "int", nullable: false),
-                    MechanicId = table.Column<int>(type: "int", nullable: false),
-                    MechanicId1 = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MechanicId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ClientMechanic", x => new { x.ClientId, x.MechanicId });
                     table.ForeignKey(
-                        name: "FK_ClientMechanic_AspNetUsers_MechanicId1",
-                        column: x => x.MechanicId1,
+                        name: "FK_ClientMechanic_AspNetUsers_MechanicId",
+                        column: x => x.MechanicId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClientMechanic_Clients_ClientId",
+                        name: "FK_ClientMechanic_Client_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "Clients",
+                        principalTable: "Client",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -222,9 +223,9 @@ namespace OtoTamir.DAL.Migrations
                 {
                     table.PrimaryKey("PK_Vehicles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Vehicles_Clients_ClientId",
+                        name: "FK_Vehicles_Client_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "Clients",
+                        principalTable: "Client",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -317,9 +318,9 @@ namespace OtoTamir.DAL.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClientMechanic_MechanicId1",
+                name: "IX_ClientMechanic_MechanicId",
                 table: "ClientMechanic",
-                column: "MechanicId1");
+                column: "MechanicId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceRecords_VehicleId",
@@ -374,7 +375,7 @@ namespace OtoTamir.DAL.Migrations
                 name: "Vehicles");
 
             migrationBuilder.DropTable(
-                name: "Clients");
+                name: "Client");
         }
     }
 }

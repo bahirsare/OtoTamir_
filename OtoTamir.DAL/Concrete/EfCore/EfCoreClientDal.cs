@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.DAL.Concrete.EfCore
 {
-    public class EfCoreClientDal:EfCoreGenericRepositoryDal<Client,DataContext>
+    public class EfCoreClientDal:EfCoreGenericRepositoryDal<Client, DataContext>,IClientDal
     {
         private readonly DataContext _context;
 

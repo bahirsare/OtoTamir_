@@ -12,7 +12,7 @@ namespace OtoTamir.CORE.Entities
         public int ClientId { get; set; }  // Client
         public Client Client { get; set; }
 
-        public int MechanicId { get; set; }  // Mechanic
+        public string MechanicId { get; set; }  // Mechanic
         public Mechanic Mechanic { get; set; }
         public string Notes { get; set; }
 

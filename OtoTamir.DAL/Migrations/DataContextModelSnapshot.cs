@@ -189,7 +189,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Client");
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.ClientMechanic", b =>
@@ -197,11 +197,7 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<int>("MechanicId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MechanicId1")
-                        .IsRequired()
+                    b.Property<string>("MechanicId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Notes")
@@ -210,7 +206,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasKey("ClientId", "MechanicId");
 
-                    b.HasIndex("MechanicId1");
+                    b.HasIndex("MechanicId");
 
                     b.ToTable("ClientMechanic");
                 });
@@ -362,11 +358,17 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PasswordResetToken")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ResetTokenExpiration")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -460,7 +462,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasOne("OtoTamir.CORE.Identity.Mechanic", "Mechanic")
                         .WithMany("ClientMechanics")
-                        .HasForeignKey("MechanicId1")
+                        .HasForeignKey("MechanicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
