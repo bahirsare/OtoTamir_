@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
 
@@ -20,8 +21,8 @@ namespace OtotamirWEBUI.Controllers
             _mechanicService = mechanicService;
         }
 
-       
 
+       [Authorize]
         public IActionResult Index()
         {
             

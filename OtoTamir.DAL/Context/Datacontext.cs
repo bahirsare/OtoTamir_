@@ -23,19 +23,7 @@ namespace OtoTamir.DAL.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            
-            modelBuilder.Entity<ClientMechanic>()
-                .HasKey(cm => new { cm.ClientId, cm.MechanicId });
-
-            modelBuilder.Entity<ClientMechanic>()
-                .HasOne(cm => cm.Client)
-                .WithMany(c => c.ClientMechanics)
-                .HasForeignKey(cm => cm.ClientId);
-
-            modelBuilder.Entity<ClientMechanic>()
-                .HasOne(cm => cm.Mechanic)
-                .WithMany(m => m.ClientMechanics)
-                .HasForeignKey(cm => cm.MechanicId);
+         
             
 
 
@@ -45,7 +33,21 @@ namespace OtoTamir.DAL.Context
         public DbSet<ServiceRecord> ServiceRecords { get; set; }
         public DbSet<Symptom> Symptom { get; set; }
         public DbSet<Client> Clients { get; set; }
-        public DbSet<Client> ClientMechanics { get; set; }
+        public override int SaveChanges()
+        {
+           
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.State == EntityState.Modified)
+                {
+                    
+                    entry.Property("ModifiedDate").CurrentValue = DateTime.Now;
+                }
+            }
+
+            return base.SaveChanges();
+        }
+
 
 
     }

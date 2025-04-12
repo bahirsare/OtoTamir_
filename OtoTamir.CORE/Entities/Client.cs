@@ -1,4 +1,6 @@
-﻿namespace OtoTamir.CORE.Entities
+﻿using OtoTamir.CORE.Identity;
+
+namespace OtoTamir.CORE.Entities
 {
     public class Client : BaseEntity
     {
@@ -9,7 +11,9 @@
         public string Notes { get; set; }
 
         public List<Vehicle> Vehicles { get; set; }
-        public List<ClientMechanic> ClientMechanics { get; set; }
+        public  Mechanic Mechanic { get; set; }
+        public  string MechanicId { get; set; }
+
 
     }
 }

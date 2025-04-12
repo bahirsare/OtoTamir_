@@ -29,6 +29,34 @@ namespace OtoTamir.WEBUI
             builder.Services.AddScoped<IMechanicDal, EfCoreMechanicDal>();
             builder.Services.AddScoped<IClientService, ClientService>();
             builder.Services.AddScoped<IClientDal, EfCoreClientDal>();
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                //password
+                options.Password.RequiredLength = 6; // min pass uzunluðu               
+                options.Password.RequireLowercase = false; // Küçük harf zorunluluðunu kapat
+                options.Password.RequireNonAlphanumeric = false;
+                options.Lockout.MaxFailedAccessAttempts = 5; //Max hatalý giriþ sayýsý
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Max hatalý giriþ sonrasý account kilitlenme süresi
+                options.Lockout.AllowedForNewUsers = true; //Her yeni account için uygula
+            });
+            //Configure Cookie
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.LogoutPath = "/Account/Logout";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromHours(48); //Oturum Süresi
+                options.SlidingExpiration = true; // Her kullanýcý hareketinde oturum süresini resetle
+                options.Cookie = new CookieBuilder
+                {
+                    HttpOnly = true,
+                    Name = "OtoTamir.Security.Cookie",
+                    SameSite = SameSiteMode.Strict //Oturumu serverdan kullanýcý browserina taþýdýk.
+                };
+            });
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

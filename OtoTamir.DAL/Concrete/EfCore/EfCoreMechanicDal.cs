@@ -1,16 +1,10 @@
-﻿using OtoTamir.CORE.Entities;
-using OtoTamir.CORE.Identity;
+﻿using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OtoTamir.DAL.Concrete.EfCore
 {
-    public class EfCoreMechanicDal:EfCoreGenericRepositoryDal<Mechanic, DataContext>,IMechanicDal
+    public class EfCoreMechanicDal : EfCoreGenericRepositoryDal<Mechanic, DataContext>, IMechanicDal
     {
         private readonly DataContext _context;
         public EfCoreMechanicDal(DataContext context) : base(context)
@@ -18,10 +12,20 @@ namespace OtoTamir.DAL.Concrete.EfCore
             _context = context;
 
         }
-        public Mechanic? GetByResetToken(string token)
+        public Mechanic GetOne(string id)
         {
-            return _context.Mechanics.FirstOrDefault(m => m.PasswordResetToken == token);
+            return _context.Set<Mechanic>().Find(id);
         }
+        public int Delete(string id)
+        {
+            var entity = _context.Set<Mechanic>().Find(id);
+
+            if (entity != null)
+            {
+                _context.Set<Mechanic>().Remove(entity);
+            }
+            return _context.SaveChanges();
+        }
+        
     }
-    
 }

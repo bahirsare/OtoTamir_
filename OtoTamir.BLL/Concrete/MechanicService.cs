@@ -1,4 +1,5 @@
-﻿using OtoTamir.BLL.Abstract;
+﻿using Microsoft.AspNetCore.Identity;
+using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
@@ -8,17 +9,19 @@ namespace OtoTamir.BLL.Concrete
     public class MechanicService : IMechanicService
     {
         private readonly IMechanicDal _mechanicDal;
+        private readonly UserManager<Mechanic> _userManager;
 
-        public MechanicService(IMechanicDal mechanicDal)
+
+
+        public MechanicService(IMechanicDal mechanicDal, UserManager<Mechanic> userManager, RoleManager<IdentityRole> roleManager)
         {
             _mechanicDal = mechanicDal;
+            _userManager = userManager;
+
         }
 
         public int Create(Mechanic mechanic)
         {
-            var token = Guid.NewGuid().ToString();
-            //string resetLink = $"https://seninsite.com/Account/ResetPassword?token={token}";
-            // EmailHelper.SendPasswordResetEmail(email, storeName, resetLink);
             return _mechanicDal.Create(mechanic);
         }
 
@@ -37,33 +40,9 @@ namespace OtoTamir.BLL.Concrete
             return _mechanicDal.GetAll(filter);
         }
 
-        public Mechanic? GetByResetToken(string token)
-        {
-            return _mechanicDal.GetByResetToken(token);
-        }
-
         public Mechanic GetOne(int id)
         {
             return _mechanicDal.GetOne(id);
-        }
-
-        public bool IsValidResetToken(string token)
-        {
-            var mechanic = _mechanicDal.GetByResetToken(token);
-            return mechanic != null && mechanic.ResetTokenExpiration > DateTime.UtcNow;
-        }
-
-
-        public bool ResetPassword(string token, string newPassword)
-        {
-            var mechanic = _mechanicDal.GetByResetToken(token);
-            if (mechanic == null || mechanic.ResetTokenExpiration <= DateTime.UtcNow)
-                return false;
-            // mechanic.Password = newPassword;
-            mechanic.PasswordResetToken = null;
-            mechanic.ResetTokenExpiration = null;
-            _mechanicDal.Update();
-            return true;
         }
 
         public int Update()
@@ -71,6 +50,45 @@ namespace OtoTamir.BLL.Concrete
             return _mechanicDal.Update(); ;
         }
 
+        public async Task<(bool Success, string Password, List<string> Errors)> CreateMechanicAsync(string storeName)
+        {
+            var password = GenerateRandomPassword();
 
+            var mechanic = new Mechanic
+            {
+                UserName = storeName,
+                StoreName = storeName,
+                CreatedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+
+            };
+
+            var result = await _userManager.CreateAsync(mechanic, password);
+
+            if (result.Succeeded)
+            {
+
+                return (true, password, new List<string>());
+            }
+
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            return (false, password, errors);
+        }
+
+        private string GenerateRandomPassword(int length = 6)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        public Mechanic GetOne(string id)
+        {
+            return _mechanicDal.GetOne(id);
+        }
+        public int Delete(string id)
+        {
+            return _mechanicDal.Delete(id);
+        }
     }
 }

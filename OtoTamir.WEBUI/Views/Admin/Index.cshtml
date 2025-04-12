@@ -1,0 +1,62 @@
+﻿@model List<OtoTamir.CORE.Identity.Mechanic>
+
+<h2>Admin Paneli - Tamirciler</h2>
+
+<!-- Yeni Tamirci Ekleme Formu -->
+<h3>Yeni Tamirci Ekle</h3>
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="StoreName">Kullanıcı Adı</label>
+        <input type="text" class="form-control" id="StoreName" name="storeName" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Ekle</button>
+</form>
+
+<!-- Hata ve Başarı Mesajları -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- Tamircileri Listeleme -->
+<h3>Mevcut Tamirciler</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Kullanıcı Adı</th>
+            <th>Durum</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var mechanic in Model)
+        {
+            <tr>
+                <td>@mechanic.UserName</td>
+                <td>@(mechanic.Status ? "Aktif" : "Pasif")</td>
+                <td>
+                    <!-- Durum Güncelleme -->
+                    <form asp-action="EditStatus" method="post" style="display:inline-block">
+                         <input type="hidden" name="id" value="@mechanic.Id" />
+                        <input type="hidden" name="status" value="@(mechanic.Status ? "false" : "true")" /> 
+                        <button type="submit" class="btn btn-warning">
+                            @(mechanic.Status ? "Pasif Yap" : "Aktif Yap")
+                        </button>
+                    </form>
+                    <a asp-action="Delete" asp-route-id="@mechanic.Id" class=" btn btn-danger">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

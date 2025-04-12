@@ -9,7 +9,8 @@ namespace OtoTamir.DAL.Abstract
 {
     public interface IMechanicDal:IGenericRepository<Mechanic>
     {
-        public Mechanic? GetByResetToken(string token);
+        public Mechanic GetOne(string id);
+        public int Delete(string id);
 
     }
 }

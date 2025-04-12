@@ -32,8 +32,6 @@ namespace OtoTamir.DAL.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     StoreName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Skills = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ResetTokenExpiration = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -52,25 +50,6 @@ namespace OtoTamir.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Client",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Balance = table.Column<double>(type: "float", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DeletedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Client", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -180,26 +159,27 @@ namespace OtoTamir.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClientMechanic",
+                name: "Clients",
                 columns: table => new
                 {
-                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Balance = table.Column<double>(type: "float", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MechanicId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClientMechanic", x => new { x.ClientId, x.MechanicId });
+                    table.PrimaryKey("PK_Clients", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClientMechanic_AspNetUsers_MechanicId",
+                        name: "FK_Clients_AspNetUsers_MechanicId",
                         column: x => x.MechanicId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ClientMechanic_Client_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Client",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -223,9 +203,9 @@ namespace OtoTamir.DAL.Migrations
                 {
                     table.PrimaryKey("PK_Vehicles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Vehicles_Client_ClientId",
+                        name: "FK_Vehicles_Clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "Client",
+                        principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -318,8 +298,8 @@ namespace OtoTamir.DAL.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClientMechanic_MechanicId",
-                table: "ClientMechanic",
+                name: "IX_Clients_MechanicId",
+                table: "Clients",
                 column: "MechanicId");
 
             migrationBuilder.CreateIndex(
@@ -357,9 +337,6 @@ namespace OtoTamir.DAL.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "ClientMechanic");
-
-            migrationBuilder.DropTable(
                 name: "ServiceRecords");
 
             migrationBuilder.DropTable(
@@ -369,13 +346,13 @@ namespace OtoTamir.DAL.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Vehicles");
 
             migrationBuilder.DropTable(
-                name: "Client");
+                name: "Clients");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

@@ -12,15 +12,15 @@ using OtoTamir.DAL.Context;
 namespace OtoTamir.DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250412145955_CreateDatabase")]
-    partial class CreateDatabase
+    [Migration("20250412221204_Imageadition")]
+    partial class Imageadition
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.15")
+                .HasAnnotation("ProductVersion", "8.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -175,6 +175,10 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<DateTime>("DeletedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("MechanicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime2");
 
@@ -192,26 +196,9 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Client");
-                });
-
-            modelBuilder.Entity("OtoTamir.CORE.Entities.ClientMechanic", b =>
-                {
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MechanicId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ClientId", "MechanicId");
-
                     b.HasIndex("MechanicId");
 
-                    b.ToTable("ClientMechanic");
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.ServiceRecord", b =>
@@ -344,6 +331,9 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -361,24 +351,20 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PasswordResetToken")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("ResetTokenExpiration")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Skills")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
 
                     b.Property<string>("StoreName")
                         .IsRequired()
@@ -455,21 +441,13 @@ namespace OtoTamir.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("OtoTamir.CORE.Entities.ClientMechanic", b =>
+            modelBuilder.Entity("OtoTamir.CORE.Entities.Client", b =>
                 {
-                    b.HasOne("OtoTamir.CORE.Entities.Client", "Client")
-                        .WithMany("ClientMechanics")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("OtoTamir.CORE.Identity.Mechanic", "Mechanic")
-                        .WithMany("ClientMechanics")
+                        .WithMany("Clients")
                         .HasForeignKey("MechanicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Client");
 
                     b.Navigation("Mechanic");
                 });
@@ -509,8 +487,6 @@ namespace OtoTamir.DAL.Migrations
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.Client", b =>
                 {
-                    b.Navigation("ClientMechanics");
-
                     b.Navigation("Vehicles");
                 });
 
@@ -523,7 +499,7 @@ namespace OtoTamir.DAL.Migrations
 
             modelBuilder.Entity("OtoTamir.CORE.Identity.Mechanic", b =>
                 {
-                    b.Navigation("ClientMechanics");
+                    b.Navigation("Clients");
                 });
 #pragma warning restore 612, 618
         }
