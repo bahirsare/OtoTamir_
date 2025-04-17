@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
 
@@ -9,10 +10,12 @@ namespace OtotamirWEBUI.Controllers
     {
         private SignInManager<Mechanic> _signInManager;
         private UserManager<Mechanic> _userManager;
-        public AccountController(SignInManager<Mechanic> signInManager, UserManager<Mechanic> userManager)
+        private IMechanicService _mechanicService;
+        public AccountController(SignInManager<Mechanic> signInManager, UserManager<Mechanic> userManager, IMechanicService mechanicService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _mechanicService = mechanicService;
         }
         public IActionResult Login()
         {
@@ -58,14 +61,80 @@ namespace OtotamirWEBUI.Controllers
             return View("Login");
         }
 
-        public IActionResult Profile()
+        public async Task<IActionResult> Profile()
         {
-            return View();
+
+            var user = await _userManager.GetUserAsync(User);
+            ProfileViewModel model = new ProfileViewModel()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                StoreName = user.StoreName,
+                PhoneNumber = user.PhoneNumber,
+                Adress = user.Adress,
+                Skills = user.Skills,
+                Image = user.Image
+
+            };
+
+
+            return View(model);
         }
         [HttpPost]
-        public IActionResult Profile(ProfileViewModel model)
+        public async Task<IActionResult> Profile(ProfileViewModel model)
+
         {
-            return View();
+
+            string successMessage = "";
+            string failMessage = "";
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            user.Email = model.Email;
+            user.StoreName = model.StoreName;
+            user.PhoneNumber = model.PhoneNumber;
+            user.Adress = model.Adress;
+            user.Skills = model.Skills;
+
+
+            if (!string.IsNullOrEmpty(model.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                        ModelState.AddModelError("", error.Description);
+
+                }
+                else
+                {
+                    successMessage += "Şifre güncelleme başarılı!";
+                }
+            }
+
+            var update = _mechanicService.Update();
+            if (update == 1)
+            {
+                successMessage += "Profil güncelleme başarılı!";
+            }
+            else
+            {
+                failMessage += "Profil güncelleme başarısız!";
+            }
+            if (!string.IsNullOrEmpty(successMessage))
+            {
+                TempData["SuccessMessage"] = successMessage;
+            }
+            if (!string.IsNullOrEmpty(failMessage))
+            {
+                TempData["FailMessage"] = failMessage;
+            }
+
+            return View(model);
         }
     }
 }

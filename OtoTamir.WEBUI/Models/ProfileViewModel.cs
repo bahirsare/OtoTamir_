@@ -11,16 +11,17 @@ namespace OtoTamir.WEBUI.Models
         public string Email { get; set; }
         public string Adress { get; set; }
         public string? Image { get; set; }
+        public string Skills {  get; set; }
 
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
 
         [DataType(DataType.Password)]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [DataType(DataType.Password)]
         [Compare("Password")]
-        public string rePassword { get; set; }
+        public string? rePassword { get; set; }
 
     }
 }

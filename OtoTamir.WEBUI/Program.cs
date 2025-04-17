@@ -36,6 +36,8 @@ namespace OtoTamir.WEBUI
                 options.Password.RequiredLength = 6; // min pass uzunluðu               
                 options.Password.RequireLowercase = false; // Küçük harf zorunluluðunu kapat
                 options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
                 options.Lockout.MaxFailedAccessAttempts = 5; //Max hatalý giriþ sayýsý
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Max hatalý giriþ sonrasý account kilitlenme süresi
                 options.Lockout.AllowedForNewUsers = true; //Her yeni account için uygula

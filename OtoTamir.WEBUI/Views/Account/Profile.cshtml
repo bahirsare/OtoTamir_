@@ -1,72 +1,92 @@
-﻿@model OtoTamir.CORE.Entities.Client
+﻿@model ProfileViewModel
 
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Profil Bilgileri";
 }
-<body>
-    <div class="container">
-<h1>Profile</h1>
 
-<h4>Client</h4>
+<div class="container mt-5">
+    <h2 class="mb-4">Profil Bilgilerim</h2>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["FailMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["FailMessage"]
+        </div>
+    }
+    <form asp-action="Profile" asp-controller="Account" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <!-- Sol taraf: genel bilgiler -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Kullanıcı Adı</label>
+                    <input class="form-control" value="@Model.UserName" readonly />
+                    <input type="hidden" asp-for="UserName" />
+                </div>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Profile">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <div class="mb-3">
+                    <label asp-for="StoreName" class="form-label">İşletme Adı</label>
+                    <input asp-for="StoreName" class="form-control" />
+                    <span asp-validation-for="StoreName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNumber" class="form-label">Telefon Numarası</label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Adress" class="form-label">Adres</label>
+                    <input asp-for="Adress" class="form-control" />
+                    <span asp-validation-for="Adress" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
+
+            <!-- Sağ taraf: görsel, yetenekler ve şifre -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Skills" class="form-label">Uzmanlık Alanı</label>
+                    <input asp-for="Skills" class="form-control" />
+                    <span asp-validation-for="Skills" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Image" class="form-label">Profil Resmi</label>
+                    <input asp-for="Image" type="file" class="form-control" />
+                    <span asp-validation-for="Image" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Şifre</label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="rePassword" class="form-label">Şifre Tekrarı</label>
+                    <input asp-for="rePassword" class="form-control" />
+                    <span asp-validation-for="rePassword" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Balance" class="control-label"></label>
-                <input asp-for="Balance" class="form-control" />
-                <span asp-validation-for="Balance" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Notes" class="control-label"></label>
-                <input asp-for="Notes" class="form-control" />
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MechanicId" class="control-label"></label>
-                <select asp-for="MechanicId" class="form-control" asp-items="ViewBag.MechanicId"></select>
-                <span asp-validation-for="MechanicId" class="text-danger"></span>
-            </div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DeletedDate" class="control-label"></label>
-                <input asp-for="DeletedDate" class="form-control" />
-                <span asp-validation-for="DeletedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ModifiedDate" class="control-label"></label>
-                <input asp-for="ModifiedDate" class="form-control" />
-                <span asp-validation-for="ModifiedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary">Bilgileri Güncelle</button>
+        </div>
+    </form>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-    </div>
-</body>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }
