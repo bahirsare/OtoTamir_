@@ -1,4 +1,6 @@
-﻿using OtoTamir.CORE.Entities;
+﻿
+using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.DAL.Abstract
 {
-    public interface IClientDal: IGenericRepository<Client>
+    public interface IClientDal: IRepositoryService<Client>
     {
         
     }

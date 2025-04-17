@@ -1,14 +1,13 @@
-﻿using OtoTamir.CORE.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OtoTamir.BLL.Abstract
+namespace OtoTamir.CORE.Repositories
 {
-    public interface IGenericRepository<T > where T : class
+    public interface IRepositoryService<T> where T : class
     {
         List<T> GetAll();
         List<T> GetAll(Expression<Func<T, bool>> filter = null);
@@ -18,4 +17,3 @@ namespace OtoTamir.BLL.Abstract
         int Delete(int id);
     }
 }
-

@@ -22,7 +22,7 @@ namespace OtotamirWEBUI.Controllers
         }
 
 
-       [Authorize]
+       //[Authorize]
         public IActionResult Index()
         {
             

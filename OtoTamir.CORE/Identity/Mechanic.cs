@@ -17,12 +17,13 @@ namespace OtoTamir.CORE.Identity
         public bool Status { get; set; }
         public string? Image {  get; set; }
 
+        public bool IsProfileCompleted { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public List<Client> Clients { get; set; }
-
+        
 
     }
 }

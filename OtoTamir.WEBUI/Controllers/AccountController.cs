@@ -32,10 +32,14 @@ namespace OtotamirWEBUI.Controllers
 
                     if (result.Succeeded)
                     {
+                        if (user.IsProfileCompleted)
+                        {
+                            return RedirectToAction("Profile", "Account");
+                        }
                         return RedirectToAction("Index", "Home");
                     }
 
-                    ModelState.AddModelError("" , "Giriş Bilgilerinizi Kontrol Ediniz");
+                    ModelState.AddModelError("", "Giriş Bilgilerinizi Kontrol Ediniz");
 
 
                     return View(model);
@@ -52,6 +56,16 @@ namespace OtotamirWEBUI.Controllers
             await _signInManager.SignOutAsync();
 
             return View("Login");
+        }
+
+        public IActionResult Profile()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Profile(ProfileViewModel model)
+        {
+            return View();
         }
     }
 }
