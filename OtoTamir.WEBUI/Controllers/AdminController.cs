@@ -29,14 +29,14 @@ namespace OtoTamir.WEBUI.Controllers
             if (result.Success)
             {
                 TempData["SuccessMessage"] = $"Tamirci başarıyla oluşturuldu. Şifresi: {result.Password}";
-                return RedirectToAction(nameof(Index));
+                return View();
             }
 
             TempData["ErrorMessage"] = "Tamirci oluşturulurken bir hata oluştu. " + string.Join(", ", result.Errors);
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        public IActionResult EditStatus(string id, bool status)
+        public IActionResult EditStatus(string id)
         {
             var mechanic = _mechanicService.GetOne(id);
             if (mechanic == null)
@@ -45,8 +45,8 @@ namespace OtoTamir.WEBUI.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            mechanic.Status = status;
-            var result = _mechanicService.Update(); // Burada update metodunda durumu güncelliyoruz
+            mechanic.Status = (!mechanic.Status);
+            var result = _mechanicService.Update(); 
 
             if (result > 0)
             {                
