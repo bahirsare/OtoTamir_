@@ -44,12 +44,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
             };
 
             var result = await _userManager.CreateAsync(mechanic, password);
-            if (!_roleManager.Roles.Any(i => i.Name == "admin"))
-            {
-                await _roleManager.CreateAsync(new IdentityRole() { Name = "admin" });
-            }
+            //if (!_roleManager.Roles.Any(i => i.Name == "admin"))
+            //{
+            //    await _roleManager.CreateAsync(new IdentityRole() { Name = "admin" });
+            //}
 
-            await _userManager.AddToRoleAsync(mechanic, "admin");
+            //await _userManager.AddToRoleAsync(mechanic, "admin");
 
 
             if (result.Succeeded)

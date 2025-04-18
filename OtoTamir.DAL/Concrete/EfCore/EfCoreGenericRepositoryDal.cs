@@ -36,6 +36,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
         public int Create(T entity)
         {
+            
             _context.Set<T>().Add(entity);
             return _context.SaveChanges();
         }

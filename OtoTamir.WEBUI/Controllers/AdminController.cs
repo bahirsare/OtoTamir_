@@ -29,7 +29,7 @@ namespace OtoTamir.WEBUI.Controllers
             if (result.Success)
             {
                 TempData["SuccessMessage"] = $"Tamirci başarıyla oluşturuldu. Şifresi: {result.Password}";
-                return View();
+                return RedirectToAction(nameof(Index));
             }
 
             TempData["ErrorMessage"] = "Tamirci oluşturulurken bir hata oluştu. " + string.Join(", ", result.Errors);

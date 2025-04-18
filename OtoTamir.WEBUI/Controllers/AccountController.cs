@@ -93,13 +93,7 @@ namespace OtotamirWEBUI.Controllers
             }
 
             var user = await _userManager.GetUserAsync(User);
-            user.Email = model.Email;
-            user.StoreName = model.StoreName;
-            user.PhoneNumber = model.PhoneNumber;
-            user.Adress = model.Adress;
-            user.Skills = model.Skills;
-            user.IsProfileCompleted = true;
-            user.Image= model.Image;
+
 
 
             if (!string.IsNullOrEmpty(model.Password))
@@ -114,9 +108,16 @@ namespace OtotamirWEBUI.Controllers
                 }
                 else
                 {
-                    successMessage += "Şifre güncelleme başarılı!";
+                    successMessage += "Şifre güncelleme başarılı! ";
                 }
             }
+            user.Email = model.Email;
+            user.StoreName = model.StoreName;
+            user.PhoneNumber = model.PhoneNumber;
+            user.Adress = model.Adress;
+            user.Skills = model.Skills;
+            user.IsProfileCompleted = true;
+            user.Image = model.Image;
 
             var update = _mechanicService.Update();
             if (update == 1)

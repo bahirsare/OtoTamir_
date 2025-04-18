@@ -18,5 +18,13 @@ namespace OtoTamir.DAL.Concrete.EfCore
             _context = context;
 
         }
+        public int Create(Client client)
+        {
+
+            client.CreatedDate = DateTime.Now;
+            client.ModifiedDate = DateTime.Now;
+            
+            return base.Create(client);
+        }
     }
 }
