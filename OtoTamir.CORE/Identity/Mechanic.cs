@@ -15,7 +15,7 @@ namespace OtoTamir.CORE.Identity
         public string StoreName { get; set; }
         public string? Skills { get; set; }
         public bool Status { get; set; }
-        public string Adress { get; set; }
+        public string? Adress { get; set; }
         public string? Image {  get; set; }
 
 

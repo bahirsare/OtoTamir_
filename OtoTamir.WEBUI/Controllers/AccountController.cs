@@ -35,7 +35,7 @@ namespace OtotamirWEBUI.Controllers
 
                     if (result.Succeeded)
                     {
-                        if (user.IsProfileCompleted)
+                        if (!user.IsProfileCompleted)
                         {
                             return RedirectToAction("Profile", "Account");
                         }
@@ -98,6 +98,8 @@ namespace OtotamirWEBUI.Controllers
             user.PhoneNumber = model.PhoneNumber;
             user.Adress = model.Adress;
             user.Skills = model.Skills;
+            user.IsProfileCompleted = true;
+            user.Image= model.Image;
 
 
             if (!string.IsNullOrEmpty(model.Password))

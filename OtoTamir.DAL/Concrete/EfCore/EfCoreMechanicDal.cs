@@ -9,10 +9,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
     {
         private readonly DataContext _context;
         private readonly UserManager<Mechanic> _userManager;
-        public EfCoreMechanicDal(DataContext context, UserManager<Mechanic> userManager) : base(context)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public EfCoreMechanicDal(DataContext context, UserManager<Mechanic> userManager, RoleManager<IdentityRole> roleManager) : base(context)
         {
             _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
         public Mechanic GetOne(string id)
         {
@@ -42,6 +44,13 @@ namespace OtoTamir.DAL.Concrete.EfCore
             };
 
             var result = await _userManager.CreateAsync(mechanic, password);
+            if (!_roleManager.Roles.Any(i => i.Name == "admin"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole() { Name = "admin" });
+            }
+
+            await _userManager.AddToRoleAsync(mechanic, "admin");
+
 
             if (result.Succeeded)
             {
@@ -59,7 +68,6 @@ namespace OtoTamir.DAL.Concrete.EfCore
             var random = new Random();
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
+        }        
     }
 }
