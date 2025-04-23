@@ -7,7 +7,7 @@ using OtoTamir.WEBUI.Models;
 
 namespace OtoTamir.WEBUI.ViewComponents.CreateClient
 {
-    public class _ResultCreateClientViewComponentPartial : ViewComponent
+    public class _CreateClientViewComponentPartial : ViewComponent
     {
        
 

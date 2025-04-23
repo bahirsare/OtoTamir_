@@ -29,25 +29,31 @@ namespace OtotamirWEBUI.Controllers
             {
                 var user = await _userManager.FindByNameAsync(model.UserName);
 
-                if (user != null)
-                {
-                    var result = await _signInManager.PasswordSignInAsync(user, model.Password, true, true);
-
-                    if (result.Succeeded)
+                if (user != null )
+                {  if (user.Status == true)
                     {
-                        if (!user.IsProfileCompleted)
+                        var result = await _signInManager.PasswordSignInAsync(user, model.Password, true, true);
+
+                        if (result.Succeeded)
                         {
-                            return RedirectToAction("Profile", "Account");
+                            if (!user.IsProfileCompleted)
+                            {
+                                return RedirectToAction("Profile", "Account");
+                            }
+                            return RedirectToAction("Index", "Home");
                         }
-                        return RedirectToAction("Index", "Home");
+
+                        TempData["Message"] = ("Giriş Bilgilerinizi Kontrol Ediniz");
                     }
 
-                    ModelState.AddModelError("", "Giriş Bilgilerinizi Kontrol Ediniz");
-
-
+                    else if (user.Status == false)
+                    {
+                        TempData["Message"] = "Üyeliğiniz askıya alınmıştır. Lütfen yetkili ile iletişime geçiniz.";
+                    }
                     return View(model);
                 }
             }
+            TempData["Message"] = "Lütfen bilgilerinizi eksiksiz doldurunuz!";
             return View(model);
         }
         public IActionResult Register()

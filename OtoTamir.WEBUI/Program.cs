@@ -29,6 +29,8 @@ namespace OtoTamir.WEBUI
             builder.Services.AddScoped<IMechanicDal, EfCoreMechanicDal>();
             builder.Services.AddScoped<IClientService, ClientService>();
             builder.Services.AddScoped<IClientDal, EfCoreClientDal>();
+            builder.Services.AddScoped<IVehicleDal, EfCoreVehicleDal>();
+            builder.Services.AddScoped<IVehicleService, VehicleService>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {

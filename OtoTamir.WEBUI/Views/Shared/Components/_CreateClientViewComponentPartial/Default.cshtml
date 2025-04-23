@@ -1,8 +1,13 @@
 ﻿@model CreateClientViewModel
-
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning" role="alert">
+        @TempData["Message"]
+    </div>
+}
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
-        <form asp-controller="Home" asp-action="Create" method="post">
+        <form asp-controller="Home" asp-action="CreateClient" method="post">
             <div class="modal-header">
                 <h5 class="modal-title">Yeni Müşteri Ekle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>

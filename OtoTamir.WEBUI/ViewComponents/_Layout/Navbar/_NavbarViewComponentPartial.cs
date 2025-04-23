@@ -4,11 +4,11 @@ using OtoTamir.CORE.Identity;
 
 namespace OtoTamir.WEBUI.ViewComponents._Layout.Navbar
 {
-    public class _ResultNavbarViewComponentPartial : ViewComponent
+    public class _NavbarViewComponentPartial : ViewComponent
     {
         private readonly UserManager<Mechanic> _userManager;
 
-        public _ResultNavbarViewComponentPartial(UserManager<Mechanic> userManager)
+        public _NavbarViewComponentPartial(UserManager<Mechanic> userManager)
         {
             _userManager = userManager;
         }

@@ -1,3 +1,4 @@
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
+using OtoTamir.DAL.Migrations;
 using OtoTamir.WEBUI.Models;
 
 using System.Diagnostics;
@@ -18,12 +20,14 @@ namespace OtotamirWEBUI.Controllers
         private readonly IClientService _clientService;
         private readonly IMechanicService _mechanicService;
         private readonly UserManager<Mechanic> _userManager;
+        private readonly IVehicleService _vehicleService;
 
-        public HomeController(IClientService clientService, IMechanicService mechanicService,UserManager<Mechanic>  userManager)
+        public HomeController(IClientService clientService, IMechanicService mechanicService,UserManager<Mechanic>  userManager, IVehicleService vehicleService)
         {
             _clientService = clientService;
             _mechanicService = mechanicService;
             _userManager = userManager;
+            _vehicleService = vehicleService;
         }
 
 
@@ -37,45 +41,74 @@ namespace OtotamirWEBUI.Controllers
         public IActionResult Clients()
 
         {
-            var clients = _clientService.GetAll();
+            var mechanicId = _userManager.GetUserId(User);
+            var clients = _clientService.GetAll(x => x.MechanicId == mechanicId);
             return View(clients);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(CreateClientViewModel model)
+        public  IActionResult CreateClient(CreateClientViewModel model)
         {
             
 
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Müþteri Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
+                TempData["Message"] = "Müþteri Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
                 
                 return RedirectToAction("Clients", "Home");
             }
-            var mechanic = await _userManager.GetUserAsync(User);
+            
 
             Client client = new Client()
             {
                 Name = model.Name,
                 Balance = model.Balance,
-                PhoneNumber = model.PhoneNumber,
+                PhoneNumber = model.PhoneNumber,//unique olmalý ilerde kontrol eklenecek
                 Notes = model.Notes,
-                MechanicId = mechanic.Id
+                MechanicId = _userManager.GetUserId(User)
             };
 
             var result = _clientService.Create(client);
             if (result == 1)
             {
 
-                TempData["SuccessMessage"] = "Müþteri Eklendi!";
+                TempData["Message"] = "Müþteri Eklendi!";
             }
             else
             {
-                TempData["ErrorMessage"] = "Müþteri Eklenemedi.";
+                TempData["Message"] = "Müþteri Eklenemedi.";
 
 
             }
-
+            
             return RedirectToAction("Clients", "Home");
+        }
+        [HttpPost]
+        public IActionResult CreateVehicle(CreateVehicleViewModel model)
+        {
+            if (!ModelState.IsValid) // model içine veri gelmiyor?
+            {
+                TempData["Message"] = "Araç Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
+
+                return RedirectToAction("Clients", "Home");
+            }
+            Vehicle vehicle = new Vehicle()
+            {
+                Plate=model.Plate,
+                Brand = model.Brand,
+                Model = model.Model,
+                Year = model.Year
+
+            };
+            
+            var result =_vehicleService.Create(vehicle);
+            if (result == 1)
+            {
+                TempData["Message"] = "Araç baþarýyla eklendi!";
+            } else
+            {
+                TempData["Message"] = " Araç eklenemedi!";
+            }
+            return RedirectToAction("Clients", "Home"); 
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
