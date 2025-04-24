@@ -1,0 +1,46 @@
+﻿@model Client
+
+<div class="modal fade" id="editClientModal-@Model.Id" tabindex="-1" aria-labelledby="editClientModalLabel-@Model.Id" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form asp-action="UpdateClient" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Müşteri Düzenle - @Model.Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="Id" value="@Model.Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Ad Soyad</label>
+                        <input class="form-control" name="Name" value="@Model.Name" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Telefon</label>
+                        <input class="form-control" name="PhoneNumber" value="@Model.PhoneNumber" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notlar</label>
+                        <textarea class="form-control" name="Notes">@Model.Notes</textarea>
+                    </div>
+
+                    <h6>Araçlar:</h6>
+                    @foreach (var vehicle in Model.Vehicles)
+                    {
+                        <div class="border p-2 rounded mb-2">
+                            <p><strong>Plaka:</strong> @vehicle.Plate</p>
+                            <p><strong>Marka:</strong> @vehicle.Brand</p>
+                            <p><strong>Model:</strong> @vehicle.Model</p>
+                            <p><strong>Yıl:</strong> @vehicle.Year</p>
+                            <a class="btn btn-sm btn-secondary" asp-controller="Home" asp-action="EditVehicle" asp-route-id="@vehicle.Id">Aracı Düzenle</a>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-success">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

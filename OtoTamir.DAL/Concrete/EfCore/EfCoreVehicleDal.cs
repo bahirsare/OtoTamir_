@@ -5,6 +5,7 @@ using OtoTamir.DAL.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,5 +18,14 @@ namespace OtoTamir.DAL.Concrete.EfCore
         {
             _context = context;
         }
+        public override int Create(Vehicle vehicle)
+        {
+
+            vehicle.CreatedDate = DateTime.Now;
+            vehicle.ModifiedDate = DateTime.Now;
+
+            return base.Create(vehicle);
+        }
+        
     }
 }

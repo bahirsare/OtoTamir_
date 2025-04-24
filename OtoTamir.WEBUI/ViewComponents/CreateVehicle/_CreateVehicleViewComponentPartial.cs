@@ -8,7 +8,7 @@ namespace OtoTamir.WEBUI.ViewComponents.CreateVehicle
     {
         public async Task<IViewComponentResult> InvokeAsync(int clientId) 
         {
-            var model = new CreateVehicleViewModel();
+            var model = new Vehicle();
             model.ClientId = clientId;
             return View(model);
 

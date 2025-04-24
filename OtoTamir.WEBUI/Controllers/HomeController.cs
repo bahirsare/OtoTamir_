@@ -83,22 +83,15 @@ namespace OtotamirWEBUI.Controllers
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
-        public IActionResult CreateVehicle(CreateVehicleViewModel model)
+        public IActionResult CreateVehicle(Vehicle vehicle)
         {
+            //Console.WriteLine("ClientId: " + newVehicle.ClientId); // DEBUG
             if (!ModelState.IsValid) // model içine veri gelmiyor?
             {
                 TempData["Message"] = "Araç Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
 
                 return RedirectToAction("Clients", "Home");
-            }
-            Vehicle vehicle = new Vehicle()
-            {
-                Plate=model.Plate,
-                Brand = model.Brand,
-                Model = model.Model,
-                Year = model.Year
-
-            };
+            }           
             
             var result =_vehicleService.Create(vehicle);
             if (result == 1)
@@ -109,6 +102,25 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = " Araç eklenemedi!";
             }
             return RedirectToAction("Clients", "Home"); 
+        }
+        public IActionResult DeleteClient(int id)
+        {
+            var client = _clientService.GetOne(id);
+            if (client == null)
+            {
+                TempData["Message"] = "Tamirci bulunamadý.";
+                return RedirectToAction("Clients", "Home");
+            }
+            var result = _clientService.Delete(id);
+            if (result > 0)
+            {
+                TempData["Message"] = "Tamirci baþarýyla silindi.";
+            }
+            else
+            {
+                TempData["Message"] = "Bir hata oluþtu, tamirci silinemedi!";
+            }
+            return RedirectToAction("Clients", "Home");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

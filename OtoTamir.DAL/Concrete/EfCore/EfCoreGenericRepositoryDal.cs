@@ -18,7 +18,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             return _context.Set<T>().ToList();
         }
 
-        public List<T> GetAll(Expression<Func<T, bool>> filter = null)
+        public virtual List<T> GetAll(Expression<Func<T, bool>> filter = null)
         {
             var entities = _context.Set<T>().AsQueryable();
 
@@ -34,7 +34,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             return _context.Set<T>().Find(id);
         }
 
-        public int Create(T entity)
+        public virtual int Create(T entity)
         {
             
             _context.Set<T>().Add(entity);
@@ -46,7 +46,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             return _context.SaveChanges();
         }
 
-        public int Delete(int id)
+        public  int Delete(int id)
         {
             var entity = _context.Set<T>().Find(id);
 

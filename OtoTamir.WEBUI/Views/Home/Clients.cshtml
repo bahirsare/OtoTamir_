@@ -32,6 +32,7 @@
                     <th>Güncellenme</th>
                     <th>İşlemler</th>
                     <th>Araçlar</th>
+                    <th>Araç işlemleri</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,26 +48,32 @@
                         <td>@item.ModifiedDate.ToString("dd.MM.yyyy")</td>
                         
                         <td>
+                            <!-- İşlemler Menüsünde -->
                             <div class="btn-group" role="group">
-                                <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id">Düzenle</a>
-                                <a class="btn btn-sm btn-info text-white" asp-action="Details" asp-route-id="@item.Id">Detay</a>
-                                <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editClientModal-@item.Id">Düzenle</button>
+                                <a asp-action="DeleteClient" asp-asp-controller="Home" asp-route-id="@item.Id" class=" btn btn-danger">Sil</a>
                             </div>
+
                         </td>
-                        <td>
-                           
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal-@item.Id">
-                                Araç Ekle
-                            </button>
+                        <td>                           
 
                             @if (item.Vehicles.Count > 0)
                             {
-                                @foreach (var vehicles in item.Vehicles)
+                                foreach (var vehicle in item.Vehicles.Take(5).ToList())
                                 {
-                                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id">@vehicles.Plate</a>
+                                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@vehicle.Id">@vehicle.Plate</a>
 
                                 }
+                                if (item.Vehicles.Count > 5)
+                                {
+                                    <span class="text-muted">...</span>
+                                }
                             }
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal-@item.Id">
+                                Araç Ekle
+                            </button>
                         </td>
                     </tr>
                     <div class="modal fade" id="addVehicleModal-@item.Id" tabindex="-1" aria-labelledby="addVehicleModalLabel-@item.Id" aria-hidden="true">
@@ -77,6 +84,7 @@
         </table>
     </div>
 </div>
+
 <div class="modal fade" id="addClientModal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
     @await Component.InvokeAsync("_CreateClientViewComponentPartial")
 </div>
