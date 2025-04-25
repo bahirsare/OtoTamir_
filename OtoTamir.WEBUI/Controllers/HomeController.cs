@@ -1,28 +1,23 @@
-using Azure;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
-using OtoTamir.DAL.Migrations;
 using OtoTamir.WEBUI.Models;
 
 using System.Diagnostics;
-using System.Net.Http.Headers;
 
 namespace OtotamirWEBUI.Controllers
 {
     public class HomeController : Controller
     {
-       
+
         private readonly IClientService _clientService;
         private readonly IMechanicService _mechanicService;
         private readonly UserManager<Mechanic> _userManager;
         private readonly IVehicleService _vehicleService;
 
-        public HomeController(IClientService clientService, IMechanicService mechanicService,UserManager<Mechanic>  userManager, IVehicleService vehicleService)
+        public HomeController(IClientService clientService, IMechanicService mechanicService, UserManager<Mechanic> userManager, IVehicleService vehicleService)
         {
             _clientService = clientService;
             _mechanicService = mechanicService;
@@ -31,10 +26,10 @@ namespace OtotamirWEBUI.Controllers
         }
 
 
-       //[Authorize]
+        //[Authorize]
         public IActionResult Index()
         {
-            
+
             return View();
         }
 
@@ -46,17 +41,17 @@ namespace OtotamirWEBUI.Controllers
             return View(clients);
         }
         [HttpPost]
-        public  IActionResult CreateClient(CreateClientViewModel model)
+        public IActionResult CreateClient(CreateClientViewModel model)
         {
-            
+
 
             if (!ModelState.IsValid)
             {
                 TempData["Message"] = "Müþteri Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
-                
+
                 return RedirectToAction("Clients", "Home");
             }
-            
+
 
             Client client = new Client()
             {
@@ -79,7 +74,7 @@ namespace OtotamirWEBUI.Controllers
 
 
             }
-            
+
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
@@ -91,17 +86,18 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = "Araç Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
 
                 return RedirectToAction("Clients", "Home");
-            }           
-            
-            var result =_vehicleService.Create(vehicle);
+            }
+
+            var result = _vehicleService.Create(vehicle);
             if (result == 1)
             {
                 TempData["Message"] = "Araç baþarýyla eklendi!";
-            } else
+            }
+            else
             {
                 TempData["Message"] = " Araç eklenemedi!";
             }
-            return RedirectToAction("Clients", "Home"); 
+            return RedirectToAction("Clients", "Home");
         }
         public IActionResult DeleteClient(int id)
         {
@@ -121,6 +117,35 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = "Bir hata oluþtu, tamirci silinemedi!";
             }
             return RedirectToAction("Clients", "Home");
+        }
+        [HttpPost]
+        public IActionResult UpdateClient(CreateClientViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Message"] = "Müþteri bilgileri geçersiz!";
+                return RedirectToAction("Clients", "Home");
+            }
+            var client = _clientService.GetOne(model.Id);
+            if (client == null)
+            {
+                TempData["Message"] = "Tamirci bulunamadý.";
+                return RedirectToAction("Clients", "Home");
+            }
+            client.Name = model.Name;
+            client.PhoneNumber = model.PhoneNumber;
+            client.Notes = model.Notes;
+            var result = _clientService.Update();
+            if (result > 0)
+            {
+                TempData["Message"] = "Müþteri baþarýyla güncellendi.";
+            }
+            else
+            {
+                TempData["Message"] = "Güncelleme sýrasýnda bir hata oluþtu.";
+            }
+            return RedirectToAction("Clients", "Home");
+
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

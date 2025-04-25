@@ -4,7 +4,7 @@ namespace OtoTamir.WEBUI.Models
 {
     public class CreateClientViewModel
     {
-
+        public int Id { get; set; }
         public string Name { get; set; }
         public decimal Balance { get; set; }
         public string PhoneNumber { get; set; }

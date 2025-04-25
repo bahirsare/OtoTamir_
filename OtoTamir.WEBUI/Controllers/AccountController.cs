@@ -67,7 +67,7 @@ namespace OtotamirWEBUI.Controllers
             return View("Login");
         }
 
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> UpdateProfile()
         {
 
             var user = await _userManager.GetUserAsync(User);
@@ -87,7 +87,7 @@ namespace OtotamirWEBUI.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Profile(ProfileViewModel model)
+        public async Task<IActionResult> UpdateProfile(ProfileViewModel model)
 
         {
 
