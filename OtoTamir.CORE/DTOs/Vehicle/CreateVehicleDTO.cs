@@ -1,4 +1,4 @@
-﻿namespace OtoTamir.CORE.DTOs.Client
+﻿namespace OtoTamir.CORE.DTOs.Vehicle
 {
     public class CreateVehicleDTO
     {

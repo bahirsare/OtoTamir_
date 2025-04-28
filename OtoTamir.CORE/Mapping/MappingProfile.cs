@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using OtoTamir.CORE.DTOs.Client;
+using OtoTamir.CORE.DTOs.Vehicle;
 using OtoTamir.CORE.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace OtoTamir.CORE.Mapping
         public MappingProfile()
         {
             CreateMap<CreateClientDTO,Client>().ReverseMap();
+            CreateMap<EditClientDTO,Client>().ReverseMap();
             CreateMap<CreateVehicleDTO, Vehicle>().ReverseMap();
         }
     }

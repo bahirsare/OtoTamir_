@@ -52,7 +52,7 @@
                             <div class="btn-group" role="group">
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editClientModal-@item.Id">Düzenle</button>
                                 <div class="modal fade" id="editClientModal-@item.Id" tabindex="-1" aria-labelledby="editClientModalLabel-@item.Id" aria-hidden="true">
-                                    @await Component.InvokeAsync("_EditClientViewComponentPartial", new { client = item })
+                                    @await Component.InvokeAsync("_EditClientViewComponentPartial", item)
                                 </div>
                                 <a asp-action="DeleteClient" asp-asp-controller="Home" asp-route-id="@item.Id" class=" btn btn-danger">Sil</a>
                             </div>

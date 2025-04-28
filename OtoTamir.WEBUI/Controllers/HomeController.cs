@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.Client;
+using OtoTamir.CORE.DTOs.Vehicle;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
@@ -116,7 +117,7 @@ namespace OtotamirWEBUI.Controllers
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
-        public IActionResult UpdateClient(CreateClientDTO model)
+        public IActionResult UpdateClient(EditClientDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -129,7 +130,7 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = "Müþteri bulunamadý.";
                 return RedirectToAction("Clients", "Home");
             }
-            client = _mapper.Map<Client>(model);
+            _mapper.Map(model,client);
             var result = _clientService.Update();
             if (result > 0)
             {
