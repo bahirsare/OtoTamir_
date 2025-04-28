@@ -1,4 +1,4 @@
-﻿@model CreateClientViewModel
+﻿@model CreateClientDTO
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-warning" role="alert">
@@ -9,9 +9,12 @@
     <div class="modal-content">
         <form asp-controller="Home" asp-action="CreateClient" method="post">
             <div class="modal-header">
+                 
                 <h5 class="modal-title">Yeni Müşteri Ekle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
             </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="card-body">
             <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -38,7 +41,7 @@
                         <span asp-validation-for="Notes" class="text-danger"></span>
                     </div>
 
-                    <input type="hidden" asp-for="MechanicId" />
+                    @* <input type="hidden" asp-for="MechanicId" /> *@
                 </div>
             </div>
             <div class="modal-footer">
@@ -48,3 +51,4 @@
         </form>
     </div>
 </div>
+

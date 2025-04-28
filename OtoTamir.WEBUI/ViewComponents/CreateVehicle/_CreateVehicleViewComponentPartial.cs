@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OtoTamir.CORE.DTOs.Client;
 using OtoTamir.CORE.Entities;
 using OtoTamir.WEBUI.Models;
 
@@ -8,7 +9,7 @@ namespace OtoTamir.WEBUI.ViewComponents.CreateVehicle
     {
         public async Task<IViewComponentResult> InvokeAsync(int clientId) 
         {
-            var model = new Vehicle();
+            var model = new CreateVehicleDTO();
             model.ClientId = clientId;
             return View(model);
 

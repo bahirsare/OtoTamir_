@@ -1,4 +1,4 @@
-﻿@model Vehicle
+﻿@model CreateVehicleDTO
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-warning" role="alert">
@@ -19,6 +19,9 @@
                     <input asp-for="Plate" class="form-control" />
                     <span asp-validation-for="Plate" class="text-danger"></span>
                 </div>
+                @if(Model.ClientId==0){
+
+                }
                 <div class="mb-3">
                     <label asp-for="Brand" class="form-label"></label>
                     <input asp-for="Brand" class="form-control" />

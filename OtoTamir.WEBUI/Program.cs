@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.BLL.Concrete;
 using OtoTamir.CORE.Identity;
+using OtoTamir.CORE.Mapping;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Concrete.EfCore;
 using OtoTamir.DAL.Context;
@@ -19,7 +20,7 @@ namespace OtoTamir.WEBUI
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<DataContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Laptop")));
 
             builder.Services.AddIdentity<Mechanic, IdentityRole>()
                           .AddEntityFrameworkStores<DataContext>()
@@ -59,7 +60,7 @@ namespace OtoTamir.WEBUI
                     SameSite = SameSiteMode.Strict //Oturumu serverdan kullanýcý browserina taþýdýk.
                 };
             });
-
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             var app = builder.Build();
 

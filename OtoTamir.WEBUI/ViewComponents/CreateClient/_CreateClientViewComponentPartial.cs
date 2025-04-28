@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.DTOs.Client;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
@@ -14,11 +15,12 @@ namespace OtoTamir.WEBUI.ViewComponents.CreateClient
         public async Task<IViewComponentResult> InvokeAsync()
         {
 
-            var model = new CreateClientViewModel();
+            var model = new CreateClientDTO();
             
             return View(model);
 
         }
+
         
 
     }

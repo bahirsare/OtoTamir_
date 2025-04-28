@@ -1,6 +1,8 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.DTOs.Client;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
@@ -16,13 +18,15 @@ namespace OtotamirWEBUI.Controllers
         private readonly IMechanicService _mechanicService;
         private readonly UserManager<Mechanic> _userManager;
         private readonly IVehicleService _vehicleService;
+        private readonly IMapper _mapper;
 
-        public HomeController(IClientService clientService, IMechanicService mechanicService, UserManager<Mechanic> userManager, IVehicleService vehicleService)
+        public HomeController(IClientService clientService, IMechanicService mechanicService, UserManager<Mechanic> userManager, IVehicleService vehicleService, IMapper mapper)
         {
             _clientService = clientService;
             _mechanicService = mechanicService;
             _userManager = userManager;
             _vehicleService = vehicleService;
+            _mapper = mapper;
         }
 
 
@@ -41,7 +45,7 @@ namespace OtotamirWEBUI.Controllers
             return View(clients);
         }
         [HttpPost]
-        public IActionResult CreateClient(CreateClientViewModel model)
+        public IActionResult CreateClient(CreateClientDTO model)
         {
 
 
@@ -53,15 +57,8 @@ namespace OtotamirWEBUI.Controllers
             }
 
 
-            Client client = new Client()
-            {
-                Name = model.Name,
-                Balance = model.Balance,
-                PhoneNumber = model.PhoneNumber,//unique olmalý ilerde kontrol eklenecek
-                Notes = model.Notes,
-                MechanicId = _userManager.GetUserId(User)
-            };
-
+            Client client = _mapper.Map<Client>(model);
+            client.MechanicId = _userManager.GetUserId(User);
             var result = _clientService.Create(client);
             if (result == 1)
             {
@@ -78,7 +75,7 @@ namespace OtotamirWEBUI.Controllers
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
-        public IActionResult CreateVehicle(Vehicle vehicle)
+        public IActionResult CreateVehicle(CreateVehicleDTO model)
         {
             //Console.WriteLine("ClientId: " + newVehicle.ClientId); // DEBUG
             if (!ModelState.IsValid) // model içine veri gelmiyor?
@@ -87,7 +84,7 @@ namespace OtotamirWEBUI.Controllers
 
                 return RedirectToAction("Clients", "Home");
             }
-
+            Vehicle vehicle= _mapper.Map<Vehicle>(model);
             var result = _vehicleService.Create(vehicle);
             if (result == 1)
             {
@@ -104,22 +101,22 @@ namespace OtotamirWEBUI.Controllers
             var client = _clientService.GetOne(id);
             if (client == null)
             {
-                TempData["Message"] = "Tamirci bulunamadý.";
+                TempData["Message"] = "Müþteri bulunamadý.";
                 return RedirectToAction("Clients", "Home");
             }
             var result = _clientService.Delete(id);
             if (result > 0)
             {
-                TempData["Message"] = "Tamirci baþarýyla silindi.";
+                TempData["Message"] = "Müþteri baþarýyla silindi.";
             }
             else
             {
-                TempData["Message"] = "Bir hata oluþtu, tamirci silinemedi!";
+                TempData["Message"] = "Bir hata oluþtu, müþteri silinemedi!";
             }
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
-        public IActionResult UpdateClient(CreateClientViewModel model)
+        public IActionResult UpdateClient(CreateClientDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -129,12 +126,10 @@ namespace OtotamirWEBUI.Controllers
             var client = _clientService.GetOne(model.Id);
             if (client == null)
             {
-                TempData["Message"] = "Tamirci bulunamadý.";
+                TempData["Message"] = "Müþteri bulunamadý.";
                 return RedirectToAction("Clients", "Home");
             }
-            client.Name = model.Name;
-            client.PhoneNumber = model.PhoneNumber;
-            client.Notes = model.Notes;
+            client = _mapper.Map<Client>(model);
             var result = _clientService.Update();
             if (result > 0)
             {
