@@ -76,9 +76,10 @@ namespace OtotamirWEBUI.Controllers
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult CreateVehicle(CreateVehicleDTO model)
         {
-            //Console.WriteLine("ClientId: " + newVehicle.ClientId); // DEBUG
+            Console.WriteLine("ClientId: " + model.ClientId); // DEBUG
             if (!ModelState.IsValid) // model içine veri gelmiyor?
             {
                 TempData["Message"] = "Araç Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";

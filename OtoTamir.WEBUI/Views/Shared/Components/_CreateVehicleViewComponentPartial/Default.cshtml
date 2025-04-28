@@ -1,14 +1,15 @@
 ﻿@model CreateVehicleDTO
-@if (TempData["Message"] != null)
+@* @if (TempData["Message"] != null)
 {
     <div class="alert alert-warning" role="alert">
         @TempData["Message"]
     </div>
-}
+} *@
 
 <div class="modal-dialog">
     <div class="modal-content">
         <form asp-controller="Home" asp-action="CreateVehicle" method="post">
+            @Html.AntiForgeryToken()
             <div class="modal-header">
                 <h5 class="modal-title">Araç Ekle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -19,9 +20,7 @@
                     <input asp-for="Plate" class="form-control" />
                     <span asp-validation-for="Plate" class="text-danger"></span>
                 </div>
-                @if(Model.ClientId==0){
 
-                }
                 <div class="mb-3">
                     <label asp-for="Brand" class="form-label"></label>
                     <input asp-for="Brand" class="form-control" />
@@ -34,7 +33,7 @@
                 </div>
                 <div class="mb-3">
                     <label asp-for="Year" class="form-label"></label>
-                    <input asp-for="Year" class="form-control" />
+                    <input asp-for="Year" class="form-control" type="number" />
                     <span asp-validation-for="Year" class="text-danger"></span>
                 </div>
                  <input type="hidden" asp-for="ClientId" /> 

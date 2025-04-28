@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OtoTamir.CORE.DTOs.Vehicle;
+using OtoTamir.CORE.Entities;
 
 namespace OtoTamir.WEBUI.ViewComponents.CreateVehicle
 {
