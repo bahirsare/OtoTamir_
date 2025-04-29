@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Müşteri Listesi</h2>
         <!-- Buton -->
-        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClientModal">
+        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClientModal">
             <i class="bi bi-plus-circle"></i> Yeni Müşteri Ekle
         </a>
 
@@ -58,8 +58,7 @@
                             </div>
 
                         </td>
-                        <td>                           
-
+                        <td>
                             @if (item.Vehicles.Count > 0)
                             {
                                 foreach (var vehicle in item.Vehicles.Take(5).ToList())
@@ -74,21 +73,25 @@
                             }
                         </td>
                         <td>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal-@item.Id">
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createVehicleModal">
                                 Araç Ekle
                             </button>
+                            <div class="modal fade" id="createVehicleModal" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
+                                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial",item.Id)
+                            </div>
+                           
                         </td>
                     </tr>
-                    <div class="modal fade" id="addVehicleModal-@item.Id" tabindex="-1" aria-labelledby="addVehicleModalLabel-@item.Id" aria-hidden="true">
-                        @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", item.Id)
-                    </div>
+                    
+                   
                 }
             </tbody>
         </table>
     </div>
+    
 </div>
 
-<div class="modal fade" id="addClientModal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
+<div class="modal fade" id="createClientModal" tabindex="-1" aria-labelledby="createClientModalLabel" aria-hidden="true">
     @await Component.InvokeAsync("_CreateClientViewComponentPartial")
 </div>
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OtoTamir.CORE.DTOs.Client;
 using OtoTamir.CORE.Entities;
 
-namespace OtoTamir.WEBUI.ViewComponents.EditClient
+namespace OtoTamir.WEBUI.ViewComponents.Client.EditClient
 {
 
     public class _EditClientViewComponentPartial : ViewComponent
@@ -13,7 +13,7 @@ namespace OtoTamir.WEBUI.ViewComponents.EditClient
         {
             _mapper = mapper;
         }
-        public IViewComponentResult Invoke(Client model)
+        public IViewComponentResult Invoke(CORE.Entities.Client model)
         {
             var editClientDTO = _mapper.Map<EditClientDTO>(model);
 

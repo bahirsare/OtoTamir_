@@ -75,29 +75,7 @@ namespace OtotamirWEBUI.Controllers
 
             return RedirectToAction("Clients", "Home");
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult CreateVehicle(CreateVehicleDTO model)
-        {
-            Console.WriteLine("ClientId: " + model.ClientId); // DEBUG
-            if (!ModelState.IsValid) // model içine veri gelmiyor?
-            {
-                TempData["Message"] = "Araç Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
-
-                return RedirectToAction("Clients", "Home");
-            }
-            Vehicle vehicle= _mapper.Map<Vehicle>(model);
-            var result = _vehicleService.Create(vehicle);
-            if (result == 1)
-            {
-                TempData["Message"] = "Araç baþarýyla eklendi!";
-            }
-            else
-            {
-                TempData["Message"] = " Araç eklenemedi!";
-            }
-            return RedirectToAction("Clients", "Home");
-        }
+       
         public IActionResult DeleteClient(int id)
         {
             var client = _clientService.GetOne(id);
@@ -131,7 +109,7 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = "Müþteri bulunamadý.";
                 return RedirectToAction("Clients", "Home");
             }
-            _mapper.Map(model,client);
+            _mapper.Map(model, client);
             var result = _clientService.Update();
             if (result > 0)
             {
@@ -143,6 +121,34 @@ namespace OtotamirWEBUI.Controllers
             }
             return RedirectToAction("Clients", "Home");
 
+        }
+        [HttpPost]
+        public IActionResult CreateVehicle(CreateVehicleDTO model)
+        {
+            // DEBUG: Gelen verileri kontrol edelim
+                Console.WriteLine("ClientId: " + model.ClientId);
+            Console.WriteLine("Plate: " + model.Plate);
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Message"] = "Araç Eklenemedi. Lütfen bilgileri eksiksiz doldurun.";
+                return RedirectToAction("Clients", "Home");
+            }
+
+            var vehicle = _mapper.Map<Vehicle>(model);
+
+            var result = _vehicleService.Create(vehicle);
+
+            if (result > 0)
+            {
+                TempData["Message"] = "Araç baþarýyla eklendi.";
+            }
+            else
+            {
+                TempData["Message"] = "Araç eklenirken bir hata oluþtu.";
+            }
+
+            return RedirectToAction("Clients","Home");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

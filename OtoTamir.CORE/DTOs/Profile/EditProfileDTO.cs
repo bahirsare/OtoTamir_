@@ -1,8 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace OtoTamir.WEBUI.Models
+namespace OtoTamir.CORE.DTOs.Profile
 {
-    public class ProfileViewModel
+    public class EditProfileDTO
     {
         public string UserName { get; set; }
         public string StoreName { get; set; }
@@ -11,7 +16,7 @@ namespace OtoTamir.WEBUI.Models
         public string Email { get; set; }
         public string Adress { get; set; }
         public string? Image { get; set; }
-        public string Skills {  get; set; }
+        public string Skills { get; set; }
 
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
@@ -22,6 +27,5 @@ namespace OtoTamir.WEBUI.Models
         [DataType(DataType.Password)]
         [Compare("Password")]
         public string? rePassword { get; set; }
-
     }
 }

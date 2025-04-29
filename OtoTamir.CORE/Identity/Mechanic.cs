@@ -16,7 +16,8 @@ namespace OtoTamir.CORE.Identity
         public string? Skills { get; set; }
         public bool Status { get; set; }
         public string? Adress { get; set; }
-        public string? Image {  get; set; }
+        public Image Image {  get; set; }
+        public int ImageId {  get; set; }
 
 
         public bool IsProfileCompleted { get; set; }
