@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Context;
@@ -41,6 +42,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now,
                 IsProfileCompleted = false,
+                
             };
 
             var result = await _userManager.CreateAsync(mechanic, password);

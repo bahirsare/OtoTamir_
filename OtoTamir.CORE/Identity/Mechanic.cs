@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using OtoTamir.CORE.Entities;
 
 namespace OtoTamir.CORE.Identity
@@ -18,15 +19,17 @@ namespace OtoTamir.CORE.Identity
         public string? Adress { get; set; }
         public Image Image {  get; set; }
         public int ImageId {  get; set; }
-
-
         public bool IsProfileCompleted { get; set; }
-
         public DateTime CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public List<Client> Clients { get; set; }
-        
+
+        public Mechanic()
+        {
+            
+        }
+
 
     }
 }

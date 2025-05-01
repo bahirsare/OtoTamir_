@@ -112,7 +112,7 @@ namespace OtotamirWEBUI.Controllers
                     {
                         foreach (IFormFile item in files)
                         {
-                            model.Image.Add(new Image() { Url = await ImageOperations.UploadImageAsync(item) });
+                            model.Image= await ImageOperations.UploadImageAsync(item);
                         }
                     }
                 }
