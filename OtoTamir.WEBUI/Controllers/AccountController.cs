@@ -7,6 +7,7 @@ using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
 using OtoTamir.WEBUI.Services;
+using System.Drawing;
 
 namespace OtotamirWEBUI.Controllers
 {
@@ -35,8 +36,9 @@ namespace OtotamirWEBUI.Controllers
             {
                 var user = await _userManager.FindByNameAsync(model.UserName);
 
-                if (user != null )
-                {  if (user.Status == true)
+                if (user != null)
+                {
+                    if (user.Status == true)
                     {
                         var result = await _signInManager.PasswordSignInAsync(user, model.Password, true, true);
 
@@ -78,13 +80,14 @@ namespace OtotamirWEBUI.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             EditProfileDTO model = new EditProfileDTO();
+           
             _mapper.Map(user, model);
 
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Profile(EditProfileDTO model, IFormFile[] files)
-                
+        public async Task<IActionResult> Profile(EditProfileDTO model, IFormFile? file)
+
         {
 
             string successMessage = "";
@@ -92,6 +95,7 @@ namespace OtotamirWEBUI.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
+                var mechanic=_mechanicService.GetOne(user.Id);
                 
 
                 if (!string.IsNullOrEmpty(model.Password))
@@ -102,22 +106,21 @@ namespace OtotamirWEBUI.Controllers
                     {
                         foreach (var error in result.Errors)
                             ModelState.AddModelError("", error.Description);
-
                     }
                     else
                     {
                         successMessage += "Şifre güncelleme başarılı! ";
                     }
-                    if (files != null)
-                    {
-                        foreach (IFormFile item in files)
-                        {
-                            model.Image= await ImageOperations.UploadImageAsync(item);
-                        }
-                    }
+                   
                 }
-                _mapper.Map(model, user);
+                
+                _mapper.Map(model, mechanic);
+                if (file != null)
+                {
+                    OtoTamir.CORE.Entities.Image i = new OtoTamir.CORE.Entities.Image() { Url = await ImageOperations.UploadImageAsync(file) };
+                    mechanic.Image = i;
 
+                }
                 var update = _mechanicService.Update();
                 if (update == 1)
                 {
@@ -127,14 +130,20 @@ namespace OtotamirWEBUI.Controllers
                 {
                     failMessage += "Profil güncelleme başarısız!";
                 }
-                if (!string.IsNullOrEmpty(successMessage))
-                {
-                    TempData["SuccessMessage"] = successMessage;
-                }
-                if (!string.IsNullOrEmpty(failMessage))
-                {
-                    TempData["FailMessage"] = failMessage;
-                }
+               
+                
+            }
+            else
+            {
+                failMessage = "Formu tamamen doldurunuz.";
+            }
+            if (!string.IsNullOrEmpty(successMessage))
+            {
+                TempData["SuccessMessage"] = successMessage;
+            }
+            if (!string.IsNullOrEmpty(failMessage))
+            {
+                TempData["FailMessage"] = failMessage;
             }
             return View(model);
         }

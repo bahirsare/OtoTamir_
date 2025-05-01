@@ -207,13 +207,16 @@ namespace OtoTamir.DAL.Migrations
 
                     b.Property<string>("MechanicID")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MechanicID")
+                        .IsUnique();
 
                     b.ToTable("Images");
                 });
@@ -357,9 +360,6 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ImageId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsProfileCompleted")
                         .HasColumnType("bit");
 
@@ -410,9 +410,6 @@ namespace OtoTamir.DAL.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ImageId")
-                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -487,6 +484,17 @@ namespace OtoTamir.DAL.Migrations
                     b.Navigation("Mechanic");
                 });
 
+            modelBuilder.Entity("OtoTamir.CORE.Entities.Image", b =>
+                {
+                    b.HasOne("OtoTamir.CORE.Identity.Mechanic", "Mechanic")
+                        .WithOne("Image")
+                        .HasForeignKey("OtoTamir.CORE.Entities.Image", "MechanicID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mechanic");
+                });
+
             modelBuilder.Entity("OtoTamir.CORE.Entities.ServiceRecord", b =>
                 {
                     b.HasOne("OtoTamir.CORE.Entities.Vehicle", "Vehicle")
@@ -520,26 +528,9 @@ namespace OtoTamir.DAL.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("OtoTamir.CORE.Identity.Mechanic", b =>
-                {
-                    b.HasOne("OtoTamir.CORE.Entities.Image", "Image")
-                        .WithOne("Mechanic")
-                        .HasForeignKey("OtoTamir.CORE.Identity.Mechanic", "ImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Image");
-                });
-
             modelBuilder.Entity("OtoTamir.CORE.Entities.Client", b =>
                 {
                     b.Navigation("Vehicles");
-                });
-
-            modelBuilder.Entity("OtoTamir.CORE.Entities.Image", b =>
-                {
-                    b.Navigation("Mechanic")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.Vehicle", b =>
@@ -552,6 +543,9 @@ namespace OtoTamir.DAL.Migrations
             modelBuilder.Entity("OtoTamir.CORE.Identity.Mechanic", b =>
                 {
                     b.Navigation("Clients");
+
+                    b.Navigation("Image")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

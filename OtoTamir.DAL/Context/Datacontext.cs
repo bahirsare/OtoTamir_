@@ -23,10 +23,10 @@ namespace OtoTamir.DAL.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Mechanic>()
-          .HasOne(m => m.Image)
-          .WithOne(i => i.Mechanic)
-          .HasForeignKey<Mechanic>(m => m.ImageId);
+          //  modelBuilder.Entity<Mechanic>()
+          //.HasOne(m => m.Image)
+          //.WithOne(i => i.Mechanic)
+          //.HasForeignKey<Mechanic>(m => m.ImageId);
           
 
 

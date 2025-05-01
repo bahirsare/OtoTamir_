@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
@@ -19,7 +20,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
         }
         public Mechanic GetOne(string id)
         {
-            return _context.Set<Mechanic>().Find(id);
+            return _context.Mechanics.Include(m => m.Image).FirstOrDefault(m => m.Id == id);
         }
         public int Delete(string id)
         {
@@ -42,7 +43,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now,
                 IsProfileCompleted = false,
-                
+                Image = new Image
+                {
+                    Url = "avatar.png",
+                    
+                }
+
             };
 
             var result = await _userManager.CreateAsync(mechanic, password);
@@ -63,6 +69,8 @@ namespace OtoTamir.DAL.Concrete.EfCore
             var errors = result.Errors.Select(e => e.Description).ToList();
             return (false, password, errors);
         }
+        
+        
 
         private string GenerateRandomPassword(int length = 6)
         {

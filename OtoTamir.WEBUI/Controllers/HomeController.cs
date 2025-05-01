@@ -96,7 +96,7 @@ namespace OtotamirWEBUI.Controllers
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
-        public IActionResult UpdateClient(EditClientDTO model)
+        public IActionResult UpdateClient(EditClientDTO model,IFormFile image)
         {
             if (!ModelState.IsValid)
             {
@@ -123,7 +123,7 @@ namespace OtotamirWEBUI.Controllers
 
         }
         [HttpPost]
-        public IActionResult CreateVehicle(CreateVehicleDTO model)
+        public IActionResult CreateVehicle(CreateVehicleDTO model)// MODELE VERÝ GELMÝYOR
         {
             // DEBUG: Gelen verileri kontrol edelim
                 Console.WriteLine("ClientId: " + model.ClientId);

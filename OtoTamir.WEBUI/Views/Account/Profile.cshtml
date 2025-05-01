@@ -62,9 +62,10 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Image" class="form-label">Profil Resmi</label>
-                    <input asp-for="Image" type="file" class="form-control" />
-                    <span asp-validation-for="Image" class="text-danger"></span>
+                    <label  class="form-label">Profil Resmi</label>
+                    
+                    @* <span asp-validation-for="Image" class="text-danger"></span> *@
+                    <input type="file" class="form-control" name="file">
                 </div>
 
                 <div class="mb-3">
