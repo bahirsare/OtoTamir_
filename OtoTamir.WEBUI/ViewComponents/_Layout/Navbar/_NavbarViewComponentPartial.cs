@@ -20,15 +20,16 @@ namespace OtoTamir.WEBUI.ViewComponents._Layout.Navbar
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
+            if (user == null) { return View(); }
             var mechanic = _mechanicService.GetOne(user.Id);
-            if (mechanic.Image == null)
-            {
-                Image i =new Image()
-                {
-                    Url = "avatar.png"
-                };
-                mechanic.Image = i;
-            }
+            //if (mechanic.Image == null)
+            //{
+            //    Image i =new Image()
+            //    {
+            //        Url = "avatar.png"
+            //    };
+            //    mechanic.Image = i;
+            //}
 
             return View(mechanic);
         }

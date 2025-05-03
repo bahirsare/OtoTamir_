@@ -3,11 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.Profile;
-using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
 using OtoTamir.WEBUI.Services;
-using System.Drawing;
 
 namespace OtotamirWEBUI.Controllers
 {
@@ -80,47 +78,32 @@ namespace OtotamirWEBUI.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             EditProfileDTO model = new EditProfileDTO();
-           
+
             _mapper.Map(user, model);
 
             return View(model);
         }
         [HttpPost]
         public async Task<IActionResult> Profile(EditProfileDTO model, IFormFile? file)
-
         {
-
             string successMessage = "";
             string failMessage = "";
+            ModelState.Remove("ImageUrl");
+            ModelState.Remove("file");
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
-                var mechanic=_mechanicService.GetOne(user.Id);
-                
+                var mechanic = _mechanicService.GetOne(user.Id);
 
-                if (!string.IsNullOrEmpty(model.Password))
-                {
-                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
-                    if (!result.Succeeded)
-                    {
-                        foreach (var error in result.Errors)
-                            ModelState.AddModelError("", error.Description);
-                    }
-                    else
-                    {
-                        successMessage += "Şifre güncelleme başarılı! ";
-                    }
-                   
-                }
-                
-                _mapper.Map(model, mechanic);
                 if (file != null)
                 {
-                    OtoTamir.CORE.Entities.Image i = new OtoTamir.CORE.Entities.Image() { Url = await ImageOperations.UploadImageAsync(file) };
-                    mechanic.Image = i;
-
+                    model.ImageUrl = await ImageOperations.UploadImageAsync(file);
                 }
+                else
+                {
+                    model.ImageUrl = mechanic.ImageUrl;
+                }
+                _mapper.Map(model, mechanic);
                 var update = _mechanicService.Update();
                 if (update == 1)
                 {
@@ -130,8 +113,8 @@ namespace OtotamirWEBUI.Controllers
                 {
                     failMessage += "Profil güncelleme başarısız!";
                 }
-               
-                
+
+
             }
             else
             {
@@ -146,6 +129,33 @@ namespace OtotamirWEBUI.Controllers
                 TempData["FailMessage"] = failMessage;
             }
             return View(model);
+        }
+        public async Task<IActionResult> ChangePassword()
+        {
+
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(EditProfileDTO model)
+        {
+            string successMessage = "";
+            var user = await _userManager.GetUserAsync(User);
+            var mechanic = _mechanicService.GetOne(user.Id);
+            if (!string.IsNullOrEmpty(model.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                        ModelState.AddModelError("", error.Description);
+                }
+                else
+                {
+                    successMessage += "Şifre güncelleme başarılı! ";
+                }
+            }
+            return RedirectToAction("Profile", "Account");
         }
     }
 }

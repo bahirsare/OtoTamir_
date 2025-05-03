@@ -20,7 +20,8 @@ namespace OtoTamir.DAL.Concrete.EfCore
         }
         public Mechanic GetOne(string id)
         {
-            return _context.Mechanics.Include(m => m.Image).FirstOrDefault(m => m.Id == id);
+            return _context.Mechanics.FirstOrDefault(m => m.Id == id);
+            //return _context.Mechanics.Include(m => m.Image).FirstOrDefault(m => m.Id == id);
         }
         public int Delete(string id)
         {
@@ -43,11 +44,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now,
                 IsProfileCompleted = false,
-                Image = new Image
-                {
-                    Url = "avatar.png",
+                ImageUrl="avatar.png"
+                //Image = new Image
+                //{
+                //    Url = "avatar.png",
                     
-                }
+                //}
 
             };
 

@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="StoreName" class="form-label">İşletme Adı</label>
+                    <label asp-for="StoreName" class="form-label"></label>
                     <input asp-for="StoreName" class="form-control" />
                     <span asp-validation-for="StoreName" class="text-danger"></span>
                 </div>
@@ -41,13 +41,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="PhoneNumber" class="form-label">Telefon Numarası</label>
+                    <label asp-for="PhoneNumber" class="form-label"></label>
                     <input asp-for="PhoneNumber" class="form-control" />
                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Adress" class="form-label">Adres</label>
+                    <label asp-for="Adress" class="form-label"></label>
                     <input asp-for="Adress" class="form-control" />
                     <span asp-validation-for="Adress" class="text-danger"></span>
                 </div>
@@ -56,7 +56,7 @@
             <!-- Sağ taraf: görsel, yetenekler ve şifre -->
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="Skills" class="form-label">Uzmanlık Alanı</label>
+                    <label asp-for="Skills" class="form-label"></label>
                     <input asp-for="Skills" class="form-control" />
                     <span asp-validation-for="Skills" class="text-danger"></span>
                 </div>
@@ -68,23 +68,37 @@
                     <input type="file" class="form-control" name="file">
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label">Şifre</label>
-                    <input asp-for="Password" class="form-control" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="rePassword" class="form-label">Şifre Tekrarı</label>
-                    <input asp-for="rePassword" class="form-control" />
-                    <span asp-validation-for="rePassword" class="text-danger"></span>
-                </div>
+               
             </div>
         </div>
-
+       
         <div class="text-end">
             <button type="submit" class="btn btn-primary">Bilgileri Güncelle</button>
         </div>
+    </form>
+    <form asp-action ="ChangePassword" asp-controller="Account" method="post">
+        <div class="row">
+            <!-- Sol taraf: genel bilgiler -->
+            <div class="col-md-3">
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div> <div class="mb-3">
+            <label asp-for="NewPassword" class="form-label"></label>
+            <input asp-for="NewPassword" class="form-control" />
+            <span asp-validation-for="NewPassword" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ReNewPassword" class="form-label"></label>
+            <input asp-for="ReNewPassword" class="form-control" />
+            <span asp-validation-for="ReNewPassword" class="text-danger"></span>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary">Şifre Güncelle</button>
+        </div></div></div>
     </form>
 </div>
 

@@ -11,7 +11,7 @@ namespace OtoTamir.CORE.Entities
     {
         public int Id { get; set; }
         public string Url { get; set; }
-        public string MechanicID { get; set; }
-        public Mechanic Mechanic { get; set; }
+        //public string MechanicID { get; set; }
+        //public Mechanic Mechanic { get; set; }
     }
 }
