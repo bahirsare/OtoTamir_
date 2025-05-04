@@ -6,10 +6,10 @@
 
 <div class="container mt-5">
     <h2 class="mb-4">Profil Bilgilerim</h2>
-    @if (TempData["SuccessMessage"] != null)
+    @if (TempData["Message"] != null)
     {
         <div class="alert alert-success">
-            @TempData["SuccessMessage"]
+            @TempData["Message"]
         </div>
     }
     @if (TempData["FailMessage"] != null)
@@ -19,6 +19,7 @@
         </div>
     }
     <form asp-action="Profile" asp-controller="Account" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
             <!-- Sol taraf: genel bilgiler -->
             <div class="col-md-6">
@@ -77,6 +78,8 @@
         </div>
     </form>
     <form asp-action ="ChangePassword" asp-controller="Account" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
         <div class="row">
             <!-- Sol taraf: genel bilgiler -->
             <div class="col-md-3">

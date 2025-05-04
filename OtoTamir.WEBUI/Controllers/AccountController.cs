@@ -111,15 +111,13 @@ namespace OtotamirWEBUI.Controllers
                 }
                 else
                 {
-                    failMessage += "Profil güncelleme başarısız!";
+                    ModelState.AddModelError(string.Empty, "Profil güncelleme başarısız.");
                 }
-
-
             }
-            else
-            {
-                failMessage = "Formu tamamen doldurunuz.";
-            }
+            //else
+            //{
+            //    failMessage = "Formu tamamen doldurunuz.";
+            //}
             if (!string.IsNullOrEmpty(successMessage))
             {
                 TempData["SuccessMessage"] = successMessage;
@@ -138,24 +136,41 @@ namespace OtotamirWEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword(EditProfileDTO model)
         {
-            string successMessage = "";
-            var user = await _userManager.GetUserAsync(User);
-            var mechanic = _mechanicService.GetOne(user.Id);
-            if (!string.IsNullOrEmpty(model.Password))
+            if (string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.NewPassword) || string.IsNullOrEmpty(model.ReNewPassword))
             {
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                        ModelState.AddModelError("", error.Description);
-                }
-                else
-                {
-                    successMessage += "Şifre güncelleme başarılı! ";
-                }
+                ModelState.AddModelError(string.Empty, "Lütfen tüm şifre alanlarını doldurunuz.");
+                return View("Profile", model);
             }
+
+            if (model.NewPassword != model.ReNewPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Yeni şifreler uyuşmuyor.");
+                return View("Profile", model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Account");
+
+            var isOldPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.Password);
+            if (!isOldPasswordCorrect)
+            {
+                ModelState.AddModelError(string.Empty, "Mevcut şifre hatalı.");
+                return View("Profile", model);
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return View("Profile", model);
+            }
+
+            TempData["Message"] = "Şifre güncelleme başarılı!";
             return RedirectToAction("Profile", "Account");
         }
+
     }
 }
