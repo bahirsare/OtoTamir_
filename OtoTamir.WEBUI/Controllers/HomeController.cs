@@ -56,26 +56,38 @@ namespace OtotamirWEBUI.Controllers
 
                 return RedirectToAction("Clients", "Home");
             }
+            var currentMechanicId = _userManager.GetUserId(User);
+
+            bool mustBeUnique = !_clientService
+    .GetAll(i => i.PhoneNumber == model.PhoneNumber && i.MechanicId == currentMechanicId)
+    .Any();
 
 
-            Client client = _mapper.Map<Client>(model);
-            client.MechanicId = _userManager.GetUserId(User);
-            var result = _clientService.Create(client);
-            if (result == 1)
+            if (mustBeUnique )
             {
 
-                TempData["Message"] = "Müþteri Eklendi!";
+                Client client = _mapper.Map<Client>(model);
+                client.MechanicId = _userManager.GetUserId(User);
+                var result = _clientService.Create(client);
+                if (result == 1)
+                {
+
+                    TempData["Message"] = "Müþteri Eklendi!";
+                }
+                else
+                {
+                    TempData["Message"] = "Müþteri Eklenemedi.";
+
+
+                }
+                return RedirectToAction("Clients", "Home");
             }
             else
             {
-                TempData["Message"] = "Müþteri Eklenemedi.";
-
-
+                return View();
             }
-
-            return RedirectToAction("Clients", "Home");
         }
-       
+
         public IActionResult DeleteClient(int id)
         {
             var client = _clientService.GetOne(id);
@@ -96,7 +108,7 @@ namespace OtotamirWEBUI.Controllers
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
-        public IActionResult UpdateClient(EditClientDTO model,IFormFile image)
+        public IActionResult UpdateClient(EditClientDTO model, IFormFile image)
         {
             if (!ModelState.IsValid)
             {
@@ -126,7 +138,7 @@ namespace OtotamirWEBUI.Controllers
         public IActionResult CreateVehicle(CreateVehicleDTO model)// MODELE VERÝ GELMÝYOR
         {
             // DEBUG: Gelen verileri kontrol edelim
-                Console.WriteLine("ClientId: " + model.ClientId);
+            Console.WriteLine("ClientId: " + model.ClientId);
             Console.WriteLine("Plate: " + model.Plate);
 
             if (!ModelState.IsValid)
@@ -148,7 +160,7 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = "Araç eklenirken bir hata oluþtu.";
             }
 
-            return RedirectToAction("Clients","Home");
+            return RedirectToAction("Clients", "Home");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
