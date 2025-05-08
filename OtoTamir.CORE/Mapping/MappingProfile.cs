@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using OtoTamir.CORE.DTOs.Client;
-using OtoTamir.CORE.DTOs.Profile;
-using OtoTamir.CORE.DTOs.Vehicle;
+using OtoTamir.CORE.DTOs.ClientDTOs;
+using OtoTamir.CORE.DTOs.MechanicDTOs;
+using OtoTamir.CORE.DTOs.VehicleDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using System;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OtoTamir.CORE.DTOs.Vehicle
+namespace OtoTamir.CORE.DTOs.VehicleDTOs
 {
     public class CreateVehicleDTO
     {

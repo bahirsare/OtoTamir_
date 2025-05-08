@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OtoTamir.CORE.DTOs.Profile
+namespace OtoTamir.CORE.DTOs.MechanicDTOs
 {
     public class EditProfileDTO
     {
@@ -29,17 +29,6 @@ namespace OtoTamir.CORE.DTOs.Profile
         public string PhoneNumber { get; set; }
         public string ImageUrl { get; set; }
 
-        [DisplayName("Şifre")]
-        [DataType(DataType.Password)]
-        public string? Password { get; set; }
-
-        [DisplayName("Yeni Şifre")]
-        [DataType(DataType.Password)]
-        public string? NewPassword { get; set; }
-
-        [DisplayName("Yeni Şifre Tekrarı")]
-        [DataType(DataType.Password)]
-        [Compare("Password")]
-        public string? ReNewPassword { get; set; }
+       
     }
 }

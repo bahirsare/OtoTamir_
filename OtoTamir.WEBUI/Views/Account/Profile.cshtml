@@ -77,32 +77,7 @@
             <button type="submit" class="btn btn-primary">Bilgileri Güncelle</button>
         </div>
     </form>
-    <form asp-action ="ChangePassword" asp-controller="Account" method="post">
-        <div asp-validation-summary="All" class="text-danger"></div>
-
-        <div class="row">
-            <!-- Sol taraf: genel bilgiler -->
-            <div class="col-md-3">
-        <div class="mb-3">
-            <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div> <div class="mb-3">
-            <label asp-for="NewPassword" class="form-label"></label>
-            <input asp-for="NewPassword" class="form-control" />
-            <span asp-validation-for="NewPassword" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="ReNewPassword" class="form-label"></label>
-            <input asp-for="ReNewPassword" class="form-control" />
-            <span asp-validation-for="ReNewPassword" class="text-danger"></span>
-        </div>
-
-        <div class="text-end">
-            <button type="submit" class="btn btn-primary">Şifre Güncelle</button>
-        </div></div></div>
-    </form>
+    @await Component.InvokeAsync("_ChangePasswordViewComponentPartial")
 </div>
 
 @section Scripts {

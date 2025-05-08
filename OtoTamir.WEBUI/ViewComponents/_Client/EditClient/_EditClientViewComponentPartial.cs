@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using OtoTamir.CORE.DTOs.Client;
+using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
 
-namespace OtoTamir.WEBUI.ViewComponents.Client.EditClient
+namespace OtoTamir.WEBUI.ViewComponents._Client.EditClient
 {
 
     public class _EditClientViewComponentPartial : ViewComponent

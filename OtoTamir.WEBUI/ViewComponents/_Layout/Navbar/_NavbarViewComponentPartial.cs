@@ -20,8 +20,8 @@ namespace OtoTamir.WEBUI.ViewComponents._Layout.Navbar
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            if (user == null) { return View(); }
-            var mechanic = _mechanicService.GetOne(user.Id);
+            if (user == null) { return View(user); }
+            
             //if (mechanic.Image == null)
             //{
             //    Image i =new Image()
@@ -31,7 +31,7 @@ namespace OtoTamir.WEBUI.ViewComponents._Layout.Navbar
             //    mechanic.Image = i;
             //}
 
-            return View(mechanic);
+            return View(user);
         }
     }
 }
