@@ -53,7 +53,7 @@ namespace OtotamirWEBUI.Controllers
                         TempData["Message"] = ("Giriş Bilgilerinizi Kontrol Ediniz");
                     }
 
-                    else if (user.Status == false)
+                    else
                     {
                         TempData["Message"] = "Üyeliğiniz askıya alınmıştır. Lütfen yetkili ile iletişime geçiniz.";
                     }
@@ -105,6 +105,7 @@ namespace OtotamirWEBUI.Controllers
                     model.ImageUrl = mechanic.ImageUrl;
                 }
                 _mapper.Map(model, mechanic);
+                mechanic.IsProfileCompleted = true;
                 var update = _mechanicService.Update();
                 if (update == 1)
                 {
@@ -133,6 +134,7 @@ namespace OtotamirWEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO model)
         {
+            
             if (ModelState.IsValid)
             {
                
@@ -144,7 +146,7 @@ namespace OtotamirWEBUI.Controllers
                 var isOldPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.Password);
                 if (!isOldPasswordCorrect)
                 {
-                    ModelState.AddModelError(string.Empty, "Mevcut şifre hatalı.");
+                    TempData["FailMessage"] ="Mevcut şifre hatalı.";
                     return View("Profile", model);
                 }
 
@@ -152,17 +154,18 @@ namespace OtotamirWEBUI.Controllers
                 var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
                 if (!result.Succeeded)
                 {
-                    foreach (var error in result.Errors)
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    return View("Profile", model);
+                    TempData["FailMessage"] = "Şifre Güncellenemedi!";
+                    return RedirectToAction("Profile", "Account");
                 }
 
-                TempData["Message"] = "Şifre güncelleme başarılı!";
+                TempData["SuccessMessage"] = "Şifre güncelleme başarılı!";
                 return RedirectToAction("Profile", "Account");
             }
 
             else
             {
+                TempData["FailMessage"] ="Lütfen şifre alanını eksiksiz doldurunuz.";
+
                 return RedirectToAction("Profile", "Account");
             }
         }

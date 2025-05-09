@@ -6,16 +6,22 @@
 
 <div class="container mt-5">
     <h2 class="mb-4">Profil Bilgilerim</h2>
-    @if (TempData["Message"] != null)
+    @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success">
-            @TempData["Message"]
+            @TempData["SuccessMessage"]
         </div>
     }
     @if (TempData["FailMessage"] != null)
     {
         <div class="alert alert-danger">
             @TempData["FailMessage"]
+        </div>
+    }
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info">
+            @TempData["Message"]
         </div>
     }
     <form asp-action="Profile" asp-controller="Account" method="post" enctype="multipart/form-data">

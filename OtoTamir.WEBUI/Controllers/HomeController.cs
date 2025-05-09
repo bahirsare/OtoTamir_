@@ -84,7 +84,8 @@ namespace OtotamirWEBUI.Controllers
             }
             else
             {
-                return View();
+                TempData["FailMessage"] = "Ayný telefon numarasýna sahip müþteri var!";
+                return RedirectToAction("Clients", "Home"); ;
             }
         }
 
@@ -93,7 +94,7 @@ namespace OtotamirWEBUI.Controllers
             var client = _clientService.GetOne(id);
             if (client == null)
             {
-                TempData["Message"] = "Müþteri bulunamadý.";
+                TempData["FailMessage"] = "Müþteri bulunamadý.";
                 return RedirectToAction("Clients", "Home");
             }
             var result = _clientService.Delete(id);
@@ -137,9 +138,7 @@ namespace OtotamirWEBUI.Controllers
         [HttpPost]
         public IActionResult CreateVehicle(CreateVehicleDTO model)// MODELE VERÝ GELMÝYOR
         {
-            // DEBUG: Gelen verileri kontrol edelim
-            Console.WriteLine("ClientId: " + model.ClientId);
-            Console.WriteLine("Plate: " + model.Plate);
+            
 
             if (!ModelState.IsValid)
             {

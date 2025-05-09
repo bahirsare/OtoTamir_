@@ -13,6 +13,10 @@ namespace OtoTamir.WEBUI.Controllers
 
         public IActionResult Index()
         {
+            return View();
+        }
+        public IActionResult Mechanic()
+        {
             var mechanics = _mechanicService.GetAll();
             return View(mechanics);
         }
@@ -22,18 +26,18 @@ namespace OtoTamir.WEBUI.Controllers
             if (string.IsNullOrEmpty(storeName))
             {
                 TempData["ErrorMessage"] = "Geçerli bir kullanıcı adı giriniz.";
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction("Mechanic", "Admin");
             }
 
             var result = await _mechanicService.CreateMechanicAsync(storeName);
             if (result.Success)
             {
                 TempData["SuccessMessage"] = $"Tamirci başarıyla oluşturuldu. Şifresi: {result.Password}";
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction("Mechanic", "Admin");
             }
 
             TempData["ErrorMessage"] = "Tamirci oluşturulurken bir hata oluştu. " + string.Join(", ", result.Errors);
-            return RedirectToAction("Index", "Admin");
+            return RedirectToAction("Mechanic", "Admin");
         }
         [HttpPost]
         public IActionResult EditStatus(string id)
@@ -42,14 +46,14 @@ namespace OtoTamir.WEBUI.Controllers
             if (mechanic == null)
             {
                 TempData["ErrorMessage"] = "Tamirci bulunamadı.";
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction("Mechanic", "Admin");
             }
 
             mechanic.Status = (!mechanic.Status);
-            var result = _mechanicService.Update(); 
+            var result = _mechanicService.Update();
 
             if (result > 0)
-            {                
+            {
                 TempData["SuccessMessage"] = "Durum başarıyla güncellendi.";
             }
             else
@@ -57,7 +61,7 @@ namespace OtoTamir.WEBUI.Controllers
                 TempData["ErrorMessage"] = "Bir hata oluştu, durumu güncelleyemedik.";
             }
 
-            return RedirectToAction("Index", "Admin");
+            return RedirectToAction("Mechanic", "Admin");
         }
 
         public IActionResult Delete(string id)
@@ -66,7 +70,7 @@ namespace OtoTamir.WEBUI.Controllers
             if (mechanic == null)
             {
                 TempData["ErrorMessage"] = "Tamirci bulunamadı.";
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction("Mechanic", "Admin");
             }
             var result = _mechanicService.Delete(id);
             if (result > 0)
@@ -77,7 +81,7 @@ namespace OtoTamir.WEBUI.Controllers
             {
                 TempData["ErrorMessage"] = "Bir hata oluştu, tamirci silinemedi!";
             }
-            return RedirectToAction("Index", "Admin");
+            return RedirectToAction("Mechanic", "Admin");
         }
     }
 }

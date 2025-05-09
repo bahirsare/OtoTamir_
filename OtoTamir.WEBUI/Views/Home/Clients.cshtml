@@ -13,9 +13,21 @@
         </a>
 
     </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["FailMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["FailMessage"]
+        </div>
+    }
     @if (TempData["Message"] != null)
     {
-        <div class="alert alert-warning" role="alert">
+        <div class="alert alert-info">
             @TempData["Message"]
         </div>
     }

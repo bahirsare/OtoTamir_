@@ -22,6 +22,6 @@ namespace OtoTamir.CORE.DTOs.VehicleDTOs
         public int Year { get; set; }
 
         [Required]
-        public int ClientId { get; set; } // Bu değer modal açıldığında dışarıdan verilecek
+        public int ClientId { get; set; } 
     }
 }

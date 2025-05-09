@@ -43,8 +43,8 @@
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
     <!--begin::App Wrapper-->
     <div class="app-wrapper">
-        <!--begin::Header--> 
-         @await Component.InvokeAsync("_NavbarViewComponentPartial")   
+        <!--begin::Header-->
+        @await Component.InvokeAsync("_NavbarViewComponentPartial")
         <!--end::Header-->
         <!--begin::Sidebar-->
         <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
@@ -53,7 +53,7 @@
                 <!--begin::Brand Link-->
                 <a href="/Home/Index" class="brand-link">
                     <!--begin::Brand Image-->
-                    <img  src="~/assets/img/AdminLTELogo.png"
+                    <img src="~/assets/img/AdminLTELogo.png"
                          alt="OtoTamir"
                          class="brand-image opacity-75 shadow" />
                     <!--end::Brand Image-->
@@ -94,53 +94,54 @@
                                         <p>Admin</p>
                                     </a>
                                 </li>
-                                </ul>
+                            </ul>
                         </li>
-                        
+
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-clipboard-fill"></i>
+                            <a href="/home/index" class="nav-link">
+                                <i class="nav-icon bi bi-house-door-fill"></i>
                                 <p>
-                                    Devam Eden İşlemler                                   
-                                </p>
-                            </a>                            
-                        </li>
-                        <li class="nav-item ">
-                            <a href="/Home/Clients" class="nav-link active">
-                                <i class="nav-icon bi bi-person-fill"></i>
-                                <p>
-                                    Müşteriler
-                                    <span class="nav-badge badge text-bg-secondary me-3">!</span>
-                                    
+                                    Anasayfa
                                 </p>
                             </a>
-                           
+                        </li>
+                        <li class="nav-item ">
+                            <a href="/Admin/Mechanic" class="nav-link">
+                                <i class="nav-icon bi bi-person-fill"></i>
+                                <p>
+                                    Tamirciler
+                                    <span class="nav-badge badge text-bg-secondary me-3">!</span>
+
+                                </p>
+                            </a>
+
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon bi bi-tools"></i>
                                 <p>
-                                    Yedek Parça                                   
+                                    Yedek Parça
                                 </p>
                             </a>
-                            
-                        </li>                       
-                        
+
+                        </li>
+
                         <li class="nav-header">FİYATLANDIRMA</li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon bi bi-tags-fill"></i>
                                 <p>
-                                    Fiyat Hesaplama                                    
+                                    Fiyat Hesaplama
                                 </p>
-                            </a>  
-                        </li><li class="nav-item">
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon bi bi-pencil-square"></i>
                                 <p>
-                                    Fiyat Listesi Güncelle                                   
+                                    Fiyat Listesi Güncelle
                                 </p>
-                            </a>  
+                            </a>
                         </li>
                         <li class="nav-header">ARAÇLAR</li>
                         <li class="nav-item">
@@ -155,15 +156,15 @@
                                 <p>Modeller</p>
                             </a>
                         </li>
-                        
+
                         <li class="nav-header">ARŞİV</li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon bi bi-file-earmark"></i>
                                 <p>İşlem Geçmişi</p>
                             </a>
-                        </li> 
-                        
+                        </li>
+
                     </ul>
                     <!--end::Sidebar Menu-->
                 </nav>
