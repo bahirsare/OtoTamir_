@@ -14,6 +14,7 @@ namespace OtoTamir.DAL.Abstract
         public Mechanic GetOne(string id);
         Task<(bool Success, string Password, List<string> Errors)> CreateMechanicAsync(string storeName);
         public int Delete(string id);
+        string GenerateRandomPassword();
 
     }
 }

@@ -9,11 +9,13 @@
         <a href="/home/Index"><b>Oto</b>Tamir</a>
     </div>
     <!-- /.login-logo -->
-        @if (TempData["message"] != null)
+        @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-warning" role="alert">
-                @TempData["message"]
-            </div>
+            <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
         }
     <div class="card">
         <div class="card-body login-card-body">
@@ -47,7 +49,10 @@
             </form>
             
             <!-- /.social-auth-links -->
-            <p class="mb-1"><a href="forgot-password.html">I forgot my password</a></p>
+                <p class="mb-1">
+                    <button class="btn btn-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Şifremi unuttum</button>
+                    @* <a href="/Account/ForgotPassword">I forgot my password</a> *@
+                </p>
             <p class="mb-0">
                 <a href="/Account/Register" class="text-center"> Register a new membership </a>
             </p>
@@ -56,3 +61,4 @@
     </div>
 </div>
 </body>
+@await Html.PartialAsync("_ForgotPasswordPartial")

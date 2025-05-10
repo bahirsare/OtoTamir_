@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
 
 namespace OtoTamir.WEBUI.Controllers
 {
+    //[Authorize]
     public class AdminController : Controller
     {
         private readonly IMechanicService _mechanicService;
+
         public AdminController(IMechanicService mechanicService)
         {
             _mechanicService = mechanicService;
         }
-
+        
         public IActionResult Index()
         {
             return View();

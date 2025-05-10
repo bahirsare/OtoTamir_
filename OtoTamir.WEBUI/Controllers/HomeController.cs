@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 
 namespace OtotamirWEBUI.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
 

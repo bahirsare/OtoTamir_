@@ -65,5 +65,10 @@ namespace OtoTamir.BLL.Concrete
         {
             return _mechanicDal.CreateMechanicAsync(storeName);
         }
+
+        public string GenerateRandomPassword()
+        {
+            return _mechanicDal.GenerateRandomPassword();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
@@ -7,9 +8,11 @@ using OtoTamir.CORE.DTOs.MechanicDTOs;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
 using OtoTamir.WEBUI.Services;
+using OtoTamir.WEBUI.Services.MailHelper;
 
 namespace OtotamirWEBUI.Controllers
 {
+
     public class AccountController : Controller
     {
         private SignInManager<Mechanic> _signInManager;
@@ -23,9 +26,9 @@ namespace OtotamirWEBUI.Controllers
             _mechanicService = mechanicService;
             _mapper = mapper;
         }
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
-            return View();
+            return View(new LoginViewModel() { ReturnUrl = returnUrl == null ? "/Home/Index" : returnUrl });
 
         }
         [HttpPost]
@@ -50,12 +53,12 @@ namespace OtotamirWEBUI.Controllers
                             return RedirectToAction("Index", "Home");
                         }
 
-                        TempData["Message"] = ("Giriş Bilgilerinizi Kontrol Ediniz");
+                        TempData["ErrorMessage"] = ("Giriş Bilgilerinizi Kontrol Ediniz");
                     }
 
                     else
                     {
-                        TempData["Message"] = "Üyeliğiniz askıya alınmıştır. Lütfen yetkili ile iletişime geçiniz.";
+                        TempData["ErrorMessage"] = "Üyeliğiniz askıya alınmıştır. Lütfen yetkili ile iletişime geçiniz.";
                     }
                     return View(model);
                 }
@@ -63,7 +66,7 @@ namespace OtotamirWEBUI.Controllers
             TempData["Message"] = "Lütfen bilgilerinizi eksiksiz doldurunuz!";
             return View(model);
         }
-        public IActionResult Register()
+        public IActionResult ForgotPassword()
         {
             return View();
         }
@@ -73,10 +76,9 @@ namespace OtotamirWEBUI.Controllers
 
             return View("Login");
         }
-
+        [Authorize]
         public async Task<IActionResult> Profile()
         {
-
             var user = await _userManager.GetUserAsync(User);
             EditProfileDTO model = new EditProfileDTO();
 
@@ -84,7 +86,55 @@ namespace OtotamirWEBUI.Controllers
 
             return View(model);
         }
+
         [HttpPost]
+        public async Task<IActionResult> Profile(EditProfileDTO model, IFormFile? file)
+        {
+            string successMessage = "";
+            string failMessage = "";
+
+            ModelState.Remove("ImageUrl");
+            ModelState.Remove("file");
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var mechanic = _mechanicService.GetOne(user.Id);
+                if (file != null)
+                {
+                    model.ImageUrl = await ImageOperations.UploadImageAsync(file);
+                }
+                else
+                {
+                    model.ImageUrl = mechanic.ImageUrl;
+                }
+                _mapper.Map(model, mechanic);
+                mechanic.IsProfileCompleted = true;
+                var update = _mechanicService.Update();
+                if (update == 1)
+                {
+                    successMessage += "Profil güncelleme başarılı!";
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Profil güncelleme başarısız.");
+                }
+            }
+            //else
+            //{
+            //    failMessage = "Formu tamamen doldurunuz.";
+            //}
+            if (!string.IsNullOrEmpty(successMessage))
+            {
+                TempData["SuccessMessage"] = successMessage;
+            }
+            if (!string.IsNullOrEmpty(failMessage))
+            {
+                TempData["FailMessage"] = failMessage;
+            }
+            return View(model);
+        }
+        [HttpPost]
+        [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (ModelState.IsValid)
@@ -117,6 +167,36 @@ namespace OtotamirWEBUI.Controllers
             {
                 return RedirectToAction("Profile", "Account");
             }
+        }
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string Email)
+        {
+            var user = await _userManager.FindByEmailAsync(Email);
+
+            if (user != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var password = _mechanicService.GenerateRandomPassword();
+
+                var result = await _userManager.ResetPasswordAsync(user, token, password);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    return RedirectToAction("Login");
+                }
+
+               
+                
+                var body = $"Sayın <strong>{user.UserName};<br><br> Yeni şifreniz: <strong>{password} olarak belirlenmiştir.";
+
+                MailHelper.SendMail(body, user.Email, "Şifre Yenileme");
+
+                TempData["SuccessMessage"] = "Email adresinize gönderilen şifre yenileme linkine tıklayınız";
+                return RedirectToAction("Login");
+            }
+            TempData["ErrorMessage"] = "Email ile kayıtlı kullanıcı bulunamadı";
+            return RedirectToAction("Login");
         }
     }
 }
