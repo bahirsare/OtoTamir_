@@ -85,60 +85,10 @@ namespace OtotamirWEBUI.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Profile(EditProfileDTO model, IFormFile? file)
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            string successMessage = "";
-            string failMessage = "";
-            ModelState.Remove("ImageUrl");
-            ModelState.Remove("file");
             if (ModelState.IsValid)
             {
-                var user = await _userManager.GetUserAsync(User);
-                var mechanic = _mechanicService.GetOne(user.Id);
-
-                if (file != null)
-                {
-                    model.ImageUrl = await ImageOperations.UploadImageAsync(file);
-                }
-                else
-                {
-                    model.ImageUrl = mechanic.ImageUrl;
-                }
-                _mapper.Map(model, mechanic);
-                mechanic.IsProfileCompleted = true;
-                var update = _mechanicService.Update();
-                if (update == 1)
-                {
-                    successMessage += "Profil güncelleme başarılı!";
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Profil güncelleme başarısız.");
-                }
-            }
-            //else
-            //{
-            //    failMessage = "Formu tamamen doldurunuz.";
-            //}
-            if (!string.IsNullOrEmpty(successMessage))
-            {
-                TempData["SuccessMessage"] = successMessage;
-            }
-            if (!string.IsNullOrEmpty(failMessage))
-            {
-                TempData["FailMessage"] = failMessage;
-            }
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ChangePassword(ChangePasswordDTO model)
-        {
-            
-            if (ModelState.IsValid)
-            {
-               
-
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                     return RedirectToAction("Login", "Account");
@@ -146,7 +96,7 @@ namespace OtotamirWEBUI.Controllers
                 var isOldPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.Password);
                 if (!isOldPasswordCorrect)
                 {
-                    TempData["FailMessage"] ="Mevcut şifre hatalı.";
+                    ModelState.AddModelError(string.Empty, "Mevcut şifre hatalı.");
                     return View("Profile", model);
                 }
 
@@ -154,20 +104,20 @@ namespace OtotamirWEBUI.Controllers
                 var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
                 if (!result.Succeeded)
                 {
-                    TempData["FailMessage"] = "Şifre Güncellenemedi!";
-                    return RedirectToAction("Profile", "Account");
+                    foreach (var error in result.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    return View("Profile", model);
                 }
 
-                TempData["SuccessMessage"] = "Şifre güncelleme başarılı!";
+                TempData["Message"] = "Şifre güncelleme başarılı!";
                 return RedirectToAction("Profile", "Account");
             }
 
             else
             {
-                TempData["FailMessage"] ="Lütfen şifre alanını eksiksiz doldurunuz.";
-
                 return RedirectToAction("Profile", "Account");
             }
         }
     }
 }
+
