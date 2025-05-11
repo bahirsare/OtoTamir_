@@ -138,7 +138,7 @@ namespace OtotamirWEBUI.Controllers
 
         }
         [HttpPost]
-        public IActionResult CreateVehicle(CreateVehicleDTO model)// MODELE VERÝ GELMÝYOR
+        public IActionResult CreateVehicle(CreateVehicleDTO _model)// MODELE VERÝ GELMÝYOR
         {
             
 
