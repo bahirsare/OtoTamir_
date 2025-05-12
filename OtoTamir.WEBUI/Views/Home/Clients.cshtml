@@ -85,10 +85,10 @@
                             }
                         </td>
                         <td>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createVehicleModal">
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createVehicleModal-@item.Id">
                                 Araç Ekle
                             </button>
-                            <div class="modal fade" id="createVehicleModal" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="createVehicleModal-@item.Id" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
                                 @await Component.InvokeAsync("_CreateVehicleViewComponentPartial",item.Id)
                             </div>
                            

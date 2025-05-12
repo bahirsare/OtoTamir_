@@ -39,7 +39,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
             var mechanic = new Mechanic
             {
-                UserName = storeName,
+                UserName = storeName.ToLower().Replace(" ",""),
                 StoreName = storeName,
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now,

@@ -138,17 +138,19 @@ namespace OtotamirWEBUI.Controllers
 
         }
         [HttpPost]
-        public IActionResult CreateVehicle(CreateVehicleDTO _model)// MODELE VERÝ GELMÝYOR
+        public IActionResult CreateVehicle(CreateVehicleDTO _model)
         {
             
 
             if (!ModelState.IsValid)
             {
+               
                 TempData["Message"] = "Araç Eklenemedi. Lütfen bilgileri eksiksiz doldurun.";
                 return RedirectToAction("Clients", "Home");
             }
+            _model.Plate.ToUpper().Replace(" ","");
 
-            var vehicle = _mapper.Map<Vehicle>(model);
+            var vehicle = _mapper.Map<Vehicle>(_model);
 
             var result = _vehicleService.Create(vehicle);
 

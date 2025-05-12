@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace OtoTamir.CORE.DTOs.VehicleDTOs
 {
     public class CreateVehicleDTO
     {
+        private string _plate;
         [Required(ErrorMessage = "Plaka zorunludur.")]
-        public string Plate { get; set; }
+        public string Plate { get => _plate; set => _plate = value?.ToUpperInvariant(); }
 
         [Required(ErrorMessage = "Marka zorunludur.")]
         public string Brand { get; set; }
@@ -22,6 +18,6 @@ namespace OtoTamir.CORE.DTOs.VehicleDTOs
         public int Year { get; set; }
 
         [Required]
-        public int ClientId { get; set; } 
+        public int ClientId { get; set; }
     }
 }
