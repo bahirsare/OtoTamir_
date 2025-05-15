@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
-    public class VehicleService:IVehicleService
+    public class VehicleService : IVehicleService
     {
         private readonly IVehicleDal _vehicleDal;
 
@@ -19,35 +19,34 @@ namespace OtoTamir.BLL.Concrete
             _vehicleDal = vehicleDal;
         }
 
-        public int Create(Vehicle Entity)
+        public async Task<int> CreateAsync(Vehicle entity)
         {
-            return _vehicleDal.Create(Entity);
+            return await _vehicleDal.CreateAsync(entity);
         }
 
-        public int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            return _vehicleDal.Delete(id);
+            return await _vehicleDal.DeleteAsync(id);
         }
 
-        public List<Vehicle> GetAll()
+        public async Task<List<Vehicle>> GetAllAsync()
         {
-            return _vehicleDal.GetAll();
+            return await _vehicleDal.GetAllAsync();
         }
 
-        public List<Vehicle> GetAll(Expression<Func<Vehicle, bool>> filter = null)
+        public async Task<List<Vehicle>> GetAllAsync(Expression<Func<Vehicle, bool>> filter = null)
         {
-            return _vehicleDal.GetAll(filter);
+            return await _vehicleDal.GetAllAsync(filter);
         }
 
-        public Vehicle GetOne(int id)
+        public async Task<Vehicle> GetOneAsync(int id)
         {
-            return _vehicleDal.GetOne(id);
+            return await _vehicleDal.GetOneAsync(id);
         }
 
-        public int Update()
+        public async Task<int> UpdateAsync()
         {
-            return _vehicleDal.Update();
+            return await _vehicleDal.UpdateAsync();
         }
-
     }
 }

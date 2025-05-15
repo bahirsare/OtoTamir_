@@ -11,9 +11,9 @@ namespace OtoTamir.DAL.Abstract
 {
     public interface IMechanicDal: IRepositoryService<Mechanic>
     {
-        public Mechanic GetOne(string id);
+        Task<Mechanic> GetOneAsync(string id);
+        Task<int> DeleteAsync(string id);
         Task<(bool Success, string Password, List<string> Errors)> CreateMechanicAsync(string storeName);
-        public int Delete(string id);
         string GenerateRandomPassword();
 
     }

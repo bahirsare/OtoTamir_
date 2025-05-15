@@ -39,15 +39,15 @@ namespace OtotamirWEBUI.Controllers
             return View();
         }
 
-        public IActionResult Clients()
+        public async Task<IActionResult> ClientsAsync()
 
         {
             var mechanicId = _userManager.GetUserId(User);
-            var clients = _clientService.GetAll(x => x.MechanicId == mechanicId);
+            var clients =await _clientService.GetAllAsync(x => x.MechanicId == mechanicId);
             return View(clients);
         }
         [HttpPost]
-        public IActionResult CreateClient(CreateClientDTO model)
+        public async Task<IActionResult> CreateClient(CreateClientDTO model)
         {
 
 
@@ -59,8 +59,8 @@ namespace OtotamirWEBUI.Controllers
             }
             var currentMechanicId = _userManager.GetUserId(User);
 
-            bool mustBeUnique = !_clientService
-    .GetAll(i => i.PhoneNumber == model.PhoneNumber && i.MechanicId == currentMechanicId)
+            bool mustBeUnique = await !_clientService
+    .GetAllAsync(i => i.PhoneNumber == model.PhoneNumber && i.MechanicId == currentMechanicId)
     .Any();
 
 
@@ -69,7 +69,7 @@ namespace OtotamirWEBUI.Controllers
 
                 Client client = _mapper.Map<Client>(model);
                 client.MechanicId = _userManager.GetUserId(User);
-                var result = _clientService.Create(client);
+                var result =await _clientService.CreateAsync(client);
                 if (result == 1)
                 {
 
@@ -90,15 +90,15 @@ namespace OtotamirWEBUI.Controllers
             }
         }
 
-        public IActionResult DeleteClient(int id)
+        public async Task<IActionResult> DeleteClientAsync(int id)
         {
-            var client = _clientService.GetOne(id);
+            var client = await _clientService.GetOneAsync(id);
             if (client == null)
             {
                 TempData["FailMessage"] = "Müþteri bulunamadý.";
                 return RedirectToAction("Clients", "Home");
             }
-            var result = _clientService.Delete(id);
+            var result =await _clientService.DeleteAsync(id);
             if (result > 0)
             {
                 TempData["Message"] = "Müþteri baþarýyla silindi.";
@@ -110,21 +110,21 @@ namespace OtotamirWEBUI.Controllers
             return RedirectToAction("Clients", "Home");
         }
         [HttpPost]
-        public IActionResult UpdateClient(EditClientDTO model, IFormFile image)
+        public async Task<IActionResult> UpdateClientAsync(EditClientDTO model, IFormFile image)
         {
             if (!ModelState.IsValid)
             {
                 TempData["Message"] = "Müþteri bilgileri geçersiz!";
                 return RedirectToAction("Clients", "Home");
             }
-            var client = _clientService.GetOne(model.Id);
+            var client =await _clientService.GetOneAsync(model.Id);
             if (client == null)
             {
                 TempData["Message"] = "Müþteri bulunamadý.";
                 return RedirectToAction("Clients", "Home");
             }
             _mapper.Map(model, client);
-            var result = _clientService.Update();
+            var result = await _clientService.UpdateAsync();
             if (result > 0)
             {
                 TempData["Message"] = "Müþteri baþarýyla güncellendi.";
@@ -137,7 +137,7 @@ namespace OtotamirWEBUI.Controllers
 
         }
         [HttpPost]
-        public IActionResult CreateVehicle(CreateVehicleDTO _model)
+        public async Task<IActionResult> CreateVehicleAsync(CreateVehicleDTO _model)
         {
             
 
@@ -151,7 +151,7 @@ namespace OtotamirWEBUI.Controllers
 
             var vehicle = _mapper.Map<Vehicle>(_model);
 
-            var result = _vehicleService.Create(vehicle);
+            var result = await _vehicleService.CreateAsync(vehicle);
 
             if (result > 0)
             {

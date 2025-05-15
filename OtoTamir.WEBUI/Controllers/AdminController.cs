@@ -18,9 +18,9 @@ namespace OtoTamir.WEBUI.Controllers
         {
             return View();
         }
-        public IActionResult Mechanic()
+        public async Task<IActionResult> MechanicAsync()
         {
-            var mechanics = _mechanicService.GetAll();
+           var mechanics =await _mechanicService.GetAllAsync();
             return View(mechanics);
         }
         [HttpPost]
@@ -43,9 +43,9 @@ namespace OtoTamir.WEBUI.Controllers
             return RedirectToAction("Mechanic", "Admin");
         }
         [HttpPost]
-        public IActionResult EditStatus(string id)
+        public async Task<IActionResult> EditStatusAsync(string id)
         {
-            var mechanic = _mechanicService.GetOne(id);
+            var mechanic = await _mechanicService.GetOneAsync(id);
             if (mechanic == null)
             {
                 TempData["ErrorMessage"] = "Tamirci bulunamadı.";
@@ -53,7 +53,7 @@ namespace OtoTamir.WEBUI.Controllers
             }
 
             mechanic.Status = (!mechanic.Status);
-            var result = _mechanicService.Update();
+            var result = await _mechanicService.UpdateAsync();
 
             if (result > 0)
             {
@@ -67,15 +67,15 @@ namespace OtoTamir.WEBUI.Controllers
             return RedirectToAction("Mechanic", "Admin");
         }
 
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            var mechanic = _mechanicService.GetOne(id);
+            var mechanic = await _mechanicService.GetOneAsync(id);
             if (mechanic == null)
             {
                 TempData["ErrorMessage"] = "Tamirci bulunamadı.";
                 return RedirectToAction("Mechanic", "Admin");
             }
-            var result = _mechanicService.Delete(id);
+            var result = await _mechanicService.DeleteAsync(id);
             if (result > 0)
             {
                 TempData["SuccessMessage"] = "Tamirci başarıyla silindi.";

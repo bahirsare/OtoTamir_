@@ -20,15 +20,15 @@ namespace OtoTamir.DAL.Concrete.EfCore
             _context = context;
 
         }
-        public override int Create(Client client)
+        public override async Task<int> CreateAsync(Client client)
         {
 
             client.CreatedDate = DateTime.Now;
             client.ModifiedDate = DateTime.Now;
             
-            return base.Create(client);
+            return await base.CreateAsync(client);
         }
-        public override List<Client> GetAll(Expression<Func<Client, bool>> filter = null)
+        public virtual async Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
         {
             var entities = _context.Clients.Include(i => i.Vehicles).AsQueryable();
 

@@ -98,7 +98,7 @@ namespace OtotamirWEBUI.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
-                var mechanic = _mechanicService.GetOne(user.Id);
+                var mechanic = await _mechanicService.GetOneAsync(user.Id);
                 if (file != null)
                 {
                     model.ImageUrl = await ImageOperations.UploadImageAsync(file);
@@ -109,7 +109,7 @@ namespace OtotamirWEBUI.Controllers
                 }
                 _mapper.Map(model, mechanic);
                 mechanic.IsProfileCompleted = true;
-                var update = _mechanicService.Update();
+                var update = await _mechanicService.UpdateAsync();
                 if (update == 1)
                 {
                     successMessage += "Profil güncelleme başarılı!";

@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 
 namespace OtoTamir.DAL.Concrete.EfCore
 {
-
     public class EfCoreGenericRepositoryDal<T, TContext> where T : class where TContext : DbContext
     {
         private readonly TContext _context;
@@ -13,12 +12,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
             _context = context;
         }
 
-        public List<T> GetAll()
+        public async Task<List<T>> GetAllAsync()
         {
-            return _context.Set<T>().ToList();
+            return await _context.Set<T>().ToListAsync();
         }
 
-        public virtual List<T> GetAll(Expression<Func<T, bool>> filter = null)
+        public virtual async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> filter = null)
         {
             var entities = _context.Set<T>().AsQueryable();
 
@@ -26,36 +25,34 @@ namespace OtoTamir.DAL.Concrete.EfCore
             {
                 entities = entities.Where(filter);
             }
-            return entities.ToList();
+            return await entities.ToListAsync();
         }
 
-        public T GetOne(int id)
+        public async Task<T> GetOneAsync(int id)
         {
-            return _context.Set<T>().Find(id);
+            return await _context.Set<T>().FindAsync(id);
         }
 
-        public virtual int Create(T entity)
+        public virtual async Task<int> CreateAsync(T entity)
         {
-            
-            _context.Set<T>().Add(entity);
-            return _context.SaveChanges();
+            await _context.Set<T>().AddAsync(entity);
+            return await _context.SaveChangesAsync();
         }
 
-        public int Update()
+        public async Task<int> UpdateAsync()
         {
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
 
-        public  int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            var entity = _context.Set<T>().Find(id);
+            var entity = await _context.Set<T>().FindAsync(id);
 
             if (entity != null)
             {
                 _context.Set<T>().Remove(entity);
             }
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
     }
 }
-

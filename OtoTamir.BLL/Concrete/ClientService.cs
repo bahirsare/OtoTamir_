@@ -20,34 +20,34 @@ namespace OtoTamir.BLL.Concrete
             _clientDal = clientDal;
         }
 
-        public int Create(Client Entity)
+        public async Task<int> CreateAsync(Client Entity)
         {
-            return _clientDal.Create(Entity);
+            return await _clientDal.CreateAsync(Entity);
         }
 
-        public int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            return _clientDal.Delete(id);
+            return await _clientDal.DeleteAsync(id);
         }
 
-        public List<Client> GetAll()
+        public async Task    <List<Client>>  GetAllAsync()
         {
-            return _clientDal.GetAll();
+            return await _clientDal.GetAllAsync();
         }
 
-        public List<Client> GetAll(Expression<Func<Client, bool>> filter = null)
+        public async Task<List<Client>>  GetAllAsync(Expression<Func<Client, bool>> filter = null)
         {
-            return _clientDal.GetAll(filter);
+            return await _clientDal.GetAllAsync(filter);
         }
 
-        public Client GetOne(int id)
+        public async Task<Client> GetOneAsync(int id)
         {
-            return _clientDal.GetOne(id);
+            return await _clientDal.GetOneAsync(id);
         }      
 
-        public int Update()
+        public async Task<int > UpdateAsync()
         {
-            return _clientDal.Update();
+            return await _clientDal.UpdateAsync();
         }
     }
 }

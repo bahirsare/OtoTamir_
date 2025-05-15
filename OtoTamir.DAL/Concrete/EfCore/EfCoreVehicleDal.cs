@@ -11,21 +11,21 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.DAL.Concrete.EfCore
 {
-    public class EfCoreVehicleDal:EfCoreGenericRepositoryDal<Vehicle,DataContext>,IVehicleDal
+    public class EfCoreVehicleDal : EfCoreGenericRepositoryDal<Vehicle, DataContext>, IVehicleDal
     {
         private readonly DataContext _context;
-        public EfCoreVehicleDal(DataContext context):base(context)
+        public EfCoreVehicleDal(DataContext context) : base(context)
         {
             _context = context;
         }
-        public override int Create(Vehicle vehicle)
-        {
 
+        public override async Task<int> CreateAsync(Vehicle vehicle)
+        {
             vehicle.CreatedDate = DateTime.Now;
             vehicle.ModifiedDate = DateTime.Now;
 
-            return base.Create(vehicle);
+            return await base.CreateAsync(vehicle);
         }
-        
     }
+
 }

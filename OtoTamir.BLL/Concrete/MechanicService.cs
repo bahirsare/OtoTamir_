@@ -12,58 +12,55 @@ namespace OtoTamir.BLL.Concrete
         private readonly IMechanicDal _mechanicDal;
         private readonly UserManager<Mechanic> _userManager;
 
-
-
-        public MechanicService(IMechanicDal mechanicDal, UserManager<Mechanic> userManager, RoleManager<IdentityRole> roleManager)
+        public MechanicService(IMechanicDal mechanicDal, UserManager<Mechanic> userManager)
         {
             _mechanicDal = mechanicDal;
             _userManager = userManager;
-
         }
 
-        public int Create(Mechanic mechanic)
+        public async Task<int> CreateAsync(Mechanic mechanic)
         {
-            return _mechanicDal.Create(mechanic);
+            return await _mechanicDal.CreateAsync(mechanic);
         }
 
-        public int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            return _mechanicDal.Delete(id);
+            return await _mechanicDal.DeleteAsync(id);
         }
 
-        public List<Mechanic> GetAll()
+        public async Task<List<Mechanic>> GetAllAsync()
         {
-            return _mechanicDal.GetAll();
+            return await _mechanicDal.GetAllAsync();
         }
 
-        public List<Mechanic> GetAll(Expression<Func<Mechanic, bool>> filter = null)
+        public async Task<List<Mechanic>> GetAllAsync(Expression<Func<Mechanic, bool>> filter = null)
         {
-            return _mechanicDal.GetAll(filter);
+            return await _mechanicDal.GetAllAsync(filter);
         }
 
-        public Mechanic GetOne(int id)
+        public async Task<Mechanic> GetOneAsync(int id)
         {
-            return _mechanicDal.GetOne(id);
+            return await _mechanicDal.GetOneAsync(id);
         }
 
-        public int Update()
+        public async Task<int> UpdateAsync()
         {
-            return _mechanicDal.Update(); ;
+            return await _mechanicDal.UpdateAsync();
         }
 
-        
-        public Mechanic GetOne(string id)
+        public async Task<Mechanic> GetOneAsync(string id)
         {
-            return _mechanicDal.GetOne(id);
-        }
-        public int Delete(string id)
-        {
-            return _mechanicDal.Delete(id);
+            return await _mechanicDal.GetOneAsync(id);
         }
 
-        public Task<(bool Success, string Password, List<string> Errors)> CreateMechanicAsync(string storeName)
+        public async Task<int> DeleteAsync(string id)
         {
-            return _mechanicDal.CreateMechanicAsync(storeName);
+            return await _mechanicDal.DeleteAsync(id);
+        }
+
+        public async Task<(bool Success, string Password, List<string> Errors)> CreateMechanicAsync(string storeName)
+        {
+            return await _mechanicDal.CreateMechanicAsync(storeName);
         }
 
         public string GenerateRandomPassword()
