@@ -1,72 +1,109 @@
 ﻿@model List<OtoTamir.CORE.Identity.Mechanic>
 @{
-
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 <h2>Admin Paneli - Tamirciler</h2>
+
 <div class="container mt-4">
-    
 
-<!-- Yeni Tamirci Ekleme Formu -->
-<h3>Yeni Tamirci Ekle</h3>
-        <div class="col-4">
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label for="StoreName">Kullanıcı Adı</label>
-        <input type="text" class="form-control" id="StoreName" name="storeName" required />
+    <!-- Yeni Tamirci Ekleme Formu -->
+    <h3>Yeni Tamirci Ekle</h3>
+    <div class="col-4">
+        <form asp-action="Create" method="post">
+            <div class="form-group">
+                <label for="StoreName">Kullanıcı Adı</label>
+                <input type="text" class="form-control" id="StoreName" name="storeName" required />
+            </div>
+            <div class="row m-2"></div>
+            <button type="submit" class="btn btn-primary">Ekle</button>
+        </form>
     </div>
-                <div class="row m-2"></div>
-    <button type="submit" class="btn btn-primary">Ekle</button>
-</form>
-    </div> 
-<!-- Hata ve Başarı Mesajları -->
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-        }
-    
-   
-    
+    <!-- Hata ve Başarı Mesajları -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
     <div class="row m-3"></div>
-<!-- Tamircileri Listeleme -->
-<h3>Mevcut Tamirciler</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Kullanıcı Adı</th>
-            <th>Durum</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var mechanic in Model)
-        {
+
+    <!-- Tamircileri Listeleme -->
+    <h3>Mevcut Tamirciler</h3>
+    <table class="table">
+        <thead>
             <tr>
-                <td>@mechanic.UserName</td>
-                <td>@(mechanic.Status ? "Aktif" : "Pasif")</td>
-                <td>
-                    <!-- Durum Güncelleme -->
-                    <form asp-action="EditStatus" method="post" style="display:inline-block">
-                        <input type="hidden" name="id" value="@mechanic.Id" />
-                        <input type="hidden" name="status" value="@(mechanic.Status ? "false" : "true")" />
-                        <button type="submit" class="btn btn-warning">
+                <th>Kullanıcı Adı</th>
+                <th>E-mail Adresi</th>
+                <th>Telefon</th>
+                <th>Adres</th>
+                <th>Durum</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mechanic in Model)
+            {
+                <tr>
+                    <td>@mechanic.UserName</td>
+                    <td>@mechanic.Email</td>
+                    <td>@mechanic.PhoneNumber</td>
+                    <td>@mechanic.Adress</td>
+                    <td>@(mechanic.Status ? "Aktif" : "Pasif")</td>
+                    <td>
+                        <!-- Durum Değiştir Butonu -->
+                        <button type="button"
+                                class="btn btn-warning confirm-button"
+                                data-confirm-message="Bu tamircinin durumunu değiştirmek istiyor musunuz?"
+                                data-form-action="/Admin/EditStatus?id=@mechanic.Id&status=@(mechanic.Status ? "false" : "true")">
                             @(mechanic.Status ? "Pasif Yap" : "Aktif Yap")
                         </button>
-                    </form>
-                    <a asp-action="Delete" asp-route-id="@mechanic.Id" class=" btn btn-danger">Sil</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+                        <!-- Silme Butonu -->
+                        <button type="button"
+                                class="btn btn-danger confirm-button"
+                                data-confirm-message="Bu tamirciyi silmek istediğinize emin misiniz?"
+                                data-form-action="/Admin/Delete/@mechanic.Id">
+                            Sil
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
+
+<!-- Onay Modalı -->
+@await Html.PartialAsync("_ConfirmModalPartial")
+
+
+
+
+@*<script>
+    let formToSubmit = null;
+
+    document.querySelectorAll('.delete-button').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            formToSubmit = this.closest('form');
+            const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            modal.show();
+        });
+    });
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+        if (formToSubmit) {
+            formToSubmit.submit();
+        }
+    });
+</script> *@
+
+
 

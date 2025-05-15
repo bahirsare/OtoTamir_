@@ -1,7 +1,8 @@
 ﻿@model ChangePasswordViewModel
 
 
-<form asp-action="ChangePassword" asp-controller="Account" method="post">
+<form asp-action="ChangePassword" asp-controller="Account" method="post" id="changePasswordForm">
+   
    @*  <div asp-validation-summary="All" class="text-danger"></div> *@
 
     <div class="row">
@@ -24,8 +25,15 @@
             </div>
 
             <div class="text-end">
-                <button type="submit" class="btn btn-primary">Şifre Güncelle</button>
+                <button type="button"
+                        class="btn btn-primary confirm-button"
+                        data-confirm-message="Şifreyi güncellemek istediğinize emin misiniz?"
+                        data-form-id="changePasswordForm">
+                    Şifre Güncelle
+                </button>
             </div>
+
         </div>
     </div>
 </form>
+@await Html.PartialAsync("_ConfirmModalPartial")

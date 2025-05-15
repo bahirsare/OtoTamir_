@@ -20,7 +20,7 @@ namespace OtoTamir.WEBUI
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<DataContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Laptop")));
 
             builder.Services.AddIdentity<Mechanic, IdentityRole>()
                           .AddEntityFrameworkStores<DataContext>()
@@ -28,8 +28,10 @@ namespace OtoTamir.WEBUI
 
             builder.Services.AddScoped<IMechanicService, MechanicService>();
             builder.Services.AddScoped<IMechanicDal, EfCoreMechanicDal>();
+
             builder.Services.AddScoped<IClientService, ClientService>();
             builder.Services.AddScoped<IClientDal, EfCoreClientDal>();
+
             builder.Services.AddScoped<IVehicleDal, EfCoreVehicleDal>();
             builder.Services.AddScoped<IVehicleService, VehicleService>();
 

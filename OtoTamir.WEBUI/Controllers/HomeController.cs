@@ -33,7 +33,6 @@ namespace OtotamirWEBUI.Controllers
         }
 
 
-        //[Authorize]
         public IActionResult Index()
         {
 

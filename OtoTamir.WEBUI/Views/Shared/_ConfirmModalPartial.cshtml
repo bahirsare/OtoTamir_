@@ -1,0 +1,23 @@
+﻿<div class="modal fade" id="genericConfirmModal" tabindex="-1" aria-labelledby="genericConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded shadow-sm">
+            <div class="modal-header bg-light border-0">
+                <h5 class="modal-title text-dark fw-semibold" id="genericConfirmModalLabel">
+                    <i class="fas fa-exclamation-circle text-warning me-2"></i>Onay
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body bg-white text-center">
+                <p class="mb-0 fs-6 text-muted" id="confirmModalMessage">
+                    Bu işlemi yapmak istediğinize emin misiniz?
+                </p>
+            </div>
+            <div class="modal-footer justify-content-center bg-light border-0">
+                <form method="post" id="confirmModalForm" class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">Evet</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Hayır</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
