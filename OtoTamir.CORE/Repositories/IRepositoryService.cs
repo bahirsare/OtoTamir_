@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OtoTamir.CORE.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,5 +16,6 @@ namespace OtoTamir.CORE.Repositories
         Task<int> CreateAsync(T entity);
         Task<int> UpdateAsync();
         Task<int> DeleteAsync(int id);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> filter);
     }
 }

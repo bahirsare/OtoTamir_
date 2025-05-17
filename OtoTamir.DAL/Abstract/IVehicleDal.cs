@@ -10,5 +10,6 @@ namespace OtoTamir.DAL.Abstract
 {
     public interface IVehicleDal:IRepositoryService<Vehicle>
     {
+        Task<Vehicle> GetOneAsync(string plate);
     }
 }

@@ -10,6 +10,7 @@ namespace OtoTamir.CORE.Entities
     public class ServiceRecord:BaseEntity
     {
       
+        public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string Status { get; set; }

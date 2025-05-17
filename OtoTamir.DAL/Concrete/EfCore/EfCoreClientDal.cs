@@ -28,7 +28,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             
             return await base.CreateAsync(client);
         }
-        public virtual async Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
+        public override async Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
         {
             var entities = _context.Clients.Include(i => i.Vehicles).AsQueryable();
 

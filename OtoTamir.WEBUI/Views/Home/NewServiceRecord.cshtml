@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Yeni İşlem Ekle";
+}
+
+<h2>Yeni İşlem Ekle</h2>
+
+<div class="form-group">
+    <label for="plateInput">Araç Plakası</label>
+    <div class="input-group">
+        <input type="text" id="plateInput" class="form-control" placeholder="Plaka giriniz... örn: 34ABC123">
+        <div class="input-group-append">
+            <button class="btn btn-primary" id="searchPlateBtn">Ara</button>
+        </div>
+    </div>
+</div>
+
+<div id="vehicleResultArea" class="mt-3">
+    <!-- Araç varsa bilgileri + işlem formu buraya gelecek -->
+</div>
+
+<!-- Yeni Araç Modal -->
+<div class="modal fade" id="newVehicleModal" tabindex="-1" role="dialog" aria-labelledby="newVehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="newVehicleModalContent">
+            <!-- Yeni araç modal içeriği AJAX ile doldurulacak -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#searchPlateBtn').click(function () {
+            var plate = $('#plateInput').val().trim();
+
+            if (plate === "") {
+                alert("Lütfen bir plaka giriniz.");
+                return;
+            }
+
+            $.get('/Vehicle/CheckPlate', { plate: plate }, function (data) {
+                if (data.found) {
+                    $('#vehicleResultArea').html(data.html);
+                } else {
+                    // Yeni araç modal’ını açmadan önce içeriğini yükle
+                    $.get('/Vehicle/NewVehicleModal', { plate: plate }, function (modalHtml) {
+                        $('#newVehicleModalContent').html(modalHtml);
+                        $('#newVehicleModal').modal('show');
+                    });
+                }
+            });
+        });
+    </script>
+}

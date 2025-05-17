@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
@@ -66,6 +67,11 @@ namespace OtoTamir.BLL.Concrete
         public string GenerateRandomPassword()
         {
             return _mechanicDal.GenerateRandomPassword();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<Mechanic, bool>> filter)
+        {
+            return await _mechanicDal.AnyAsync(filter);
         }
     }
 }

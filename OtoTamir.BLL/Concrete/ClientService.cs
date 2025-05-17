@@ -20,6 +20,11 @@ namespace OtoTamir.BLL.Concrete
             _clientDal = clientDal;
         }
 
+        public async Task<bool> AnyAsync(Expression<Func<Client, bool>> filter)
+        {
+            return await _clientDal.AnyAsync(filter);
+        }
+
         public async Task<int> CreateAsync(Client Entity)
         {
             return await _clientDal.CreateAsync(Entity);

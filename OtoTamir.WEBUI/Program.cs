@@ -34,6 +34,9 @@ namespace OtoTamir.WEBUI
 
             builder.Services.AddScoped<IVehicleDal, EfCoreVehicleDal>();
             builder.Services.AddScoped<IVehicleService, VehicleService>();
+            
+            builder.Services.AddScoped<IServiceRecordDal, EfCoreServiceRecordDal>();
+            builder.Services.AddScoped<IServiceRecordService, ServiceRecordService>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {

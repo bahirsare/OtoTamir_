@@ -19,6 +19,11 @@ namespace OtoTamir.BLL.Concrete
             _vehicleDal = vehicleDal;
         }
 
+        public async Task<bool> AnyAsync(Expression<Func<Vehicle, bool>> filter)
+        {
+            return await _vehicleDal.AnyAsync(filter);
+        }
+
         public async Task<int> CreateAsync(Vehicle entity)
         {
             return await _vehicleDal.CreateAsync(entity);
@@ -43,10 +48,14 @@ namespace OtoTamir.BLL.Concrete
         {
             return await _vehicleDal.GetOneAsync(id);
         }
-
+        public async Task<Vehicle> GetOneAsync(string plate)
+        {
+            return await _vehicleDal.GetOneAsync(plate);
+        }
         public async Task<int> UpdateAsync()
         {
             return await _vehicleDal.UpdateAsync();
         }
+
     }
 }

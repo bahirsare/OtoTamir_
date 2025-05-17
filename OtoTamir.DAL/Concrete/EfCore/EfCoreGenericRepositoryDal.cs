@@ -16,6 +16,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
         {
             return await _context.Set<T>().ToListAsync();
         }
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
+        {
+            return await _context.Set<T>().AnyAsync(filter);
+        }
+
+
 
         public virtual async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> filter = null)
         {

@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Abstract
 {
-    public interface IVehicleService:IRepositoryService<Vehicle>
+    public interface IServiceRecordService:IRepositoryService<ServiceRecord>
     {
-        Task<Vehicle> GetOneAsync(string plate);
+       
     }
 }
