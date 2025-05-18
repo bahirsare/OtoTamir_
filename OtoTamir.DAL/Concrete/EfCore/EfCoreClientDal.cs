@@ -30,7 +30,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
         }
         public override async Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
         {
-            var entities = _context.Clients.Include(i => i.Vehicles).AsQueryable();
+            var entities = _context.Clients.Include(i => i.Vehicles).ThenInclude(i=> i.ServiceRecords).AsQueryable();
 
             if (filter != null)
             {

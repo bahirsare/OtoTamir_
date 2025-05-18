@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
 
 public class ServiceRecordController : Controller
@@ -15,50 +16,30 @@ public class ServiceRecordController : Controller
         _serviceRecordService = serviceRecordService;
     }
 
-    [HttpGet]
-    public IActionResult Index()
-    {
-        return View();
-    }
 
-    [HttpPost]
-    public async Task<IActionResult> AddByPlate(string plate)
+    public async Task<IActionResult> Index()
     {
-        var vehicle = await _vehicleService.GetOneAsync(plate);
-
-        if (vehicle == null)
+        var clients = await _clientService.GetAllAsync();
+        var model = new ListClientDTO
         {
-            TempData["PlateNotFound"] = plate;
-            return RedirectToAction("AddVehicle", "Vehicle"); // veya ViewComponent tetiklenebilir
-        }
-
-        //var model = new ServiceRecordViewModel
-        //{
-        //    VehicleId = vehicle.Id,
-        //    VehiclePlate = vehicle.Plate,
-        //    ClientName = vehicle.Client.Name
-        //};
-
-        return View("AddServiceRecord");
+            Clients = clients,
+       
+        };
+        return View(model);
     }
-
-    //[HttpPost]
-    //public async Task<IActionResult> Save(ServiceRecordViewModel model)
-    //{
-    //    if (!ModelState.IsValid)
-    //    {
-    //        return View("AddServiceRecord", model);
-    //    }
-
-    //    await _serviceRecordService.CreateAsync(new ServiceRecord
-    //    {
-    //        VehicleId = model.VehicleId,
-    //        Symptom = model.Symptom,
-    //        Suggestion = model.Suggestion,
-    //        EstimatedPrice = model.EstimatedPrice,
-    //        CreatedDate = DateTime.Now
-    //    });
-
-    //    return RedirectToAction("Index", "ServiceRecord");
-    //}
+    [HttpPost]
+    public async Task<IActionResult> GetVehiclesByClientId(int selectedClientId)
+    {
+        var clients = await _clientService.GetAllAsync();
+        var model = new ListClientDTO
+        {
+            Clients = clients,
+            SelectedClientId = selectedClientId
+        };
+        if (clients.Count == 0)
+        {
+            clients = await _clientService.GetAllAsync();
+        }
+        return View("Index", model);
+    }
 }
