@@ -70,7 +70,8 @@
                         <button type="button"
                                 class="btn btn-danger confirm-button"
                                 data-confirm-message="Bu tamirciyi silmek istediğinize emin misiniz?"
-                                data-form-action="/Admin/Delete/@mechanic.Id">
+                                data-form-action="/Admin/Delete/@mechanic.Id"
+                                data-form-method="post">
                             Sil
                         </button>
                     </td>
@@ -84,9 +85,8 @@
 @await Html.PartialAsync("_ConfirmModalPartial")
 
 
-
-
-@*<script>
+@* 
+<script>
     let formToSubmit = null;
 
     document.querySelectorAll('.delete-button').forEach(btn => {

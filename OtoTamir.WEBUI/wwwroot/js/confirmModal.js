@@ -4,24 +4,21 @@
     const modalMessage = document.getElementById("confirmModalMessage");
     const confirmForm = document.getElementById("confirmModalForm");
 
-    let targetForm = null;
-
     confirmButtons.forEach(button => {
         button.addEventListener("click", function () {
+            // Modal mesajını ayarla
             const message = button.getAttribute("data-confirm-message");
-            const formId = button.getAttribute("data-form-id");
-
             modalMessage.textContent = message;
 
-            targetForm = document.getElementById(formId);
+            // Form action ve methodunu al
+            const formAction = button.getAttribute("data-form-action");
+            const formMethod = button.getAttribute("data-form-method") || "post";
+
+            // Formun action ve methodunu dinamik olarak değiştir
+            confirmForm.setAttribute("action", formAction);
+            confirmForm.setAttribute("method", formMethod);
+
             modal.show();
         });
-    });
-
-    confirmForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-        if (targetForm) {
-            targetForm.submit();
-        }
     });
 });

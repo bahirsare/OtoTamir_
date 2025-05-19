@@ -160,11 +160,12 @@ namespace OtotamirWEBUI.Controllers
                 }
 
                 TempData["Message"] = "Şifre güncelleme başarılı!";
-                return RedirectToAction("Profile", "Account");
+                return RedirectToAction("Profile", "Account",result.Errors);
             }
 
             else
             {
+                TempData["FailMessage"] = "Lütfen şifre alanlarını eksiksiz doldurun!";
                 return RedirectToAction("Profile", "Account");
             }
         }
