@@ -16,6 +16,8 @@ namespace OtoTamir.CORE.DTOs.ClientDTOs
         [DisplayName("Notlar")]
         public string? Notes { get; set; }
 
+        public string ReturnUrl {  get; set; }
+
 
     }
 }

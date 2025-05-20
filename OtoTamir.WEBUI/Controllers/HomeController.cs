@@ -49,13 +49,12 @@ namespace OtotamirWEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateClient(CreateClientDTO model)
         {
-
-
+            List<string>URL= model.ReturnUrl.Split('/').ToList();
             if (!ModelState.IsValid)
             {
                 TempData["Message"] = "Müþteri Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
 
-                return RedirectToAction("Clients", "Home");
+                return RedirectToAction(URL[0], URL[1]);
             }
             var currentMechanicId = _userManager.GetUserId(User);
 
@@ -75,12 +74,12 @@ namespace OtotamirWEBUI.Controllers
                 {
                     TempData["Message"] = "Müþteri Eklenemedi.";
                 }
-                return RedirectToAction("Clients", "Home");
+                return RedirectToAction(URL[0], URL[1]);
             }
             else
             {
                 TempData["FailMessage"] = "Ayný telefon numarasýna sahip müþteri var!";
-                return RedirectToAction("Clients", "Home"); ;
+                return RedirectToAction(URL[0], URL[1]);
             }
         }
         public async Task<IActionResult> DeleteClientAsync(int id)
@@ -134,11 +133,12 @@ namespace OtotamirWEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateVehicleAsync(CreateVehicleDTO _model)
         {
+            List<string> URL = _model.ReturnUrl.Split('/').ToList();
             if (!ModelState.IsValid)
             {
 
                 TempData["Message"] = "Araç Eklenemedi. Lütfen bilgileri eksiksiz doldurun.";
-                return RedirectToAction("Clients", "Home");
+                return RedirectToAction(URL[1], URL[0]);
             }
             _model.Plate.ToUpper().Replace(" ", "");
 
@@ -155,7 +155,7 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = "Araç eklenirken bir hata oluþtu.";
             }
 
-            return RedirectToAction("Clients", "Home");
+            return RedirectToAction(URL[1],URL[0] );
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

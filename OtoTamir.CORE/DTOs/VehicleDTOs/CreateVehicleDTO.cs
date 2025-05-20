@@ -19,5 +19,7 @@ namespace OtoTamir.CORE.DTOs.VehicleDTOs
 
         [Required]
         public int ClientId { get; set; }
+
+        public string ReturnUrl {  get; set; }
     }
 }

@@ -1,0 +1,25 @@
+﻿@model Vehicle
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Tarih</th>
+            <th>Uygulanan İşlem</th>
+            <th>Açıklama</th>
+            <th>Fiyat</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        @foreach(var record in Model.ServiceRecords)
+        {
+            <tr>
+                <td>@record.CreatedDate</td>
+                <td>@record.Name</td>
+                <td>@record.Description</td>
+                <td>@record.Price</td>
+            </tr>
+        }
+        
+    </tbody>
+</table>

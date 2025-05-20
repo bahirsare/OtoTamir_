@@ -1,4 +1,7 @@
 ﻿@model List<Vehicle>
+
+
+
 <table class="table table-bordered mt-3">
     <thead>
         <tr>
@@ -7,12 +10,9 @@
             <th>Model</th>
             <th>Yıl</th>
             <th>İşlemler</th>
-
         </tr>
     </thead>
     <tbody>
-
-
         @foreach (var vehicle in Model)
         {
             <tr>
@@ -22,14 +22,80 @@
                 <td>@vehicle.Year</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-warning">İşlen Geçmişi</button>
-                        <button class="btn btn-sm btn-success">Yeni İşlem</button>
+                        <a class="btn btn-sm btn-warning" data-bs-toggle="collapse" href="#collapse-history-@vehicle.Id">İşlem Geçmişi</a>
+                       
+                        <a class="btn btn-sm btn-success" data-bs-toggle="collapse" href="#collapse-new-@vehicle.Id">Yeni İşlem</a>
+                    </div>
 
-
+                </td>
+            </tr>
+            <tr class="collapse" id="collapse-history-@vehicle.Id">
+                <td colspan="5">
+                    <div class="bg-light p-3 rounded border">
+                        <h6>İşlem Geçmişi - @vehicle.Plate</h6>
+                        @await Component.InvokeAsync("_ListServiceRecordViewComponentPartial", vehicle.Id)
+                    </div>
+                 </td>
+            </tr>
+            <tr>
+                <td colspan="5" class="p-0 border-0">
+                   
+                    <div class="collapse" id="collapse-new-@vehicle.Id">
+                        <div class="p-3 border-top bg-light">
+                            <strong>Yeni İşlem Ekle:</strong>
+                            <form asp-action="AddServiceRecord" method="post">
+                                <input type="hidden" name="VehicleId" value="@vehicle.Id" />
+                                <div class="mb-2">
+                                    <label>Şikayet</label>
+                                    <textarea name="SymptomDescription" class="form-control"></textarea>
+                                </div>
+                                <div class="mb-2">
+                                    <label>Tahmini Ücret</label>
+                                    <input type="number" name="EstimatedCost" class="form-control" />
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary">Kaydet</button>
+                            </form>
+                        </div>
                     </div>
                 </td>
             </tr>
-        }
 
+        }
     </tbody>
 </table>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.btn[data-bs-toggle="collapse"]').forEach(button => {
+            button.addEventListener("click", function (e) {
+                e.preventDefault(); // link davranışını engelle
+
+                const clickedTargetId = button.getAttribute("href")?.replace("#", "");
+                const clickedCollapse = document.getElementById(clickedTargetId);
+
+                const row = button.closest("tr");
+                const allCollapses = row.parentElement.querySelectorAll(".collapse.show");
+
+                // Diğer açık collapse'ları kapat
+                const toClose = Array.from(allCollapses).filter(el => el.id !== clickedTargetId);
+
+                if (toClose.length > 0) {
+                    // Kapatma işlemi bitince açmayı başlat
+                    toClose.forEach(el => {
+                        const instance = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, { toggle: false });
+                        el.addEventListener("hidden.bs.collapse", function handler() {
+                            el.removeEventListener("hidden.bs.collapse", handler);
+                            const toOpen = bootstrap.Collapse.getInstance(clickedCollapse) || new bootstrap.Collapse(clickedCollapse);
+                            toOpen.show();
+                        });
+                        instance.hide();
+                    });
+                } else {
+                    // Kapatılacak başka yoksa direkt aç
+                    const toOpen = bootstrap.Collapse.getInstance(clickedCollapse) || new bootstrap.Collapse(clickedCollapse);
+                    toOpen.show();
+                }
+            });
+        });
+    });
+</script>

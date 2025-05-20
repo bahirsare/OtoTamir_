@@ -3,7 +3,12 @@
     ViewData["Title"] = "Yeni İşlem";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning" role="alert">
+        @TempData["Message"]
+    </div>
+}
 <section class="content">
     <div class="container-fluid">
         <div class="card card-primary card-outline">
@@ -75,15 +80,16 @@
             @await Component.InvokeAsync("_ListVehicleViewComponentPartial", Model.SelectedClientId)
 
             <div class="modal fade" id="createVehicleModal-@Model.SelectedClientId" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
-                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", Model.SelectedClientId)
+                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = Model.SelectedClientId, ReturnUrl = "ServiceRecord/Index" })
             </div>
 
         }
         
        
-        <div class="modal fade" id="createClientModal" tabindex="-1" aria-labelledby="createClientModalLabel" aria-hidden="true">
-            @await Component.InvokeAsync("_CreateClientViewComponentPartial")
-        </div>
+       
+    </div>
+    <div class="modal fade" id="createClientModal" tabindex="-1" aria-labelledby="createClientModalLabel" aria-hidden="true">
+        @await Component.InvokeAsync("_CreateClientViewComponentPartial","/ServiceRecord/Index")
     </div>
 </section>
 

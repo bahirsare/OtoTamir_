@@ -89,7 +89,7 @@
                                 Araç Ekle
                             </button>
                             <div class="modal fade" id="createVehicleModal-@item.Id" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
-                                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial",item.Id)
+                                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = item.Id, ReturnUrl= "Home/Clients" })
                             </div>
                            
                         </td>

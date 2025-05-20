@@ -12,10 +12,10 @@ namespace OtoTamir.WEBUI.ViewComponents._Client.CreateClient
     {
 
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(string returnUrl)
         {
 
-            var model = new CreateClientDTO();
+            var model = new CreateClientDTO() { ReturnUrl = returnUrl};
 
             return View(model);
 

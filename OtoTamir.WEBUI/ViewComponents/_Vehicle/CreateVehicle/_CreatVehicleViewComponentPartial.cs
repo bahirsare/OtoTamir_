@@ -5,13 +5,9 @@ namespace OtoTamir.WEBUI.ViewComponents._Vehicle.CreateVehicle
 {
     public class _CreateVehicleViewComponentPartial : ViewComponent
     {
-        public async Task<IViewComponentResult> InvokeAsync(int clientId)
+        public async Task<IViewComponentResult> InvokeAsync(CreateVehicleDTO model) 
         {
-            var model = new CreateVehicleDTO
-            {
-                ClientId = clientId
-            };
-
+            
             return View(model);
         }
     }
