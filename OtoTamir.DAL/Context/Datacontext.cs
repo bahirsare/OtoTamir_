@@ -37,7 +37,7 @@ namespace OtoTamir.DAL.Context
         public DbSet<Mechanic> Mechanics { get; set; }       
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<ServiceRecord> ServiceRecords { get; set; }
-        public DbSet<Symptom> Symptom { get; set; }
+        public DbSet<Symptom> Symptoms { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Image> Images { get; set; }
         public override int SaveChanges()

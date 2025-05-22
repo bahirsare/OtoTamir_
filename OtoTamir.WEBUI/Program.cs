@@ -38,6 +38,9 @@ namespace OtoTamir.WEBUI
             builder.Services.AddScoped<IServiceRecordDal, EfCoreServiceRecordDal>();
             builder.Services.AddScoped<IServiceRecordService, ServiceRecordService>();
 
+            builder.Services.AddScoped<ISymptomDal, EfCoreSymptomDal>();
+            builder.Services.AddScoped<ISymptomService, SymptomService>();
+
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 //password

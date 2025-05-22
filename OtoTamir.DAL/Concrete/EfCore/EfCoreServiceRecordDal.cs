@@ -1,4 +1,5 @@
-﻿using OtoTamir.CORE.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Context;
@@ -28,7 +29,15 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
             return await base.CreateAsync(serviceRecord);
         }
-       
+        public override async Task<List<ServiceRecord>> GetAllAsync(Expression<Func<ServiceRecord, bool>> filter = null)
+        {
+            var entities = _context.ServiceRecords.Include(i => i.SymptomList).AsQueryable();
+            {
+                entities = entities.Where(filter);
+            }
+            return entities.ToList();
+        }
+
 
     }
 }

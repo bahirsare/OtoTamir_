@@ -14,9 +14,13 @@ namespace OtoTamir.CORE.Entities
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string Status { get; set; }
-
-        public int VehicleId { get; set; }  // Araç
+        public int VehicleId { get; set; } 
         public Vehicle Vehicle { get; set; }
+        public List<Symptom> SymptomList { get; set; }
+
+        public ServiceRecord() {
+            SymptomList=new List<Symptom>();
+        }
 
         
     }
