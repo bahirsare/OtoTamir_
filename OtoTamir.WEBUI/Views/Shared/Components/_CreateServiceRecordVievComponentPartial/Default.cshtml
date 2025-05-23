@@ -1,0 +1,46 @@
+﻿@model ServiceRecord
+
+@{
+    ViewData["Title"] = "Yeni İşlem";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="p-3 border-top bg-light">
+    <strong>Yeni İşlem Ekle:</strong>
+
+    <form asp-action="AddServiceRecord" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="SymptomName" class="form-label"></label>
+            <input asp-for="SymptomName" class="form-control" />
+            <span asp-validation-for="SymptomName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="IssueDescription" class="form-label"></label>
+            <textarea asp-for="IssueDescription" class="form-control"></textarea>
+            <span asp-validation-for="IssueDescription" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PossibleSolution" class="form-label"></label>
+            <textarea asp-for="PossibleSolution" class="form-control"></textarea>
+            <span asp-validation-for="PossibleSolution" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EstimatedCost" class="form-label"></label>
+            <input asp-for="EstimatedCost" class="form-control" />
+            <span asp-validation-for="EstimatedCost" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EstimatedDaysToFix" class="form-label"></label>
+            <input asp-for="EstimatedDaysToFix" type="number" class="form-control" />
+            <span asp-validation-for="EstimatedDaysToFix" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-sm btn-primary">Kaydet</button>
+    </form>
+</div>

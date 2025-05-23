@@ -41,25 +41,7 @@
                 <td colspan="5" class="p-0 border-0">
                    
                     <div class="collapse" id="collapse-new-@vehicle.Id">
-                        <div class="p-3 border-top bg-light">
-                            <strong>Yeni İşlem Ekle:</strong>
-                            <form asp-action="AddServiceRecord" method="post">
-                                <input type="hidden" name="VehicleId" value="@vehicle.Id" />
-                                <div class="mb-2">
-                                    <label>Şikayet</label>
-                                    <textarea name="SymptomDescription" class="form-control"></textarea>
-                                </div>
-                                <div class="mb-2">
-                                    <label>Yapılacak İşlem</label>
-                                    <textarea name="ServiceRecordName" class="form-control"></textarea>
-                                </div>
-                                <div class="mb-2">
-                                    <label>Tahmini Ücret</label>
-                                    <input type="number" name="EstimatedCost" class="form-control" />
-                                </div>
-                                <button type="submit" class="btn btn-sm btn-primary">Kaydet</button>
-                            </form>
-                        </div>
+                        @await Component.InvokeAsync("_CreateServiceRecordViewComponentPartial", vehicle.Id)
                     </div>
                 </td>
             </tr>
@@ -72,7 +54,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll('.btn[data-bs-toggle="collapse"]').forEach(button => {
             button.addEventListener("click", function (e) {
-                e.preventDefault(); // link davranışını engelle
+                e.preventDefault();
 
                 const clickedTargetId = button.getAttribute("href")?.replace("#", "");
                 const clickedCollapse = document.getElementById(clickedTargetId);

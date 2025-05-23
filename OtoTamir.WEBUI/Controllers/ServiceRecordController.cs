@@ -8,12 +8,14 @@ public class ServiceRecordController : Controller
     private readonly IVehicleService _vehicleService;
     private readonly IClientService _clientService;
     private readonly IServiceRecordService _serviceRecordService;
+    private readonly ISymptomService _SymptomService;
 
-    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService)
+    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService)
     {
         _vehicleService = vehicleService;
         _clientService = clientService;
         _serviceRecordService = serviceRecordService;
+        _SymptomService=symptomService;
     }
 
 
@@ -41,5 +43,18 @@ public class ServiceRecordController : Controller
             clients = await _clientService.GetAllAsync();
         }
         return View("Index", model);
+    }
+    [HttpPost]
+    public async Task<IActionResult> AddServiceRecord(ServiceRecord model)
+    {
+
+        ServiceRecord serviceRecord = new ServiceRecord()
+        { 
+            Status="Created",
+
+
+        };
+
+        return View();
     }
 }

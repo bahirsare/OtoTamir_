@@ -43,10 +43,10 @@
        
       
         
-        @if (Model.SelectedClientId != null || Model.SelectedClientId!=0)
+        @if (Model.SelectedClientId != null && Model.SelectedClientId!=0)
         {
-            @await Component.InvokeAsync("_ListVehicleViewComponentPartial", Model.SelectedClientId)///null geliyor
             @await Component.InvokeAsync("_CardClientViewComponentPartial", Model.SelectedClientId)
+            @await Component.InvokeAsync("_ListVehicleViewComponentPartial", Model.SelectedClientId)
             <div class="modal fade" id="createVehicleModal-@Model.SelectedClientId" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
                 @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = Model.SelectedClientId, ReturnUrl = "ServiceRecord/Index" })
             </div>
@@ -62,4 +62,4 @@
 </section>
 
 
-}
+
