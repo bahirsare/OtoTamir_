@@ -39,46 +39,14 @@
 
             
         </div>
-
-        @if (Model.Clients.FirstOrDefault(i=> i.Id==Model.SelectedClientId) is var selectedClient && selectedClient != null)
-        {
-            <div class="card card-info">
-                <div class="card-header">
-                    <h5 class="card-title">Müşteri Bilgileri</h5>
-                </div>
-                <div class="card-body">
-                    <dl class="row">
-                        <dt class="col-sm-3">Ad Soyad</dt>
-                        <dd class="col-sm-9">@selectedClient.Name</dd>
-
-                        <dt class="col-sm-3">Telefon</dt>
-                        <dd class="col-sm-9">@selectedClient.PhoneNumber</dd>
-
-                        <dt class="col-sm-3">Bakiye</dt>
-                        <dd class="col-sm-9">@selectedClient.Balance</dd>
-
-                        <dt class="col-sm-3">Kayıtlı Araç Sayısı</dt>
-                        <dd class="col-sm-9">
-                            <div>
-                            @selectedClient.Vehicles.Count
-                            <row class="m-2">
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createVehicleModal-@Model.SelectedClientId">
-                                Araç Ekle
-                                </button>
-                                </row>
-                            </div>
-                        </dd>
-                        
-                    </dl>
-                </div>
-            </div>
-        }
-       
         
-        @if (Model.SelectedClientId != null)
+       
+      
+        
+        @if (Model.SelectedClientId != null || Model.SelectedClientId!=0)
         {
-            @await Component.InvokeAsync("_ListVehicleViewComponentPartial", Model.SelectedClientId)
-
+            @await Component.InvokeAsync("_ListVehicleViewComponentPartial", Model.SelectedClientId)///null geliyor
+            @await Component.InvokeAsync("_CardClientViewComponentPartial", Model.SelectedClientId)
             <div class="modal fade" id="createVehicleModal-@Model.SelectedClientId" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
                 @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = Model.SelectedClientId, ReturnUrl = "ServiceRecord/Index" })
             </div>

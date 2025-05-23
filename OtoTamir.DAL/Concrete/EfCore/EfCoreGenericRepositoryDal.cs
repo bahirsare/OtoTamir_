@@ -12,7 +12,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             _context = context;
         }
 
-        public async Task<List<T>> GetAllAsync()
+        public virtual async Task<List<T>> GetAllAsync()
         {
             return await _context.Set<T>().ToListAsync();
         }
@@ -34,7 +34,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             return await entities.ToListAsync();
         }
 
-        public async Task<T> GetOneAsync(int id)
+        public virtual async Task<T> GetOneAsync(int id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
