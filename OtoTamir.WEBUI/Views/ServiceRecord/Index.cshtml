@@ -3,9 +3,21 @@
     ViewData["Title"] = "Yeni İşlem";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["FailMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["FailMessage"]
+    </div>
+}
 @if (TempData["Message"] != null)
 {
-    <div class="alert alert-warning" role="alert">
+    <div class="alert alert-info">
         @TempData["Message"]
     </div>
 }
@@ -48,7 +60,7 @@
             @await Component.InvokeAsync("_CardClientViewComponentPartial", Model.SelectedClientId)
             @await Component.InvokeAsync("_ListVehicleViewComponentPartial", Model.SelectedClientId)
             <div class="modal fade" id="createVehicleModal-@Model.SelectedClientId" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
-                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = Model.SelectedClientId, ReturnUrl = "ServiceRecord/Index" })
+                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = (int)Model.SelectedClientId, ReturnUrl = "ServiceRecord/Index" })
             </div>
 
         }
@@ -60,6 +72,8 @@
         @await Component.InvokeAsync("_CreateClientViewComponentPartial","/ServiceRecord/Index")
     </div>
 </section>
+<script src="~/js/serviceRecord.js"></script>
+
 
 
 

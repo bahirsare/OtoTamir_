@@ -9,7 +9,7 @@ namespace OtoTamir.CORE.Entities
 {
     public class ServiceRecord:BaseEntity
     {
-      
+
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
@@ -17,6 +17,7 @@ namespace OtoTamir.CORE.Entities
         public int VehicleId { get; set; } 
         public Vehicle Vehicle { get; set; }
         public List<Symptom> SymptomList { get; set; }
+        public string AuthorName { get; set; }
 
         public ServiceRecord() {
             SymptomList=new List<Symptom>();

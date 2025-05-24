@@ -81,29 +81,10 @@
     </table>
 </div>
 
-<!-- Onay Modalı -->
+
 @await Html.PartialAsync("_ConfirmModalPartial")
 
 
-@* 
-<script>
-    let formToSubmit = null;
-
-    document.querySelectorAll('.delete-button').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            formToSubmit = this.closest('form');
-            const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            modal.show();
-        });
-    });
-
-    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-        if (formToSubmit) {
-            formToSubmit.submit();
-        }
-    });
-</script> *@
 
 
 

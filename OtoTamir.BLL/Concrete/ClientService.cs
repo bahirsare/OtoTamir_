@@ -1,18 +1,12 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
-    public class ClientService:IClientService
-    {   
+    public class ClientService : IClientService
+    {
         private readonly IClientDal _clientDal;
 
         public ClientService(IClientDal clientDal)
@@ -35,22 +29,27 @@ namespace OtoTamir.BLL.Concrete
             return await _clientDal.DeleteAsync(id);
         }
 
-        public async Task    <List<Client>>  GetAllAsync()
+        public async Task<List<Client>> GetAllAsync()
         {
-            return await _clientDal.GetAllAsync();
+            throw new NotSupportedException("This method is not supported for Client. Please use the version with mechanicId.");
         }
 
-        public async Task<List<Client>>  GetAllAsync(Expression<Func<Client, bool>> filter = null)
+        public Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
         {
-            return await _clientDal.GetAllAsync(filter);
+            throw new NotSupportedException("This method is not supported for Client. Please use the version with mechanicId.");
+        }
+
+        public async Task<List<Client>> GetAllAsync(string mechanicId, Expression<Func<Client, bool>> filter = null)
+        {
+            return await _clientDal.GetAllAsync(mechanicId, filter);
         }
 
         public async Task<Client> GetOneAsync(int id)
         {
             return await _clientDal.GetOneAsync(id);
-        }      
+        }
 
-        public async Task<int > UpdateAsync()
+        public async Task<int> UpdateAsync()
         {
             return await _clientDal.UpdateAsync();
         }

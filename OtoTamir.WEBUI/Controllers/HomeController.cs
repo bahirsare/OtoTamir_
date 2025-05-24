@@ -33,17 +33,23 @@ namespace OtotamirWEBUI.Controllers
         }
 
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-
+           
             return View();
         }
 
-        public async Task<IActionResult> ClientsAsync()
+        public async Task<IActionResult> Clients()
 
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (!user.IsProfileCompleted)
+            {
+                TempData["Message"] = "Lütfen bilgilerinizi doldurunuz";
+                return RedirectToAction("Profile", "Account");
+            }
             var mechanicId = _userManager.GetUserId(User);
-            var clients = await _clientService.GetAllAsync(x => x.MechanicId == mechanicId);
+            var clients = await _clientService.GetAllAsync(mechanicId);
             return View(clients);
         }
         [HttpPost]

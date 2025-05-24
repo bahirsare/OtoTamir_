@@ -137,7 +137,7 @@ namespace OtotamirWEBUI.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid)// 
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)

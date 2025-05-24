@@ -23,21 +23,38 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
             return await base.CreateAsync(client);
         }
-        public override async Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
+        public async Task<List<Client>> GetAllAsync(string mechanicId, Expression<Func<Client, bool>> filter = null)
         {
-            var entities = _context.Clients.Include(i => i.Vehicles).ThenInclude(i => i.ServiceRecords).AsQueryable();
+            if (string.IsNullOrEmpty(mechanicId))
+                throw new ArgumentException("mechanicId cannot be null or empty.", nameof(mechanicId));
+
+            var entities = _context.Clients
+                .Include(c => c.Vehicles)
+                    .ThenInclude(v => v.ServiceRecords)
+                .Where(c => c.MechanicId == mechanicId);
 
             if (filter != null)
             {
                 entities = entities.Where(filter);
             }
-            return entities.ToList();
-        } 
-        public override async Task<List<Client>> GetAllAsync()
-        {
-            var entities =  _context.Clients.Include(i => i.Vehicles).ThenInclude(i => i.ServiceRecords).AsQueryable();
 
-            return entities.ToList();
+            return await entities.ToListAsync();
+        }
+        public override Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
+        {
+            throw new NotSupportedException("This method is not supported for Client. Please use the version with mechanicId.");
+        }
+        public override Task<List<Client>> GetAllAsync()
+        {
+            throw new NotSupportedException("This method is not supported for Client. Please use the version with mechanicId.");
+        }
+
+
+        public async Task<List<Client>> GetAllAsync(string mechanicId)
+        {
+            var entities =  _context.Clients.Include(i => i.Vehicles).ThenInclude(i => i.ServiceRecords).Where(c => c.MechanicId == mechanicId); ;
+
+            return await entities.ToListAsync();
         }
         public override async Task<Client> GetOneAsync(int id)
         {

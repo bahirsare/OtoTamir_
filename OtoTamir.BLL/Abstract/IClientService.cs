@@ -1,14 +1,11 @@
 ﻿using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace OtoTamir.BLL.Abstract
 {
-    public interface IClientService: IRepositoryService<Client>
+    public interface IClientService : IRepositoryService<Client>
     {
+        Task<List<Client>> GetAllAsync(string mechanicId, Expression<Func<Client, bool>> filter = null);
     }
 }

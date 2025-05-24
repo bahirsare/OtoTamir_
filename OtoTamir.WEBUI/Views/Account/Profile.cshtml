@@ -27,7 +27,7 @@
     <form asp-action="Profile" asp-controller="Account" method="post" enctype="multipart/form-data">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
-            <!-- Sol taraf: genel bilgiler -->
+            
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Kullanıcı Adı</label>
@@ -60,7 +60,7 @@
                 </div>
             </div>
 
-            <!-- Sağ taraf: görsel, yetenekler ve şifre -->
+           
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Skills" class="form-label"></label>
@@ -71,7 +71,7 @@
                 <div class="mb-3">
                     <label  class="form-label">Profil Resmi</label>
                     
-                    @* <span asp-validation-for="Image" class="text-danger"></span> *@
+                    
                     <input type="file" class="form-control" name="file">
                 </div>
 

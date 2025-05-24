@@ -7,7 +7,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Müşteri Listesi</h2>
-        <!-- Buton -->
+     
         <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClientModal">
             <i class="bi bi-plus-circle"></i> Yeni Müşteri Ekle
         </a>
@@ -60,7 +60,7 @@
                         <td>@item.ModifiedDate.ToString("dd.MM.yyyy")</td>
                         
                         <td>
-                            <!-- İşlemler Menüsünde -->
+                            
                             <div class="btn-group" role="group">
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editClientModal-@item.Id">Düzenle</button>
                                 <div class="modal fade" id="editClientModal-@item.Id" tabindex="-1" aria-labelledby="editClientModalLabel-@item.Id" aria-hidden="true">
@@ -68,6 +68,7 @@
                                 </div>
                                 <a asp-action="DeleteClient" asp-asp-controller="Home" asp-route-id="@item.Id" class=" btn btn-danger">Sil</a>
                             </div>
+                            <!-- sil onayı eklenecek -->
 
                         </td>
                         <td>

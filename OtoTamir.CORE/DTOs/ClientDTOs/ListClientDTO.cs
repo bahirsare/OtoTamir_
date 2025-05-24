@@ -10,6 +10,6 @@ namespace OtoTamir.CORE.DTOs.ClientDTOs
     public class ListClientDTO
     {
         public List<Client> Clients;
-        public int SelectedClientId;
+        public int? SelectedClientId;
     }
 }

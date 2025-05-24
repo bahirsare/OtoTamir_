@@ -7,6 +7,9 @@
             <th>Uygulanan İşlem</th>
             <th>Açıklama</th>
             <th>Fiyat</th>
+            <th>Son Güncelleme Tarihi</th>
+            <th>Durum</th>
+            <th>Yazar</th>
         </tr>
     </thead>
     <tbody>
@@ -15,9 +18,14 @@
         {
             <tr>
                 <td>@record.CreatedDate</td>
+                
                 <td>@record.Name</td>
                 <td>@record.Description</td>
                 <td>@record.Price</td>
+                <td>@record.ModifiedDate</td>
+
+                <td>@record.Status</td>
+                <td>@record.AuthorName</td>
             </tr>
         }
         

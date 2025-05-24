@@ -34,6 +34,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             vehicle.CreatedDate = DateTime.Now;
             vehicle.ModifiedDate = DateTime.Now;
             vehicle.Plate.ToUpper().Replace(" ", "");
+            vehicle.Name=vehicle.Plate+vehicle.Brand;
 
             return await base.CreateAsync(vehicle);
         }

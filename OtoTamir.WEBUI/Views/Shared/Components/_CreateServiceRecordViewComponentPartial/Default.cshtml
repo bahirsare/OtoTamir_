@@ -1,0 +1,26 @@
+﻿@model CreateSymptomGroupDTO
+
+<form asp-action="CreateServiceRecord" method="post">
+    <input type="hidden" asp-for="VehicleId" />
+    <div class="border rounded p-3 mb-3">
+    <div class="mb-3">
+        <label for="AuthorName" class="form-label">Yazar Adı</label>
+        <input asp-for="AuthorName" class="form-control" />
+    </div>
+    <div id="symptomContainer-@Model.VehicleId">
+        <!-- İlk semptom otomatik oluşacak -->
+    </div>
+   </div>
+
+    <button type="button" class="btn btn-secondary my-2" onclick="addSymptomRow('symptomContainer-@Model.VehicleId')">Yeni Semptom Ekle</button>
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</form>
+
+
+<script>
+    // Sayfa yüklendiğinde ilk semptom satırı ekleniyor
+    document.addEventListener("DOMContentLoaded", function () {
+        addSymptomRow('symptomContainer-@Model.VehicleId');
+    });
+</script>

@@ -1,0 +1,68 @@
+﻿@model ServiceRecordListViewModel
+@{
+    ViewData["Title"] = "Devam Eden İşlemler";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">Servis Kaydı Filtreleme</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Ongoing" method="get" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="clientName" class="form-label">Müşteri Adı</label>
+                       @*  <input type="text" class="form-control" id="clientName" name="ClientName" value="@Model.ClientName" placeholder="Müşteri adıyla ara" /> *@
+                    </div>
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Durum</label>
+                        <select class="form-select" id="status" name="CurrentStatus">
+                            <option value="">Tümü</option>
+                            <option value="Oluşturuldu" selected="@(Model.CurrentStatus == "Oluşturuldu")">Devam Eden</option>
+                            <option value="Tamamlandı" selected="@(Model.CurrentStatus == "Tamamlandı")">Tamamlanmış</option>
+                            <option value="İptal Edildi" selected="@(Model.CurrentStatus == "İptal Edildi")">İptal Edilmiş</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Filtrele
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (Model.Records != null && Model.Records.Any())
+        {
+            <div class="row">
+                @foreach (var record in Model.Records)
+                {
+                    <div class="col-md-6">
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title">@record.Name</h3>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Plaka:</strong> @record.Vehicle?.Plate</p>
+                                <p><strong>Durum:</strong> @record.Status</p>
+                                <p><strong>Fiyat:</strong> @record.Price.ToString("C")</p>
+                                <p><strong>Yazar:</strong> @record.AuthorName</p>
+                                <p><strong>Açıklama:</strong> @record.Description</p>
+                                <p><strong>Tarih:</strong> @record.CreatedDate.ToString("dd.MM.yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                Filtreye uygun servis kaydı bulunamadı.
+            </div>
+        }
+    </div>
+</section>

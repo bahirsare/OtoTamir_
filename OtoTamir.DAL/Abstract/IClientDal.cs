@@ -12,6 +12,6 @@ namespace OtoTamir.DAL.Abstract
 {
     public interface IClientDal: IRepositoryService<Client>
     {
-        
+        Task<List<Client>> GetAllAsync(string mechanicId,Expression<Func<Client, bool>> filter = null);
     }
 }

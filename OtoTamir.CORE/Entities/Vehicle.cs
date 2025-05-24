@@ -8,8 +8,8 @@ namespace OtoTamir.CORE.Entities
 {
     public class Vehicle:BaseEntity
     {
-        
 
+        public string Name { get; set; }
         public string Plate { get; set; }
         public string Brand{ get; set; }
         public string Model { get; set; }
@@ -18,11 +18,11 @@ namespace OtoTamir.CORE.Entities
         public Client Client { get; set; }
         public int ClientId { get; set; }
 
-        public List<Symptom> Symptoms { get; set; }  // Araçtaki semptomlar
-        public List<ServiceRecord> ServiceRecords { get; set; }  // Servis geçmişi
+        //public List<Symptom> Symptoms { get; set; }  
+        public List<ServiceRecord> ServiceRecords { get; set; }  
         public Vehicle()
         {
-            Symptoms = new List<Symptom>();
+            //Symptoms = new List<Symptom>();
             ServiceRecords = new List<ServiceRecord>();
                 
 
