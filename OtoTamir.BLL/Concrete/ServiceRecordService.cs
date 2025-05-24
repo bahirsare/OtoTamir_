@@ -38,9 +38,9 @@ namespace OtoTamir.BLL.Concrete
             return await _serviceRecordDal.GetAllAsync(filter);
         }
 
-        public async Task<ServiceRecord> GetOneAsync(int id)
+        public async Task<ServiceRecord> GetOneAsync(int id,string mechanicId)
         {
-            return await _serviceRecordDal.GetOneAsync(id);
+            return await _serviceRecordDal.GetOneAsync(id, mechanicId);
         }
        
 

@@ -38,7 +38,7 @@ public class ServiceRecordController : Controller
             TempData["Message"] = "Lütfen bilgilerinizi doldurunuz";
             return RedirectToAction("Profile", "Account");
         }
-        var clients = await _clientService.GetAllAsync(user.Id);
+        var clients = await _clientService.GetAllAsync(user.Id,false,false);
         var model = new ListClientDTO
         {
             Clients = clients,
@@ -50,7 +50,7 @@ public class ServiceRecordController : Controller
     public async Task<IActionResult> GetVehiclesByClientId(int selectedClientId)
     {
         var user = await _userManager.GetUserAsync(User);
-        var clients = await _clientService.GetAllAsync(user.Id);
+        var clients = await _clientService.GetAllAsync(user.Id,true,false);
         var model = new ListClientDTO
         {
             Clients = clients,
@@ -58,14 +58,15 @@ public class ServiceRecordController : Controller
         };
         if (clients.Count == 0)
         {
-            clients = await _clientService.GetAllAsync(user.Id);
+            clients = await _clientService.GetAllAsync(user.Id,false,false);
         }
         return View("Index", model);
     }
     [HttpPost]
     public async Task<IActionResult> CreateServiceRecord(CreateSymptomGroupDTO model)
     {
-        var vehicle = await _vehicleService.GetOneAsync(model.VehicleId); 
+        var user = await _userManager.GetUserAsync(User);
+        var vehicle = await _vehicleService.GetOneAsync(id:model.VehicleId,mechanicId:user.Id); 
         if (vehicle == null)
         {
             TempData["FailMessage"] = "Araç bulunamadı!";
@@ -112,20 +113,40 @@ public class ServiceRecordController : Controller
 
         return RedirectToAction("Index", new { selectedClientId = clientId });
     }
-    public async Task<IActionResult> Ongoing(string status = "Devam Ediyor", string search = null)
+
+    public async Task<IActionResult> Ongoing(string ClientName, string CurrentStatus)
     {
         var mechanicId = _userManager.GetUserId(User);
-        var records = await _serviceRecordService.GetAllAsync(i=> i.Status==status);
 
-        var viewModel = new ServiceRecordListViewModel
+        var query = _serviceRecordService.GetAllAsync()
+            .Include(sr => sr.Vehicle)
+                .ThenInclude(v => v.Client)
+            .Where(sr => sr.Vehicle.Client.MechanicId == mechanicId);
+
+        if (!string.IsNullOrWhiteSpace(ClientName))
+        {
+            query = query.Where(sr => sr.Vehicle.Client.Name.Contains(ClientName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(CurrentStatus))
+        {
+            query = query.Where(sr => sr.Status == CurrentStatus);
+        }
+
+        var records = await query
+            .OrderByDescending(sr => sr.CreatedDate)
+            .ToListAsync();
+
+        var model = new ServiceRecordOngoingViewModel
         {
             Records = records,
-            CurrentStatus = status,
-            SearchTerm = search
+            ClientName = ClientName,
+            CurrentStatus = CurrentStatus
         };
 
-        return View(viewModel);
+        return View(model);
     }
+
 
 
 

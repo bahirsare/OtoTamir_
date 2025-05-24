@@ -44,9 +44,14 @@ namespace OtoTamir.BLL.Concrete
             return await _vehicleDal.GetAllAsync(filter);
         }
 
-        public async Task<Vehicle> GetOneAsync(int id)
+        public async Task<Vehicle> GetOneAsync(
+        string plate = null,
+        int? id = null,
+        string mechanicId = null,
+        bool includeClient = false,
+        bool includeServiceRecords = false)
         {
-            return await _vehicleDal.GetOneAsync(id);
+            return await _vehicleDal.GetOneAsync(plate,id,mechanicId,includeClient,includeServiceRecords);
         }
         public async Task<Vehicle> GetOneAsync(string plate)
         {

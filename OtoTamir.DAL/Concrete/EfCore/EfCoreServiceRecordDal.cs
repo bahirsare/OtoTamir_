@@ -1,43 +1,92 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OtoTamir.CORE.Entities;
-using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
+using OtoTamir.DAL.Concrete.EfCore;
 using OtoTamir.DAL.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace OtoTamir.DAL.Concrete.EfCore
+public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, DataContext>, IServiceRecordDal
 {
-    public class EfCoreServiceRecordDal: EfCoreGenericRepositoryDal<ServiceRecord, DataContext>, IServiceRecordDal
+    private readonly DataContext _context;
+
+    public EfCoreServiceRecordDal(DataContext context) : base(context)
     {
-        private readonly DataContext _context;
+        _context = context;
+    }
 
-        public EfCoreServiceRecordDal(DataContext context) : base(context)
+    public override async Task<int> CreateAsync(ServiceRecord serviceRecord)
+    {
+        serviceRecord.CreatedDate = DateTime.Now;
+        serviceRecord.ModifiedDate = DateTime.Now;
+        return await base.CreateAsync(serviceRecord);
+    }
+
+    public async Task<List<ServiceRecord>> GetServiceRecordsAsync(
+        string mechanicId,
+        string status = null,
+        Expression<Func<ServiceRecord, bool>> filter = null,
+        bool includeVehicle = true,
+        bool includeSymptoms = false)
+    {
+        if (string.IsNullOrWhiteSpace(mechanicId))
+            throw new ArgumentNullException(nameof(mechanicId));
+
+        var query = _context.ServiceRecords.AsQueryable();
+
+        // Include'lar
+        if (includeVehicle)
         {
-            _context = context;
-
+            query = query
+                .Include(sr => sr.Vehicle)
+                .ThenInclude(v => v.Client)
+                .Where(sr => sr.Vehicle.Client.MechanicId == mechanicId);
         }
-        public override async Task<int> CreateAsync(ServiceRecord serviceRecord)
+
+        if (includeSymptoms)
         {
-
-            serviceRecord.CreatedDate = DateTime.Now;
-            serviceRecord.ModifiedDate = DateTime.Now;
-
-            return await base.CreateAsync(serviceRecord);
+            query = query.Include(sr => sr.SymptomList);
         }
-        public override async Task<List<ServiceRecord>> GetAllAsync(Expression<Func<ServiceRecord, bool>> filter = null)
+
+        // Filtreler
+        if (!string.IsNullOrWhiteSpace(status))
         {
-            var entities = _context.ServiceRecords.Include(i=> i.Vehicle).Include(i => i.SymptomList).AsQueryable();
-            {
-                entities = entities.Where(filter);
-            }
-            return entities.ToList();
+            query = query.Where(sr => sr.Status == status);
         }
 
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
 
+        return await query.ToListAsync();
+    }
+
+    public async Task<ServiceRecord> GetOneAsync(
+        int id,
+        string mechanicId = null,
+        bool includeVehicle = false,
+        bool includeSymptoms = false)
+    {
+        var query = _context.ServiceRecords.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(mechanicId))
+        {
+            query = query
+                .Include(sr => sr.Vehicle)
+                .ThenInclude(v => v.Client)
+                .Where(sr => sr.Vehicle.Client.MechanicId == mechanicId);
+        }
+
+        if (includeVehicle)
+        {
+            query = query.Include(sr => sr.Vehicle);
+        }
+
+        if (includeSymptoms)
+        {
+            query = query.Include(sr => sr.SymptomList);
+        }
+
+        return await query.FirstOrDefaultAsync(sr => sr.Id == id);
     }
 }

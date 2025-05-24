@@ -12,6 +12,12 @@ namespace OtoTamir.DAL.Abstract
 {
     public interface IClientDal: IRepositoryService<Client>
     {
-        Task<List<Client>> GetAllAsync(string mechanicId,Expression<Func<Client, bool>> filter = null);
+        
+        Task<List<Client>> GetAllByMechanicAsync(
+            string mechanicId,
+            Expression<Func<Client, bool>> filter = null,
+            bool includeVehicles = false,
+            bool includeServiceRecords = false);
+        Task<Client> GetOneAsync(int id, string mechanicId = null);
     }
 }

@@ -6,6 +6,7 @@ namespace OtoTamir.BLL.Abstract
 {
     public interface IClientService : IRepositoryService<Client>
     {
-        Task<List<Client>> GetAllAsync(string mechanicId, Expression<Func<Client, bool>> filter = null);
+        Task<List<Client>> GetAllAsync(string mechanicId, bool includeVehicles=false, bool includeServiceRecords = false, Expression<Func<Client, bool>> filter = null);
+        Task<Client> GetOneAsync(int id, string mechanicId);
     }
 }

@@ -41,7 +41,7 @@ namespace OtoTamir.BLL.Concrete
 
         public async Task<Mechanic> GetOneAsync(int id)
         {
-            return await _mechanicDal.GetOneAsync(id);
+            throw new NotSupportedException("This method is not supported for Mechanic. Please use the version with string.");
         }
 
         public async Task<int> UpdateAsync()

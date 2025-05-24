@@ -43,11 +43,7 @@ namespace OtoTamir.BLL.Concrete
             return await _symptomtDal.GetAllAsync(filter);
         }
 
-        public async Task<Symptom> GetOneAsync(int id)
-        {
-            return await _symptomtDal.GetOneAsync(id);
-        }
-
+        
         public async Task<int> UpdateAsync()
         {
             return await _symptomtDal.UpdateAsync();

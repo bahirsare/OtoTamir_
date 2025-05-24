@@ -39,14 +39,14 @@ namespace OtoTamir.BLL.Concrete
             throw new NotSupportedException("This method is not supported for Client. Please use the version with mechanicId.");
         }
 
-        public async Task<List<Client>> GetAllAsync(string mechanicId, Expression<Func<Client, bool>> filter = null)
+        public async Task<List<Client>> GetAllAsync(string mechanicId, bool includeVehicles, bool includeServiceRecords,Expression<Func<Client, bool>> filter = null)
         {
-            return await _clientDal.GetAllAsync(mechanicId, filter);
+            return await _clientDal.GetAllByMechanicAsync(mechanicId, filter,includeVehicles,includeServiceRecords);
         }
 
-        public async Task<Client> GetOneAsync(int id)
+        public async Task<Client> GetOneAsync(int id,string mechanicId)
         {
-            return await _clientDal.GetOneAsync(id);
+            return await _clientDal.GetOneAsync(id,mechanicId);
         }
 
         public async Task<int> UpdateAsync()

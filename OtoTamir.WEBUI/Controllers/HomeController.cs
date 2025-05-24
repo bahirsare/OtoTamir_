@@ -48,8 +48,8 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = "Lütfen bilgilerinizi doldurunuz";
                 return RedirectToAction("Profile", "Account");
             }
-            var mechanicId = _userManager.GetUserId(User);
-            var clients = await _clientService.GetAllAsync(mechanicId);
+            
+            var clients = await _clientService.GetAllAsync(user.Id,includeVehicles:true);
             return View(clients);
         }
         [HttpPost]
@@ -90,7 +90,8 @@ namespace OtotamirWEBUI.Controllers
         }
         public async Task<IActionResult> DeleteClientAsync(int id)
         {
-            var client = await _clientService.GetOneAsync(id);
+            var mechanicId = _userManager.GetUserId(User);
+            var client = await _clientService.GetOneAsync(id,mechanicId);
             if (client == null)
             {
                 TempData["FailMessage"] = "Müþteri bulunamadý.";
@@ -111,12 +112,13 @@ namespace OtotamirWEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateClientAsync(EditClientDTO model, IFormFile image)
         {
+            var mechanicId = _userManager.GetUserId(User);
             if (!ModelState.IsValid)
             {
                 TempData["Message"] = "Müþteri bilgileri geçersiz!";
                 return RedirectToAction("Clients", "Home");
             }
-            var client = await _clientService.GetOneAsync(model.Id);
+            var client = await _clientService.GetOneAsync(model.Id,mechanicId);
             if (client == null)
             {
                 TempData["Message"] = "Müþteri bulunamadý.";

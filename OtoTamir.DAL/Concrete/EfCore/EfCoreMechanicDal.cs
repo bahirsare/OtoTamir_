@@ -70,5 +70,10 @@ namespace OtoTamir.DAL.Concrete.EfCore
             return new string(Enumerable.Repeat(chars, 6)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+        public Task<Mechanic> GetOneAsync(int id, string mechanicId)
+        {
+            throw new NotSupportedException("This method is not supported for Mechanic. Please use the version.");
+        }
     }
 }

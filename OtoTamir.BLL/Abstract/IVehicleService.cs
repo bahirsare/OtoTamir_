@@ -1,15 +1,10 @@
 ﻿using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Abstract
 {
-    public interface IVehicleService:IRepositoryService<Vehicle>
+    public interface IVehicleService : IRepositoryService<Vehicle>
     {
-        Task<Vehicle> GetOneAsync(string plate);
+        Task<Vehicle> GetOneAsync(string plate = null, int? id = null, string mechanicId = null, bool includeClient = false, bool includeServiceRecords = false);
     }
 }
