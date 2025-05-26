@@ -14,20 +14,21 @@ public class EfCoreVehicleDal : EfCoreGenericRepositoryDal<Vehicle, DataContext>
         _context = context;
     }
 
-    public override async Task<List<Vehicle>> GetAllAsync(Expression<Func<Vehicle, bool>> filter = null)
+    public async Task<List<Vehicle>> GetAllAsync(string mechanicId, Expression<Func<Vehicle, bool>> filter = null)
     {
         var query = _context.Vehicles
             .Include(v => v.ServiceRecords)
+            .Where(v => v.Client.MechanicId == mechanicId)
             .AsQueryable();
+        if (filter != null)
+            query = query.Where(filter);
 
-        return filter != null
-            ? await query.Where(filter).ToListAsync()
-            : await query.ToListAsync();
+        return await query.ToListAsync();
     }
 
     public override async Task<int> CreateAsync(Vehicle vehicle)
     {
-        // Validasyon
+
         if (string.IsNullOrWhiteSpace(vehicle.Plate))
             throw new ArgumentException("Plaka boş olamaz");
 
@@ -51,14 +52,14 @@ public class EfCoreVehicleDal : EfCoreGenericRepositoryDal<Vehicle, DataContext>
 
         var query = _context.Vehicles.AsQueryable();
 
-        
+
         if (includeClient)
             query = query.Include(v => v.Client);
 
         if (includeServiceRecords)
             query = query.Include(v => v.ServiceRecords);
 
-        
+
         if (!string.IsNullOrEmpty(plate))
             query = query.Where(v => v.Plate == plate.ToUpper().Replace(" ", ""));
 
@@ -71,5 +72,5 @@ public class EfCoreVehicleDal : EfCoreGenericRepositoryDal<Vehicle, DataContext>
         return await query.FirstOrDefaultAsync();
     }
 
-  
+
 }

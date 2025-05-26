@@ -42,8 +42,11 @@ public class ServiceRecordController : Controller
         var model = new ListClientDTO
         {
             Clients = clients,
-            SelectedClientId = selectedClientId
+            
         };
+        if (selectedClientId != null) {
+            model.SelectedClientId = (int)selectedClientId;
+        }
         return View(model);
     }
     [HttpPost]
@@ -120,7 +123,7 @@ public class ServiceRecordController : Controller
 
         var query = _serviceRecordService.GetAllAsync()
             .Include(sr => sr.Vehicle)
-                .ThenInclude(v => v.Client)
+            .ThenInclude(v => v.Client)
             .Where(sr => sr.Vehicle.Client.MechanicId == mechanicId);
 
         if (!string.IsNullOrWhiteSpace(ClientName))

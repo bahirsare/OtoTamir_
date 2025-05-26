@@ -21,10 +21,11 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         return await base.CreateAsync(serviceRecord);
     }
 
-    public async Task<List<ServiceRecord>> GetServiceRecordsAsync(
+    public async Task<List<ServiceRecord>> GetAllAsync(
         string mechanicId,
         string status = null,
         Expression<Func<ServiceRecord, bool>> filter = null,
+        bool includeClient = false,
         bool includeVehicle = true,
         bool includeSymptoms = false)
     {
@@ -33,13 +34,15 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
 
         var query = _context.ServiceRecords.AsQueryable();
 
-        // Include'lar
+        if (includeClient) { 
+            query = query
+                .Include(sr => sr.Vehicle)
+                .ThenInclude(sr=> sr.Client);
+        }
         if (includeVehicle)
         {
             query = query
-                .Include(sr => sr.Vehicle)
-                .ThenInclude(v => v.Client)
-                .Where(sr => sr.Vehicle.Client.MechanicId == mechanicId);
+                .Include(sr => sr.Vehicle);
         }
 
         if (includeSymptoms)
@@ -63,7 +66,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
 
     public async Task<ServiceRecord> GetOneAsync(
         int id,
-        string mechanicId = null,
+        string mechanicId,
         bool includeVehicle = false,
         bool includeSymptoms = false)
     {
