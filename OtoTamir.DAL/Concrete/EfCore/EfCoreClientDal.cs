@@ -2,80 +2,78 @@
 using Microsoft.EntityFrameworkCore.Query;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
+using OtoTamir.DAL.Concrete.EfCore;
 using OtoTamir.DAL.Context;
 using System.Linq.Expressions;
 
-namespace OtoTamir.DAL.Concrete.EfCore
+public class EfCoreClientDal : EfCoreGenericRepositoryDal<Client, DataContext>, IClientDal
 {
-    public class EfCoreClientDal : EfCoreGenericRepositoryDal<Client, DataContext>, IClientDal
+    private readonly DataContext _context;
+
+    public EfCoreClientDal(DataContext context) : base(context)
     {
-        private readonly DataContext _context;
+        _context = context;
+    }
 
-        public EfCoreClientDal(DataContext context) : base(context)
+    public override async Task<int> CreateAsync(Client client)
+    {
+        client.CreatedDate = DateTime.Now;
+        client.ModifiedDate = DateTime.Now;
+        return await base.CreateAsync(client);
+    }
+
+    public async Task<List<Client>> GetAllAsync(
+        string mechanicId,
+        Expression<Func<Client, bool>> filter = null,
+        bool includeVehicles = false,
+        bool includeServiceRecords = false)
+    {
+        var query = _context.Clients
+            .Where(c => c.MechanicId == mechanicId);
+
+        query = ApplyIncludes(query, includeVehicles, includeServiceRecords);
+
+        if (filter != null)
         {
-            _context = context;
+            query = query.Where(filter);
         }
 
-        public override async Task<int> CreateAsync(Client client)
-        {
-            client.CreatedDate = DateTime.Now;
-            client.ModifiedDate = DateTime.Now;
-            return await base.CreateAsync(client);
-        }
+        return await query.ToListAsync();
+    }
 
-        public async Task<List<Client>> GetAllByMechanicAsync(
-     string mechanicId,
-     Expression<Func<Client, bool>> filter = null,
-     bool includeVehicles = false,
-     bool includeServiceRecords = false)
+    public async Task<Client> GetOneAsync(
+        int id,
+        string mechanicId,
+        bool includeVehicles = true,
+        bool includeServiceRecords = false)
+    {
+        var query = _context.Clients.Where(c => c.Id == id&& c.MechanicId == mechanicId);
+
+      
+
+        query = ApplyIncludes(query, includeVehicles, includeServiceRecords);
+
+        return await query.FirstOrDefaultAsync();
+    }
+    
+    private IQueryable<Client> ApplyIncludes(
+        IQueryable<Client> query,
+        bool includeVehicles,
+        bool includeServiceRecords)
+    {
+        if (includeVehicles)
         {
-            var query = _context.Clients
-                .Where(c => c.MechanicId == mechanicId);
+            query = query.Include(c => c.Vehicles);
 
             if (includeVehicles)
             {
-                query = query.Include(c => c.Vehicles);
+                var vehicleInclude = query.Include(c => c.Vehicles);
 
-                if (includeServiceRecords)
-                {
-                    query = ((IIncludableQueryable<Client, Vehicle>)query)
-                           .ThenInclude(v => v.ServiceRecords);
-                }
+                query = includeServiceRecords
+                    ? vehicleInclude.ThenInclude(v => v.ServiceRecords)
+                    : vehicleInclude;
             }
-
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-
-            return await query.ToListAsync();
         }
-
-        public override Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override Task<List<Client>> GetAllAsync()
-        {
-            throw new NotSupportedException();
-        }
-
-        public async Task<Client> GetOneAsync(int id, string mechanicId = null)
-        {
-            var query = _context.Clients.AsQueryable();
-
-            if (!string.IsNullOrEmpty(mechanicId))
-            {
-                query = query.Where(c => c.MechanicId == mechanicId);
-            }
-
-            return await query
-                .Include(c => c.Vehicles)
-                .ThenInclude(v => v.ServiceRecords)
-                .FirstOrDefaultAsync(c => c.Id == id);
-        }
-
-        
+        return query;
     }
 }

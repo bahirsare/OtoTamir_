@@ -29,24 +29,20 @@ namespace OtoTamir.BLL.Concrete
             return await _clientDal.DeleteAsync(id);
         }
 
-        public async Task<List<Client>> GetAllAsync()
-        {
-            throw new NotSupportedException("This method is not supported for Client. Please use the version with mechanicId.");
-        }
-
-        public Task<List<Client>> GetAllAsync(Expression<Func<Client, bool>> filter = null)
-        {
-            throw new NotSupportedException("This method is not supported for Client. Please use the version with mechanicId.");
-        }
+       
 
         public async Task<List<Client>> GetAllAsync(string mechanicId, bool includeVehicles, bool includeServiceRecords,Expression<Func<Client, bool>> filter = null)
         {
-            return await _clientDal.GetAllByMechanicAsync(mechanicId, filter,includeVehicles,includeServiceRecords);
+            return await _clientDal.GetAllAsync(mechanicId, filter,includeVehicles,includeServiceRecords);
         }
 
-        public async Task<Client> GetOneAsync(int id,string mechanicId)
+        public async Task<Client> GetOneAsync(
+        int id,
+        string mechanicId,
+        bool includeVehicles = true,
+        bool includeServiceRecords = false)
         {
-            return await _clientDal.GetOneAsync(id,mechanicId);
+            return await _clientDal.GetOneAsync(id,mechanicId,includeVehicles,includeServiceRecords);
         }
 
         public async Task<int> UpdateAsync()

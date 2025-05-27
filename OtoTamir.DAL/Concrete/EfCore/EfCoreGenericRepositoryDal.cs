@@ -17,10 +17,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
         {
             return await _context.Set<T>().AnyAsync(filter);
         }
-
-
-
-       
+              
 
         public virtual async Task<int> CreateAsync(T entity)
         {
