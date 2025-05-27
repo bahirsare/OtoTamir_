@@ -4,6 +4,7 @@ using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Context;
+using System.Linq.Expressions;
 
 namespace OtoTamir.DAL.Concrete.EfCore
 {
@@ -23,19 +24,64 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
         public async Task<Mechanic> GetOneAsync(string id)
         {
-            return await _context.Mechanics.FirstOrDefaultAsync(m => m.Id == id);
+            return await _userManager.FindByIdAsync(id);
+        }
+        public  List<Mechanic> GetAll(Expression<Func<Mechanic, bool>> filter = null)
+        {
+            //return filter == null
+            //    ? context.Set<T>().ToList()
+            //    : context.Set<T>().Where(filter).ToList();
+
+            var entities = _context.Mechanics.AsQueryable();
+
+            if (filter != null)
+            {
+                entities = entities.Where(filter);
+            }
+            return entities.ToList();
+        }
+
+        public async Task<List<Mechanic>> GetAllAsync(
+            Expression<Func<Mechanic, bool>> filter = null,
+            bool includeClient = true,
+            bool includeVehicle = true,
+            Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null)
+        {
+            var query = _context.Mechanics.AsQueryable();
+
+            // Filtre uygula
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            
+            if (includeClient)
+            {
+                var clientInclude = query.Include(m => m.Clients);
+
+                query = includeVehicle
+                    ? clientInclude.ThenInclude(v => v.Vehicles)
+                    : clientInclude;
+            }
+
+            // Sıralama yap
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<int> DeleteAsync(string id)
         {
-            var entity = await _context.Set<Mechanic>().FindAsync(id);
+            var mechanic = await _userManager.FindByIdAsync(id);
+            if (mechanic == null)
+                return 0;
 
-            if (entity != null)
-            {
-                _context.Set<Mechanic>().Remove(entity);
-            }
-
-            return await _context.SaveChangesAsync();
+            var result = await _userManager.DeleteAsync(mechanic);
+            return result.Succeeded ? 1 : 0;
         }
 
         public async Task<(bool Success, string Password, List<string> Errors)> CreateMechanicAsync(string storeName)
@@ -61,7 +107,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
             var errors = result.Errors.Select(e => e.Description).ToList();
             return (false, password, errors);
-        }
+        }   
 
         public string GenerateRandomPassword()
         {
@@ -71,9 +117,6 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public Task<Mechanic> GetOneAsync(int id, string mechanicId)
-        {
-            throw new NotSupportedException("This method is not supported for Mechanic. Please use the version.");
-        }
+        
     }
 }

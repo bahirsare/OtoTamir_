@@ -21,14 +21,14 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
             return await base.CreateAsync(symptom);
         }
-        public override async Task<List<Symptom>> GetAllAsync(Expression<Func<Symptom, bool>> filter = null)
+        public  async Task<List<Symptom>> GetAllAsync(Expression<Func<Symptom, bool>> filter = null)
         {
             var entities = _context.Symptoms.Include(i => i.ServiceWorkflowLogs).AsQueryable();
             if (filter != null)
             {
                 entities = entities.Where(filter);
             }
-            return entities.ToList();
+            return await entities.ToListAsync();
         }
         public async Task<Symptom> GetOneAsync(int id, string mechanicId = null)
         {

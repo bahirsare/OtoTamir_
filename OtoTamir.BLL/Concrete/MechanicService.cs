@@ -29,20 +29,15 @@ namespace OtoTamir.BLL.Concrete
             return await _mechanicDal.DeleteAsync(id);
         }
 
-        public async Task<List<Mechanic>> GetAllAsync()
+        
+
+        public async Task<List<Mechanic>> GetAllAsync(Expression<Func<Mechanic, bool>> filter = null,bool includeClient=true, bool includeVehicle = true, Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null)
         {
-            return await _mechanicDal.GetAllAsync();
+            return await _mechanicDal.GetAllAsync(filter,includeClient,includeVehicle,orderBy);
         }
 
-        public async Task<List<Mechanic>> GetAllAsync(Expression<Func<Mechanic, bool>> filter = null)
-        {
-            return await _mechanicDal.GetAllAsync(filter);
-        }
-
-        public async Task<Mechanic> GetOneAsync(int id)
-        {
-            throw new NotSupportedException("This method is not supported for Mechanic. Please use the version with string.");
-        }
+        
+       
 
         public async Task<int> UpdateAsync()
         {
