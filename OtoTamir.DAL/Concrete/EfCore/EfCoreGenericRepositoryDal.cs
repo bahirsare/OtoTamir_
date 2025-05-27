@@ -12,10 +12,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             _context = context;
         }
 
-        public virtual async Task<List<T>> GetAllAsync()
-        {
-            return await _context.Set<T>().ToListAsync();
-        }
+       
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
         {
             return await _context.Set<T>().AnyAsync(filter);
@@ -23,21 +20,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
 
 
-        public virtual async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> filter = null)
-        {
-            var entities = _context.Set<T>().AsQueryable();
-
-            if (filter != null)
-            {
-                entities = entities.Where(filter);
-            }
-            return await entities.ToListAsync();
-        }
-
-        public virtual async Task<T> GetOneAsync(int id)
-        {
-            return await _context.Set<T>().FindAsync(id);
-        }
+       
 
         public virtual async Task<int> CreateAsync(T entity)
         {

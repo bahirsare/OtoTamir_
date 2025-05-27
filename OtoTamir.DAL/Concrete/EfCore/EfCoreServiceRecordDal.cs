@@ -23,26 +23,28 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
 
     public async Task<List<ServiceRecord>> GetAllAsync(
         string mechanicId,
-        string status = null,
         Expression<Func<ServiceRecord, bool>> filter = null,
-        bool includeClient = false,
         bool includeVehicle = true,
+        bool includeClient = false,
         bool includeSymptoms = false)
     {
         if (string.IsNullOrWhiteSpace(mechanicId))
             throw new ArgumentNullException(nameof(mechanicId));
 
-        var query = _context.ServiceRecords.AsQueryable();
+        var query = _context.ServiceRecords
+            .Where(sr => sr.Vehicle != null
+                      && sr.Vehicle.Client != null
+                      && sr.Vehicle.Client.MechanicId == mechanicId);
 
-        if (includeClient) { 
-            query = query
-                .Include(sr => sr.Vehicle)
-                .ThenInclude(sr=> sr.Client);
-        }
+
         if (includeVehicle)
         {
-            query = query
-                .Include(sr => sr.Vehicle);
+            query = query.Include(sr => sr.Vehicle);
+
+            if (includeClient)
+            {
+                query = query.Include(sr => sr.Vehicle.Client);
+            }
         }
 
         if (includeSymptoms)
@@ -50,11 +52,6 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
             query = query.Include(sr => sr.SymptomList);
         }
 
-        // Filtreler
-        if (!string.IsNullOrWhiteSpace(status))
-        {
-            query = query.Where(sr => sr.Status == status);
-        }
 
         if (filter != null)
         {
@@ -70,15 +67,11 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         bool includeVehicle = false,
         bool includeSymptoms = false)
     {
-        var query = _context.ServiceRecords.AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(mechanicId))
-        {
-            query = query
-                .Include(sr => sr.Vehicle)
-                .ThenInclude(v => v.Client)
-                .Where(sr => sr.Vehicle.Client.MechanicId == mechanicId);
-        }
+        var query = _context.ServiceRecords
+            .Where(sr => sr.Id == id
+                      && sr.Vehicle != null
+                      && sr.Vehicle.Client != null
+                      && sr.Vehicle.Client.MechanicId == mechanicId);
 
         if (includeVehicle)
         {
@@ -90,6 +83,30 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
             query = query.Include(sr => sr.SymptomList);
         }
 
-        return await query.FirstOrDefaultAsync(sr => sr.Id == id);
+        return await query.FirstOrDefaultAsync();
+    }
+    public async Task<List<ServiceRecord>> GetByVehicleAsync(
+       int vehicleId,
+       string mechanicId,
+       bool includeSymptoms = false)
+    {
+        var query = _context.ServiceRecords
+                   .Where(sr => sr.VehicleId == vehicleId &&
+                        sr.Vehicle.Client != null &&
+                        sr.Vehicle.Client.MechanicId == mechanicId);
+        if (includeSymptoms)
+        {
+            query = query.Include(sr => sr.SymptomList);
+        }
+        return await query.ToListAsync();
+    }
+
+    public async Task<int> CountByStatusAsync(string mechanicId, string status)
+    {
+        return await _context.ServiceRecords
+            .CountAsync(sr => sr.Status == status &&
+                            sr.Vehicle != null &&
+                            sr.Vehicle.Client != null &&
+                            sr.Vehicle.Client.MechanicId == mechanicId);
     }
 }

@@ -28,21 +28,22 @@ namespace OtoTamir.BLL.Concrete
             return await _serviceRecordDal.DeleteAsync(id);
         }
 
-        public async Task<List<ServiceRecord>> GetAllAsync()
+
+        public async Task<List<ServiceRecord>> GetAllAsync(string mechanicId,
+            bool includeVehicle,
+            bool includeClient,
+            bool includeSymptoms,
+                        Expression<Func<ServiceRecord, bool>> filter = null
+            )
         {
-            return await _serviceRecordDal.GetAllAsync();
+            return await _serviceRecordDal.GetAllAsync(mechanicId, filter, includeVehicle, includeClient, includeSymptoms);
         }
 
-        public async Task<List<ServiceRecord>> GetAllAsync(Expression<Func<ServiceRecord, bool>> filter = null)
+        public async Task<ServiceRecord> GetOneAsync(int id, string mechanicId, bool includeVehicle, bool includeSymptoms)
         {
-            return await _serviceRecordDal.GetAllAsync(filter);
+            return await _serviceRecordDal.GetOneAsync(id, mechanicId, includeVehicle, includeSymptoms);
         }
 
-        public async Task<ServiceRecord> GetOneAsync(int id,string mechanicId)
-        {
-            return await _serviceRecordDal.GetOneAsync(id, mechanicId);
-        }
-       
 
         public async Task<int> UpdateAsync()
         {

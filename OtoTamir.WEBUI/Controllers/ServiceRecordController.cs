@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.ClientDTOs;
+using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.DTOs.SymptomDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
+using System.Linq.Expressions;
 [Authorize]
 public class ServiceRecordController : Controller
 {
@@ -117,37 +119,31 @@ public class ServiceRecordController : Controller
         return RedirectToAction("Index", new { selectedClientId = clientId });
     }
 
-    public async Task<IActionResult> Ongoing(string ClientName, string CurrentStatus)
+    public async Task<IActionResult> Ongoing(string clientName, string status)
     {
         var mechanicId = _userManager.GetUserId(User);
 
-        var query = _serviceRecordService.GetAllAsync()
-            .Include(sr => sr.Vehicle)
-            .ThenInclude(v => v.Client)
-            .Where(sr => sr.Vehicle.Client.MechanicId == mechanicId);
+        // Dinamik filtre oluşturma
+        Expression<Func<ServiceRecord, bool>> filter = sr => true; // Varsayılan filtre
 
-        if (!string.IsNullOrWhiteSpace(ClientName))
+        if (!string.IsNullOrEmpty(clientName))
         {
-            query = query.Where(sr => sr.Vehicle.Client.Name.Contains(ClientName));
+            filter = sr => sr.Vehicle.Client.Name.Contains(clientName);
         }
 
-        if (!string.IsNullOrWhiteSpace(CurrentStatus))
+        if (!string.IsNullOrEmpty(status))
         {
-            query = query.Where(sr => sr.Status == CurrentStatus);
+            filter = sr =>  sr.Status == status;
         }
 
-        var records = await query
-            .OrderByDescending(sr => sr.CreatedDate)
-            .ToListAsync();
+        var records = await _serviceRecordService.GetAllAsync(
+            mechanicId,
+            filter:filter,
+            includeVehicle:true,
+            includeClient: true,
+            includeSymptoms:true);
 
-        var model = new ServiceRecordOngoingViewModel
-        {
-            Records = records,
-            ClientName = ClientName,
-            CurrentStatus = CurrentStatus
-        };
-
-        return View(model);
+        return View(new ListServiceRecordsDTO { Records = records });
     }
 
 
