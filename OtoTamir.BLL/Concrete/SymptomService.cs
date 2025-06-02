@@ -12,41 +12,45 @@ namespace OtoTamir.BLL.Concrete
 {
     public class SymptomService : ISymptomService
     {
-        private readonly ISymptomDal _symptomtDal;
+        private readonly ISymptomDal _symptomDal;
 
-        public SymptomService(ISymptomDal symptomtDal)
+        public SymptomService(ISymptomDal symptomDal)
         {
-            _symptomtDal = symptomtDal;
+            _symptomDal = symptomDal;
         }
         public async Task<bool> AnyAsync(Expression<Func<Symptom, bool>> filter)
         {
-            return await _symptomtDal.AnyAsync(filter);
+            return await _symptomDal.AnyAsync(filter);
         }
 
         public async Task<int> CreateAsync(Symptom entity)
         {
-            return await _symptomtDal.CreateAsync(entity);
+            return await _symptomDal.CreateAsync(entity);
         }
 
         public async Task<int> DeleteAsync(int id)
         {
-            return await _symptomtDal.DeleteAsync(id);
+            return await _symptomDal.DeleteAsync(id);
         }
 
-        public async Task<List<Symptom>> GetAllAsync()
+        public async Task<Symptom> GetOneAsync(
+            string mechanicId,
+            int id,
+            bool includeVehicle = false,
+            bool includeServiceRecord = false)
         {
-            return await _symptomtDal.GetAllAsync();
+            return await _symptomDal.GetOneAsync(mechanicId, id, includeVehicle, includeServiceRecord);
         }
 
         public async Task<List<Symptom>> GetAllAsync(Expression<Func<Symptom, bool>> filter = null)
         {
-            return await _symptomtDal.GetAllAsync(filter);
+            return await _symptomDal.GetAllAsync(filter);
         }
 
         
         public async Task<int> UpdateAsync()
         {
-            return await _symptomtDal.UpdateAsync();
+            return await _symptomDal.UpdateAsync();
         }
     }
 }
