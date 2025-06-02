@@ -41,11 +41,12 @@ public class EfCoreVehicleDal : EfCoreGenericRepositoryDal<Vehicle, DataContext>
     }
 
     public async Task<Vehicle> GetOneAsync(
+        string mechanicId,
+        bool includeClient,
+        bool includeServiceRecords,
         string plate = null,
-        int? id = null,
-        string mechanicId = null,
-        bool includeClient = false,
-        bool includeServiceRecords = false)
+        int? id = null        
+        )
     {
         if (plate == null && id == null)
             throw new ArgumentException("Plate veya ID belirtilmeli");

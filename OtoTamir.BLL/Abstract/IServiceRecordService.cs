@@ -12,11 +12,14 @@ namespace OtoTamir.BLL.Abstract
     public interface IServiceRecordService:IRepositoryService<ServiceRecord>
     {
         Task<List<ServiceRecord>> GetAllAsync(string mechanicId,
-             bool includeVehicle,
-             bool includeClient,
-             bool includeSymptoms,            
-             Expression<Func<ServiceRecord, bool>> filter = null
-             );
-        Task<ServiceRecord> GetOneAsync(int id, string mechanicId, bool includeVehicle, bool includeSymptoms);
+            bool includeVehicle = true,
+            bool includeClient = false,
+            bool includeSymptoms = false,            
+            Expression<Func<ServiceRecord, bool>> filter = null
+            );
+        Task<ServiceRecord> GetOneAsync(int id, 
+           string mechanicId,
+           bool includeVehicle=false, 
+           bool includeSymptoms=false);
     }
 }

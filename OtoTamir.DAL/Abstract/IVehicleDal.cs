@@ -1,19 +1,19 @@
 ﻿using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace OtoTamir.DAL.Abstract
 {
-    public interface IVehicleDal:IRepositoryService<Vehicle>
+    public interface IVehicleDal : IRepositoryService<Vehicle>
+
     {
-        Task<Vehicle> GetOneAsync(string plate = null,
-        int? id = null,
-        string mechanicId = null,
-        bool includeClient = false,
-        bool includeServiceRecords = false);
+        Task<List<Vehicle>> GetAllAsync(
+            string mechanicId,            
+            Expression<Func<Vehicle, bool>> filter = null);
+        Task<Vehicle> GetOneAsync(string mechanicId,
+            bool includeClient,
+            bool includeServiceRecords,
+            string plate,
+            int? id );
     }
 }

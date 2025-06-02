@@ -20,7 +20,7 @@ namespace OtoTamir.WEBUI.Controllers
         }
         public async Task<IActionResult> MechanicAsync()
         {
-           var mechanics =await _mechanicService.GetAllAsync();
+           var mechanics =await _mechanicService.GetAllAsync(includeClient:true,includeVehicle:true);
             return View(mechanics);
         }
         [HttpPost]

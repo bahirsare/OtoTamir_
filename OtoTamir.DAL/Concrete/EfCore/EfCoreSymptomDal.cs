@@ -38,8 +38,8 @@ namespace OtoTamir.DAL.Concrete.EfCore
         public async Task<Symptom> GetOneAsync(
             string mechanicId,
             int id,
-            bool includeVehicle = false,
-            bool includeServiceRecord = false)
+            bool includeVehicle ,
+            bool includeServiceRecord)
         {
             var query = _context.Symptoms.AsQueryable();
 

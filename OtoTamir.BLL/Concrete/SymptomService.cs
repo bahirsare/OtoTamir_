@@ -1,12 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -42,12 +37,13 @@ namespace OtoTamir.BLL.Concrete
             return await _symptomDal.GetOneAsync(mechanicId, id, includeVehicle, includeServiceRecord);
         }
 
-        public async Task<List<Symptom>> GetAllAsync(Expression<Func<Symptom, bool>> filter = null)
+        public async Task<List<Symptom>> GetAllAsync(string mechanicId, Expression<Func<Symptom, bool>> filter = null
+            )
         {
-            return await _symptomDal.GetAllAsync(filter);
+            return await _symptomDal.GetAllAsync(mechanicId, filter);
         }
 
-        
+
         public async Task<int> UpdateAsync()
         {
             return await _symptomDal.UpdateAsync();

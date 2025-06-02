@@ -33,10 +33,10 @@ namespace OtoTamir.BLL.Concrete
             bool includeVehicle,
             bool includeClient,
             bool includeSymptoms,
-                        Expression<Func<ServiceRecord, bool>> filter = null
+            Expression<Func<ServiceRecord, bool>> filter = null
             )
         {
-            return await _serviceRecordDal.GetAllAsync(mechanicId, filter, includeVehicle, includeClient, includeSymptoms);
+            return await _serviceRecordDal.GetAllAsync(mechanicId, includeVehicle, includeClient, includeSymptoms, filter);
         }
 
         public async Task<ServiceRecord> GetOneAsync(int id, string mechanicId, bool includeVehicle, bool includeSymptoms)

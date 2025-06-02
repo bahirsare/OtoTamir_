@@ -71,7 +71,7 @@ public class ServiceRecordController : Controller
     public async Task<IActionResult> CreateServiceRecord(CreateSymptomGroupDTO model)
     {
         var user = await _userManager.GetUserAsync(User);
-        var vehicle = await _vehicleService.GetOneAsync(id:model.VehicleId,mechanicId:user.Id); 
+        var vehicle = await _vehicleService.GetOneAsync(id:model.VehicleId,mechanicId:user.Id,includeClient:true,includeServiceRecords:true); 
         if (vehicle == null)
         {
             TempData["FailMessage"] = "Araç bulunamadı!";

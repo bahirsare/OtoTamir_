@@ -16,9 +16,9 @@ namespace OtoTamir.BLL.Abstract
         Task<(bool Success, string Password, List<string> Errors)> CreateMechanicAsync(string storeName);
         string GenerateRandomPassword();
         Task<List<Mechanic>> GetAllAsync(
-            Expression<Func<Mechanic, bool>> filter = null,
             bool includeClient = true,
-            bool includeVehicle = true,
-            Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null);
+            bool includeVehicle= true,                        
+            Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null,
+            Expression<Func<Mechanic, bool>> filter = null);
     }
 }

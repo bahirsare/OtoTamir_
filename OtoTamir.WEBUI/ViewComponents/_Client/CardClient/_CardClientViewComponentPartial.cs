@@ -21,7 +21,7 @@ namespace OtoTamir.WEBUI.ViewComponents._Client.CardClient
         public async Task<IViewComponentResult> InvokeAsync(int clientId)
         {
             var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
-            var model = await _clientService.GetOneAsync(clientId,mechanic.Id);
+            var model = await _clientService.GetOneAsync(clientId,mechanic.Id,includeVehicles:true,includeServiceRecords:false);
 
             return View(model);
 

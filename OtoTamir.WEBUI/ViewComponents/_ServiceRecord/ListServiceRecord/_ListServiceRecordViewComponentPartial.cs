@@ -22,7 +22,7 @@ namespace OtoTamir.WEBUI.ViewComponents._ServiceRecord.ListServiceRecord
         public async Task<IViewComponentResult> InvokeAsync(int vehicleid)
         {
             var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
-            var vehicle= await _vehicleService.GetOneAsync(id:vehicleid,mechanicId:mechanic.Id);
+            var vehicle= await _vehicleService.GetOneAsync(id:vehicleid,mechanicId:mechanic.Id,includeClient:true,includeServiceRecords:true);
             if (vehicle == null)
             {
                 TempData["Messaage"] = "Araç bulunamadı.";

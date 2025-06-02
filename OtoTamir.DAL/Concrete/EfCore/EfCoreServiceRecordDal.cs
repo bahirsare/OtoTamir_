@@ -23,10 +23,10 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
 
     public async Task<List<ServiceRecord>> GetAllAsync(
         string mechanicId,
-        Expression<Func<ServiceRecord, bool>> filter = null,
-        bool includeVehicle = true,
-        bool includeClient = false,
-        bool includeSymptoms = false)
+        bool includeVehicle,
+        bool includeClient,
+        bool includeSymptoms,
+        Expression<Func<ServiceRecord, bool>> filter = null)
     {
         if (string.IsNullOrWhiteSpace(mechanicId))
             throw new ArgumentNullException(nameof(mechanicId));
@@ -64,8 +64,8 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
     public async Task<ServiceRecord> GetOneAsync(
         int id,
         string mechanicId,
-        bool includeVehicle = false,
-        bool includeSymptoms = false)
+        bool includeVehicle,
+        bool includeSymptoms )
     {
         var query = _context.ServiceRecords
             .Where(sr => sr.Id == id

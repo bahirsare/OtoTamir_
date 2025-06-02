@@ -21,10 +21,11 @@ namespace OtoTamir.DAL.Abstract
         /// <param name="includeSymptoms">Include symptom list (default: false)</param>
         Task<List<ServiceRecord>> GetAllAsync(
             string mechanicId,
-            Expression<Func<ServiceRecord, bool>> filter = null,
-            bool includeVehicle = true,
-            bool includeClient = false,
-            bool includeSymptoms = false);
+            bool includeVehicle,
+            bool includeClient,
+            bool includeSymptoms,
+            Expression<Func<ServiceRecord, bool>> filter = null
+            );
 
         /// <summary>
         /// Gets a single service record with authorization check
@@ -36,8 +37,8 @@ namespace OtoTamir.DAL.Abstract
         Task<ServiceRecord> GetOneAsync(
             int id,
             string mechanicId,
-            bool includeVehicle = false,
-            bool includeSymptoms = false);
+            bool includeVehicle,
+            bool includeSymptoms);
 
         /// <summary>
         /// Gets service records for a specific vehicle with ownership check
@@ -48,7 +49,7 @@ namespace OtoTamir.DAL.Abstract
         Task<List<ServiceRecord>> GetByVehicleAsync(
             int vehicleId,
             string mechanicId,
-            bool includeSymptoms = false);
+            bool includeSymptoms);
 
         /// <summary>
         /// Counts records by status for a specific mechanic

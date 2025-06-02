@@ -1,12 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -34,29 +29,22 @@ namespace OtoTamir.BLL.Concrete
             return await _vehicleDal.DeleteAsync(id);
         }
 
-        public async Task<List<Vehicle>> GetAllAsync()
+        public async Task<List<Vehicle>> GetAllAsync(string mechanicId, Expression<Func<Vehicle, bool>> filter = null)
         {
-            return await _vehicleDal.GetAllAsync();
-        }
-
-        public async Task<List<Vehicle>> GetAllAsync(Expression<Func<Vehicle, bool>> filter = null)
-        {
-            return await _vehicleDal.GetAllAsync(filter);
+            return await _vehicleDal.GetAllAsync(mechanicId, filter);
         }
 
         public async Task<Vehicle> GetOneAsync(
+        string mechanicId,
+        bool includeClient,
+        bool includeServiceRecords,            
         string plate = null,
-        int? id = null,
-        string mechanicId = null,
-        bool includeClient = false,
-        bool includeServiceRecords = false)
+        int? id = null
+        )
         {
-            return await _vehicleDal.GetOneAsync(plate,id,mechanicId,includeClient,includeServiceRecords);
+            return await _vehicleDal.GetOneAsync(mechanicId, includeClient, includeServiceRecords,plate,id);
         }
-        public async Task<Vehicle> GetOneAsync(string plate)
-        {
-            return await _vehicleDal.GetOneAsync(plate);
-        }
+        
         public async Task<int> UpdateAsync()
         {
             return await _vehicleDal.UpdateAsync();

@@ -26,30 +26,18 @@ namespace OtoTamir.DAL.Concrete.EfCore
         {
             return await _userManager.FindByIdAsync(id);
         }
-        public  List<Mechanic> GetAll(Expression<Func<Mechanic, bool>> filter = null)
-        {
-            //return filter == null
-            //    ? context.Set<T>().ToList()
-            //    : context.Set<T>().Where(filter).ToList();
-
-            var entities = _context.Mechanics.AsQueryable();
-
-            if (filter != null)
-            {
-                entities = entities.Where(filter);
-            }
-            return entities.ToList();
-        }
+        
 
         public async Task<List<Mechanic>> GetAllAsync(
-            Expression<Func<Mechanic, bool>> filter = null,
-            bool includeClient = true,
-            bool includeVehicle = true,
-            Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null)
+            bool includeClient ,
+            bool includeVehicle ,
+            Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null,
+            Expression<Func<Mechanic, bool>> filter = null          
+            )
         {
             var query = _context.Mechanics.AsQueryable();
 
-            // Filtre uygula
+           
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -65,7 +53,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
                     : clientInclude;
             }
 
-            // Sıralama yap
+            
             if (orderBy != null)
             {
                 query = orderBy(query);

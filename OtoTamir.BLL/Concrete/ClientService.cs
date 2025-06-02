@@ -31,16 +31,19 @@ namespace OtoTamir.BLL.Concrete
 
        
 
-        public async Task<List<Client>> GetAllAsync(string mechanicId, bool includeVehicles, bool includeServiceRecords,Expression<Func<Client, bool>> filter = null)
+        public async Task<List<Client>> GetAllAsync(string mechanicId, 
+            bool includeVehicles, 
+            bool includeServiceRecords,
+            Expression<Func<Client, bool>> filter = null)
         {
-            return await _clientDal.GetAllAsync(mechanicId, filter,includeVehicles,includeServiceRecords);
+            return await _clientDal.GetAllAsync(mechanicId,includeVehicles,includeServiceRecords,filter);
         }
 
         public async Task<Client> GetOneAsync(
         int id,
         string mechanicId,
-        bool includeVehicles = true,
-        bool includeServiceRecords = false)
+        bool includeVehicles,
+        bool includeServiceRecords)
         {
             return await _clientDal.GetOneAsync(id,mechanicId,includeVehicles,includeServiceRecords);
         }

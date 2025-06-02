@@ -49,7 +49,7 @@ namespace OtotamirWEBUI.Controllers
                 return RedirectToAction("Profile", "Account");
             }
             
-            var clients = await _clientService.GetAllAsync(user.Id,includeVehicles:true);
+            var clients = await _clientService.GetAllAsync(user.Id,includeVehicles:true,includeServiceRecords:false);
             return View(clients);
         }
         [HttpPost]
@@ -91,7 +91,7 @@ namespace OtotamirWEBUI.Controllers
         public async Task<IActionResult> DeleteClientAsync(int id)
         {
             var mechanicId = _userManager.GetUserId(User);
-            var client = await _clientService.GetOneAsync(id,mechanicId);
+            var client = await _clientService.GetOneAsync(id,mechanicId,includeVehicles:false,includeServiceRecords:false);
             if (client == null)
             {
                 TempData["FailMessage"] = "Müþteri bulunamadý.";
@@ -118,7 +118,7 @@ namespace OtotamirWEBUI.Controllers
                 TempData["Message"] = "Müþteri bilgileri geçersiz!";
                 return RedirectToAction("Clients", "Home");
             }
-            var client = await _clientService.GetOneAsync(model.Id,mechanicId);
+            var client = await _clientService.GetOneAsync(model.Id,mechanicId,includeVehicles:false,includeServiceRecords:false);
             if (client == null)
             {
                 TempData["Message"] = "Müþteri bulunamadý.";

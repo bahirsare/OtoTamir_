@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Concrete.EfCore;
@@ -24,9 +23,10 @@ public class EfCoreClientDal : EfCoreGenericRepositoryDal<Client, DataContext>, 
 
     public async Task<List<Client>> GetAllAsync(
         string mechanicId,
-        Expression<Func<Client, bool>> filter = null,
-        bool includeVehicles = false,
-        bool includeServiceRecords = false)
+        bool includeVehicles,
+        bool includeServiceRecords,
+        Expression<Func<Client, bool>> filter = null
+        )
     {
         var query = _context.Clients
             .Where(c => c.MechanicId == mechanicId);
@@ -44,18 +44,18 @@ public class EfCoreClientDal : EfCoreGenericRepositoryDal<Client, DataContext>, 
     public async Task<Client> GetOneAsync(
         int id,
         string mechanicId,
-        bool includeVehicles = true,
-        bool includeServiceRecords = false)
+        bool includeVehicles,
+        bool includeServiceRecords)
     {
-        var query = _context.Clients.Where(c => c.Id == id&& c.MechanicId == mechanicId);
+        var query = _context.Clients.Where(c => c.Id == id && c.MechanicId == mechanicId);
 
-      
+
 
         query = ApplyIncludes(query, includeVehicles, includeServiceRecords);
 
         return await query.FirstOrDefaultAsync();
     }
-    
+
     private IQueryable<Client> ApplyIncludes(
         IQueryable<Client> query,
         bool includeVehicles,
@@ -64,15 +64,16 @@ public class EfCoreClientDal : EfCoreGenericRepositoryDal<Client, DataContext>, 
         if (includeVehicles)
         {
             query = query.Include(c => c.Vehicles);
+        }
 
-            if (includeVehicles)
-            {
-                var vehicleInclude = query.Include(c => c.Vehicles);
+        else if (includeVehicles)
+        {
+            var vehicleInclude = query.Include(c => c.Vehicles);
 
-                query = includeServiceRecords
-                    ? vehicleInclude.ThenInclude(v => v.ServiceRecords)
-                    : vehicleInclude;
-            }
+            query = includeServiceRecords
+                ? vehicleInclude.ThenInclude(v => v.ServiceRecords)
+                : vehicleInclude;
+
         }
         return query;
     }

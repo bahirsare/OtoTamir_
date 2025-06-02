@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace OtoTamir.DAL.Abstract
 {
-    
+
     public interface IClientDal : IRepositoryService<Client>
     {
         /// <summary>
@@ -18,9 +18,9 @@ namespace OtoTamir.DAL.Abstract
         /// <param name="includeServiceRecords">Whether to include service records for each vehicle (requires includeVehicles to be true).</param>
         Task<List<Client>> GetAllAsync(
             string mechanicId,
-            Expression<Func<Client, bool>> filter = null,
-            bool includeVehicles = false,
-            bool includeServiceRecords = false);
+            bool includeVehicles,
+            bool includeServiceRecords,
+            Expression<Func<Client, bool>> filter = null);
         /// <summary>
         /// Retrieves a single client by ID, optionally filtering by mechanic and including related data.
         /// </summary>
@@ -31,7 +31,7 @@ namespace OtoTamir.DAL.Abstract
         Task<Client> GetOneAsync(
         int id,
         string mechanicId,
-        bool includeVehicles = false,
-        bool includeServiceRecords = false);
+        bool includeVehicles,
+        bool includeServiceRecords);
     }
 }

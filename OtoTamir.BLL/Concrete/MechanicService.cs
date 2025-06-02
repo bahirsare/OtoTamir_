@@ -31,9 +31,13 @@ namespace OtoTamir.BLL.Concrete
 
         
 
-        public async Task<List<Mechanic>> GetAllAsync(Expression<Func<Mechanic, bool>> filter = null,bool includeClient=true, bool includeVehicle = true, Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null)
+        public async Task<List<Mechanic>> GetAllAsync(
+            bool includeClient,
+            bool includeVehicle, 
+            Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null,
+            Expression<Func<Mechanic, bool>> filter = null)
         {
-            return await _mechanicDal.GetAllAsync(filter,includeClient,includeVehicle,orderBy);
+            return await _mechanicDal.GetAllAsync(includeClient, includeVehicle, orderBy, filter);
         }
 
         

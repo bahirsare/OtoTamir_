@@ -12,7 +12,7 @@ namespace OtoTamir.BLL.Abstract
 {
     public interface ISymptomService:IRepositoryService<Symptom>
     {
-        Task<List<Symptom>> GetAllAsync(Expression<Func<Symptom, bool>> filter = null);
+        Task<List<Symptom>> GetAllAsync(string mechanicId, Expression<Func<Symptom, bool>> filter = null);
         Task<Symptom> GetOneAsync(
             string mechanicId,
             int id,
