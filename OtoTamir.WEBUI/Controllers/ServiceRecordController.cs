@@ -2,14 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.DTOs.SymptomDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
-using OtoTamir.WEBUI.Models;
 using System.Linq.Expressions;
 [Authorize]
 public class ServiceRecordController : Controller
@@ -21,7 +19,7 @@ public class ServiceRecordController : Controller
     private readonly IMapper _mapper;
     private readonly UserManager<Mechanic> _userManager;
 
-    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService,IMapper mapper, UserManager<Mechanic> userManager)
+    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager)
     {
         _vehicleService = vehicleService;
         _clientService = clientService;
@@ -40,13 +38,14 @@ public class ServiceRecordController : Controller
             TempData["Message"] = "Lütfen bilgilerinizi doldurunuz";
             return RedirectToAction("Profile", "Account");
         }
-        var clients = await _clientService.GetAllAsync(user.Id,false,false);
+        var clients = await _clientService.GetAllAsync(user.Id, false, false);
         var model = new ListClientDTO
         {
             Clients = clients,
-            
+
         };
-        if (selectedClientId != null) {
+        if (selectedClientId != null)
+        {
             model.SelectedClientId = (int)selectedClientId;
         }
         return View(model);
@@ -55,7 +54,7 @@ public class ServiceRecordController : Controller
     public async Task<IActionResult> GetVehiclesByClientId(int selectedClientId)
     {
         var user = await _userManager.GetUserAsync(User);
-        var clients = await _clientService.GetAllAsync(user.Id,true,false);
+        var clients = await _clientService.GetAllAsync(user.Id, true, false);
         var model = new ListClientDTO
         {
             Clients = clients,
@@ -63,7 +62,7 @@ public class ServiceRecordController : Controller
         };
         if (clients.Count == 0)
         {
-            clients = await _clientService.GetAllAsync(user.Id,false,false);
+            clients = await _clientService.GetAllAsync(user.Id, false, false);
         }
         return View("Index", model);
     }
@@ -71,15 +70,15 @@ public class ServiceRecordController : Controller
     public async Task<IActionResult> CreateServiceRecord(CreateSymptomGroupDTO model)
     {
         var user = await _userManager.GetUserAsync(User);
-        var vehicle = await _vehicleService.GetOneAsync(id:model.VehicleId,mechanicId:user.Id,includeClient:true,includeServiceRecords:true); 
+        var vehicle = await _vehicleService.GetOneAsync(id: model.VehicleId, mechanicId: user.Id, includeClient: true, includeServiceRecords: true);
         if (vehicle == null)
         {
             TempData["FailMessage"] = "Araç bulunamadı!";
             return RedirectToAction("Index");
         }
-        
+
         int clientId = vehicle.ClientId;
-        
+
         if (!ModelState.IsValid)
         {
             TempData["FailMessage"] = "Girilen bilgiler geçersiz veya eksik.";
@@ -94,8 +93,8 @@ public class ServiceRecordController : Controller
             Description = string.Join(" , ", model.Symptoms.Select(s => s.Name + ": " + s.Description)),
             Price = totalCost,
             Status = "Devam Ediyor",
-            AuthorName=model.AuthorName
-            
+            AuthorName = model.AuthorName
+
         };
         var result = await _serviceRecordService.CreateAsync(serviceRecord);
         if (result == 0)
@@ -109,43 +108,39 @@ public class ServiceRecordController : Controller
         {
             var symptom = _mapper.Map<Symptom>(item);
             symptom.ServiceRecordId = serviceRecord.Id;
-            
-           var symptomResult  =await _symptomService.CreateAsync(symptom);
-           // serviceRecord.SymptomList.Add(symptom);
+
+            var symptomResult = await _symptomService.CreateAsync(symptom);
+
         }
-
-
-
         return RedirectToAction("Index", new { selectedClientId = clientId });
     }
 
-    public async Task<IActionResult> Ongoing(string clientName, string status)
+    public async Task<IActionResult> Ongoing(ListServiceRecordsDTO model)
     {
         var mechanicId = _userManager.GetUserId(User);
 
-        // Dinamik filtre oluşturma
-        Expression<Func<ServiceRecord, bool>> filter = sr => true; // Varsayılan filtre
 
-        if (!string.IsNullOrEmpty(clientName))
-        {
-            filter = sr => sr.Vehicle.Client.Name.Contains(clientName);
-        }
+        Expression<Func<ServiceRecord, bool>> filter = sr =>
+        sr.Vehicle.Client.MechanicId == mechanicId &&
+        (string.IsNullOrEmpty(model.ClientName) || sr.Vehicle.Client.Name.Contains(model.ClientName)) &&
+        (string.IsNullOrEmpty(model.CurrentStatus) || sr.Status == model.CurrentStatus);
 
-        if (!string.IsNullOrEmpty(status))
-        {
-            filter = sr =>  sr.Status == status;
-        }
-
-        var records = await _serviceRecordService.GetAllAsync(
+        //var records = await _serviceRecordService.GetAllAsync(
+        //    mechanicId,
+        //    filter:filter,
+        //    includeVehicle:true,
+        //    includeClient: true,
+        //    includeSymptoms:true);
+        model.Records = await _serviceRecordService.GetAllAsync(
             mechanicId,
-            filter:filter,
-            includeVehicle:true,
+            filter: filter,
+            includeVehicle: true,
             includeClient: true,
-            includeSymptoms:true);
-
-        return View(new ListServiceRecordsDTO { Records = records });
+            includeSymptoms: true);
+        return View(model);
     }
 
+    //public async Task<IActionResult> 
 
 
 
