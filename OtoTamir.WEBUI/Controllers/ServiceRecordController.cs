@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
@@ -125,12 +126,7 @@ public class ServiceRecordController : Controller
         (string.IsNullOrEmpty(model.ClientName) || sr.Vehicle.Client.Name.Contains(model.ClientName)) &&
         (string.IsNullOrEmpty(model.CurrentStatus) || sr.Status == model.CurrentStatus);
 
-        //var records = await _serviceRecordService.GetAllAsync(
-        //    mechanicId,
-        //    filter:filter,
-        //    includeVehicle:true,
-        //    includeClient: true,
-        //    includeSymptoms:true);
+        
         model.Records = await _serviceRecordService.GetAllAsync(
             mechanicId,
             filter: filter,
@@ -141,7 +137,37 @@ public class ServiceRecordController : Controller
     }
 
     //public async Task<IActionResult> 
+    //[HttpGet]
+    //public async Task<IActionResult> OngoingPartial(FilterModel filter, int page = 1)
+    //{
+    //    var result = await _serviceRecordService.GetPagedRecordsAsync(filter, page);
+    //    return Json(new
+    //    {
+    //        table = await this.RenderViewAsync("_RecordsTablePartial", result.Records, true),
+    //        pagination = await this.RenderViewAsync("_PaginationPartial", result.Pagination, true)
+    //    });
+    //}
 
+    //[HttpGet]
+    //public async Task<IActionResult> GetRecord(int id)
+    //{
+    //    var record = await _serviceRecordService.GetRecordAsync(id);
+    //    return Json(record);
+    //}
+
+    //[HttpPost]
+    //public async Task<IActionResult> BulkComplete([FromBody] int[] ids)
+    //{
+    //    await _serviceRecordService.BulkCompleteAsync(ids);
+    //    return Ok();
+    //}
+
+    //public async Task<IActionResult> ExportExcel(FilterModel filter)
+    //{
+    //    var records = await _serviceRecordService.GetRecordsForExportAsync(filter);
+    //    // Excel export işlemleri
+    //    return File(excelBytes, "application/vnd.ms-excel", "ServisKayitlari.xlsx");
+    //}
 
 
 }

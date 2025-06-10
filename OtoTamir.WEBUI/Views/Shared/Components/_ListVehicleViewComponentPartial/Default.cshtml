@@ -50,38 +50,6 @@
     </tbody>
 </table>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll('.btn[data-bs-toggle="collapse"]').forEach(button => {
-            button.addEventListener("click", function (e) {
-                e.preventDefault();
+  
+    <script src="~/js/AutoCollapse.js" defer></script>
 
-                const clickedTargetId = button.getAttribute("href")?.replace("#", "");
-                const clickedCollapse = document.getElementById(clickedTargetId);
-
-                const row = button.closest("tr");
-                const allCollapses = row.parentElement.querySelectorAll(".collapse.show");
-
-                // Diğer açık collapse'ları kapat
-                const toClose = Array.from(allCollapses).filter(el => el.id !== clickedTargetId);
-
-                if (toClose.length > 0) {
-                    // Kapatma işlemi bitince açmayı başlat
-                    toClose.forEach(el => {
-                        const instance = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, { toggle: false });
-                        el.addEventListener("hidden.bs.collapse", function handler() {
-                            el.removeEventListener("hidden.bs.collapse", handler);
-                            const toOpen = bootstrap.Collapse.getInstance(clickedCollapse) || new bootstrap.Collapse(clickedCollapse);
-                            toOpen.show();
-                        });
-                        instance.hide();
-                    });
-                } else {
-                    // Kapatılacak başka yoksa direkt aç
-                    const toOpen = bootstrap.Collapse.getInstance(clickedCollapse) || new bootstrap.Collapse(clickedCollapse);
-                    toOpen.show();
-                }
-            });
-        });
-    });
-</script>

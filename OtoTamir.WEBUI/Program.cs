@@ -20,7 +20,7 @@ namespace OtoTamir.WEBUI
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<DataContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Laptop")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
             builder.Services.AddIdentity<Mechanic, IdentityRole>()
                           .AddEntityFrameworkStores<DataContext>()
