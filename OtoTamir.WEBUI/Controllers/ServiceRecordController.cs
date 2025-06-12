@@ -136,39 +136,6 @@ public class ServiceRecordController : Controller
         return View(model);
     }
 
-    //public async Task<IActionResult> 
-    //[HttpGet]
-    //public async Task<IActionResult> OngoingPartial(FilterModel filter, int page = 1)
-    //{
-    //    var result = await _serviceRecordService.GetPagedRecordsAsync(filter, page);
-    //    return Json(new
-    //    {
-    //        table = await this.RenderViewAsync("_RecordsTablePartial", result.Records, true),
-    //        pagination = await this.RenderViewAsync("_PaginationPartial", result.Pagination, true)
-    //    });
-    //}
-
-    //[HttpGet]
-    //public async Task<IActionResult> GetRecord(int id)
-    //{
-    //    var record = await _serviceRecordService.GetRecordAsync(id);
-    //    return Json(record);
-    //}
-
-    //[HttpPost]
-    //public async Task<IActionResult> BulkComplete([FromBody] int[] ids)
-    //{
-    //    await _serviceRecordService.BulkCompleteAsync(ids);
-    //    return Ok();
-    //}
-
-    //public async Task<IActionResult> ExportExcel(FilterModel filter)
-    //{
-    //    var records = await _serviceRecordService.GetRecordsForExportAsync(filter);
-    //    // Excel export işlemleri
-    //    return File(excelBytes, "application/vnd.ms-excel", "ServisKayitlari.xlsx");
-    //}
-
 
 }
 

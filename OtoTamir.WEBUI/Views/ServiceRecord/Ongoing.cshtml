@@ -64,16 +64,11 @@
         <div class="card mb-3">
             <div class="card-header bg-pastel-blue d-flex justify-content-between">
                 <h3 class="card-title"><i class="fas fa-filter me-2"></i>Servis Kaydı Filtreleme</h3>
-                <div>
-                    <a asp-action="ExportExcel" asp-all-route-data="@Context.Request.Query"
-                       class="btn btn-sm btn-success">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </a>
-                </div>
+                
             </div>
             <div class="card-body">
                 <form id="filterForm" class="row g-3 align-items-end">
-                    @Html.AntiForgeryToken()
+                   
                     <div class="col-md-3">
                         <label for="clientName" class="form-label">Müşteri Adı</label>
                         <input type="text" class="form-control" id="clientName" name="ClientName"
@@ -91,12 +86,12 @@
                     <div class="col-md-2">
                         <label for="startDate" class="form-label">Başlangıç Tarihi</label>
                         <input type="date" class="form-control" id="startDate" name="StartDate"
-                               value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+                              @*  value="@Model.StartDate?.ToString("yyyy-MM-dd")" *@ />
                     </div>
                     <div class="col-md-2">
                         <label for="endDate" class="form-label">Bitiş Tarihi</label>
                         <input type="date" class="form-control" id="endDate" name="EndDate"
-                               value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+                               @* value="@Model.EndDate?.ToString("yyyy-MM-dd")" *@ />
                     </div>
                     <div class="col-md-3 d-flex align-items-end gap-2">
                         <button type="submit" class="btn btn-dark flex-grow-1">
@@ -125,7 +120,7 @@
             </div>
             <div class="card-body p-0">
                 <div id="recordsTable">
-                    @await Html.PartialAsync("_RecordsTablePartial", Model)
+                    @await Component.InvokeAsync("_ListServiceRecordViewComponentPartial")
                 </div>
             </div>
             <div class="card-footer">
