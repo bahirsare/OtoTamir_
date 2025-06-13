@@ -19,6 +19,7 @@ namespace OtoTamir.CORE.Entities
         public List<Symptom> SymptomList { get; set; }
         public string AuthorName { get; set; }
 
+        public DateTime? CompletedDate {  get; set; }
         public ServiceRecord() {
             SymptomList=new List<Symptom>();
         }

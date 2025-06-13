@@ -9,6 +9,7 @@ using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.DTOs.SymptomDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
+using OtoTamir.WEBUI.Services;
 using System.Linq.Expressions;
 [Authorize]
 public class ServiceRecordController : Controller
@@ -116,24 +117,100 @@ public class ServiceRecordController : Controller
         return RedirectToAction("Index", new { selectedClientId = clientId });
     }
 
+    
+    [HttpGet]
     public async Task<IActionResult> Ongoing(ListServiceRecordsDTO model)
     {
-        var mechanicId = _userManager.GetUserId(User);
+        var mechanic = await _userManager.GetUserAsync(User);
 
+        Expression<Func<ServiceRecord, bool>> filter = sr => true;
 
-        Expression<Func<ServiceRecord, bool>> filter = sr =>
-        sr.Vehicle.Client.MechanicId == mechanicId &&
-        (string.IsNullOrEmpty(model.ClientName) || sr.Vehicle.Client.Name.Contains(model.ClientName)) &&
-        (string.IsNullOrEmpty(model.CurrentStatus) || sr.Status == model.CurrentStatus);
+        if (!string.IsNullOrWhiteSpace(model.CurrentStatus))
+        {
+            filter = filter.AndAlso(sr => sr.Status == model.CurrentStatus);
+        }
 
-        
-        model.Records = await _serviceRecordService.GetAllAsync(
-            mechanicId,
-            filter: filter,
+        if (model.StartDate.HasValue)
+        {
+            filter = filter.AndAlso(sr => sr.CreatedDate >= model.StartDate.Value);
+        }
+
+        if (model.EndDate.HasValue)
+        {
+            filter = filter.AndAlso(sr => sr.CreatedDate <= model.EndDate.Value);
+        }
+
+        var records = await _serviceRecordService.GetAllAsync(
+            mechanic.Id,
             includeVehicle: true,
             includeClient: true,
-            includeSymptoms: true);
+            includeSymptoms: false,
+            filter: filter
+        );
+
+        
+        if (!string.IsNullOrWhiteSpace(model.ClientName))
+        {
+            records = records.Where(r =>
+                r.Vehicle.Client.Name.Contains(model.ClientName, StringComparison.OrdinalIgnoreCase)).ToList();
+        } 
+        if (!string.IsNullOrWhiteSpace(model.VehicleName))
+        {
+            records = records.Where(r =>
+                r.Vehicle.Name.Contains(model.VehicleName, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        // Sıralama
+        if (!string.IsNullOrEmpty(model.SortColumn) && !string.IsNullOrEmpty(model.SortDirection))
+        {
+            records = model.SortColumn switch
+            {
+                "CreatedDate" => model.SortDirection == "asc"
+                    ? records.OrderBy(r => r.CreatedDate).ToList()
+                    : records.OrderByDescending(r => r.CreatedDate).ToList(),
+
+                "Status" => model.SortDirection == "asc"
+                    ? records.OrderBy(r => r.Status).ToList()
+                    : records.OrderByDescending(r => r.Status).ToList(),
+
+                "ClientName" => model.SortDirection == "asc"
+                    ? records.OrderBy(r => r.Vehicle.Client.Name).ToList()
+                    : records.OrderByDescending(r => r.Vehicle.Client.Name).ToList(),
+
+                _ => records.OrderByDescending(r => r.CreatedDate).ToList()
+            };
+        }
+        else
+        {
+            records = records.OrderByDescending(r => r.CreatedDate).ToList(); // Varsayılan sıralama
+        }
+
+        model.Records = records;
+
         return View(model);
+    }
+
+   
+
+    [HttpPost]
+    public async Task<IActionResult> BulkComplete(List<int> ids)
+    {
+        if (ids == null || !ids.Any())
+        {
+            TempData["Error"] = "Hiçbir kayıt seçilmedi.";
+            return RedirectToAction("Ongoing");
+        }
+        var mechanic= await _userManager.GetUserAsync(User);
+        foreach (int item in ids) {
+            var record = await _serviceRecordService.GetOneAsync(item, mechanic.Id, false, false);
+            record.Status = "Tamamlandı";
+            record.CompletedDate = DateTime.Now;
+            await _serviceRecordService.UpdateAsync();
+        }
+        
+
+        TempData["Success"] = $"{ids.Count} kayıt tamamlandı olarak işaretlendi.";
+        return RedirectToAction("Ongoing");
     }
 
 

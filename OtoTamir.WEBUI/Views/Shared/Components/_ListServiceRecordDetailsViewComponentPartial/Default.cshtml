@@ -1,0 +1,42 @@
+﻿@model ServiceRecord
+
+<div class="modal-header">
+    <h5 class="modal-title">Servis Detayları - @Model.Vehicle.Client.Name</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+</div>
+
+<div class="modal-body">
+    <p><strong>Plaka:</strong> @Model.Vehicle.Plate</p>
+    <p><strong>Durum:</strong> @Model.Status</p>
+    <p><strong>Oluşturulma Tarihi:</strong> @Model.CreatedDate.ToString("dd.MM.yyyy")</p>
+
+    <hr />
+    <h6>Yapılan İşlemler / Semptomlar:</h6>
+    @if (Model.SymptomList != null && Model.SymptomList.Any())
+    {
+        <ul class="list-group">
+            @foreach (var symptom in Model.SymptomList)
+            {
+                <li class="list-group-item">
+                    <strong>Şikayet:</strong> @symptom.Description<br />
+                    @if (!string.IsNullOrEmpty(symptom.PossibleSolution))
+                    {
+                        <strong>Çözüm Önerisi:</strong> @symptom.PossibleSolution
+
+                        <br />
+                    }
+                    <strong>Fiyat Tahmini:</strong> @(symptom.EstimatedCost.ToString("C") ?? "Belirtilmemiş")<br />
+                    <small class="text-muted">Eklenme: @symptom.CreatedDate.ToString("dd.MM.yyyy HH:mm")</small>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-muted">Bu servise ait işlem kaydı bulunamadı.</p>
+    }
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+</div>

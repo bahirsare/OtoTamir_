@@ -1,256 +1,136 @@
 ﻿@model ListServiceRecordsDTO
-@{
-    ViewData["Title"] = "Devam Eden İşlemler";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
 
-<style>
-    .bg-pastel-blue {
-        background-color: #E6F0FA !important;
-        color: #333;
-    }
+<h2 class="mb-4">Devam Eden Servis Kayıtları</h2>
 
-    .bg-pastel-yellow {
-        background-color: #FFF7E6 !important;
-    }
-
-    .bg-pastel-green {
-        background-color: #E6F7E6 !important;
-    }
-
-    .bg-pastel-red {
-        background-color: #FDE6E6 !important;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-    }
-
-    .table td, .table th {
-        vertical-align: middle;
-    }
-
-    .table-responsive {
-        max-height: 600px;
-    }
-
-    .table thead {
-        position: sticky;
-        top: 0;
-        background: white;
-        z-index: 10;
-    }
-
-    .table tbody tr.bg-pastel-yellow > td {
-        background-color: #FFF7E6 !important;
-    }
-
-    .table tbody tr.bg-pastel-green > td {
-        background-color: #E6F7E6 !important;
-    }
-
-    .table tbody tr.bg-pastel-red > td {
-        background-color: #FDE6E6 !important;
-    }
-
-    .sortable:hover {
-        background-color: #f8f9fa;
-    }
-</style>
-
-<section class="content">
-    <div class="container-fluid">
-        <!-- Filtre Kartı (ViewComponent olarak değiştirilebilir) -->
-        <div class="card mb-3">
-            <div class="card-header bg-pastel-blue d-flex justify-content-between">
-                <h3 class="card-title"><i class="fas fa-filter me-2"></i>Servis Kaydı Filtreleme</h3>
-                
-            </div>
-            <div class="card-body">
-                <form id="filterForm" class="row g-3 align-items-end">
-                   
-                    <div class="col-md-3">
-                        <label for="clientName" class="form-label">Müşteri Adı</label>
-                        <input type="text" class="form-control" id="clientName" name="ClientName"
-                               value="@Model.ClientName" placeholder="Müşteri adıyla ara" />
-                    </div>
-                    <div class="col-md-2">
-                        <label for="status" class="form-label">Durum</label>
-                        <select class="form-select" id="status" name="CurrentStatus">
-                            <option value="">Tümü</option>
-                            <option value="Devam Ediyor" selected="@(Model.CurrentStatus == "Devam Ediyor")">Devam Eden</option>
-                            <option value="Tamamlandı" selected="@(Model.CurrentStatus == "Tamamlandı")">Tamamlanmış</option>
-                            <option value="İptal Edildi" selected="@(Model.CurrentStatus == "İptal Edildi")">İptal Edilmiş</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="startDate" class="form-label">Başlangıç Tarihi</label>
-                        <input type="date" class="form-control" id="startDate" name="StartDate"
-                              @*  value="@Model.StartDate?.ToString("yyyy-MM-dd")" *@ />
-                    </div>
-                    <div class="col-md-2">
-                        <label for="endDate" class="form-label">Bitiş Tarihi</label>
-                        <input type="date" class="form-control" id="endDate" name="EndDate"
-                               @* value="@Model.EndDate?.ToString("yyyy-MM-dd")" *@ />
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-dark flex-grow-1">
-                            <i class="fas fa-search"></i> Filtrele
-                        </button>
-                        <button type="button" id="bulkCompleteBtn" class="btn btn-success" disabled>
-                            <i class="fas fa-check"></i> Toplu İşlem
-                        </button>
-                    </div>
-                </form>
-            </div>
+<form asp-action="Ongoing" method="get" class="mb-4">
+    <div class="row g-2">
+        <div class="col-md-2">
+            <label>Müşteri Adı</label>
+            <input type="text" name="ClientName" value="@Model.ClientName" class="form-control" placeholder="Müşteri Adı" />
         </div>
-
-        <!-- Liste Kartı -->
-        <div class="card">
-            <div class="card-header bg-pastel-blue d-flex justify-content-between">
-                <h3 class="card-title"><i class="fas fa-wrench me-2"></i>Servis Kayıtları</h3>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-secondary" onclick="sortTable('CreatedDate', true)">
-                        <i class="fas fa-arrow-down"></i> Yeniden Eskiye
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="sortTable('CreatedDate', false)">
-                        <i class="fas fa-arrow-up"></i> Eskiden Yeniye
-                    </button>
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <div id="recordsTable">
-                    @await Component.InvokeAsync("_ListServiceRecordViewComponentPartial")
-                </div>
-            </div>
-            <div class="card-footer">
-                <div id="paginationContainer">
-                    <!-- AJAX ile dolacak -->
-                </div>
-            </div>
+        
+        <div class="col-md-2">
+            <label>Araç Plakası/Markası</label>
+            <input type="text" name="VehicleName" value="@Model.VehicleName" class="form-control" placeholder="Araç Plakası/Markası" />
+        </div>
+        <div class="col-md-2">
+            <label>İşlem Durumu</label>
+            <select name="CurrentStatus" class="form-control">
+                <option value="">Tüm Durumlar</option>
+                <option value="Devam Ediyor" selected="@(Model.CurrentStatus == "Devam Ediyor")">Devam Ediyor</option>
+                <option value="Tamamlandı" selected="@(Model.CurrentStatus == "Tamamlandı")">Tamamlandı</option>
+                <option value="İptal Edildi" selected="@(Model.CurrentStatus == "İptal Edildi")">İptal Edildi</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label>Başlangıç Tarihi</label>
+            <input type="date" name="StartDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label>Bitiş Tarihi</label>
+            <input type="date" name="EndDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label></label>
+            <button type="submit" class="btn btn-primary w-100">Filtrele</button>
         </div>
     </div>
-</section>
+</form>
 
-<!-- Düzenleme Modali -->
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>
+                <a asp-action="Ongoing"
+                   asp-route-SortColumn="ClientName"
+                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "ClientName" ? "desc" : "asc")">
+                    Müşteri
+                </a>
+            </th>
+            <th>
+                <a asp-action="Ongoing"
+                   asp-route-SortColumn="VehicleName"
+                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "VehicleName" ? "desc" : "asc")">
+                    Araç Adı
+                </a>
+            </th>
+            <th>
+                <a asp-action="Ongoing"
+                   asp-route-SortColumn="VehiclePlate"
+                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "VehiclePlate" ? "desc" : "asc")">
+                    Araç Plakası
+                </a>
+            </th>
+            <th>
+                <a asp-action="Ongoing"
+                   asp-route-SortColumn="Status"
+                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "Status" ? "desc" : "asc")">
+                    Durum
+                </a>
+            </th>
+            <th>
+                <a asp-action="Ongoing"
+                   asp-route-SortColumn="CreatedDate"
+                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "CreatedDate" ? "desc" : "asc")">
+                    Oluşturulma Tarihi
+                </a>
+            </th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Records != null && Model.Records.Any())
+        {
+            foreach (var record in Model.Records)
+            {
+                <tr>
+                    <td>@record.Vehicle.Client.Name</td>
+                    <td>@record.Vehicle.Name</td>
+                    <td>@record.Vehicle.Plate</td>
+                    <td>@record.Status</td>
+                    <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal" data-id="@record.Id">
+                            Detay
+                        </button>
+                        <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content" id="detailModalContent">
+                                    @await Component.InvokeAsync("_ListServiceRecordDetailsViewComponentPartial",@record.Id)
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" data-id="@record.Id">
+                            Düzenle
+                        </button>
+                        <form asp-action="Cancel" asp-controller="ServiceRecord" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@record.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('İşlemi iptal etmek istediğinize emin misiniz?');">
+                                İptal Et
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center">Kayıt bulunamadı.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- MODALS - ViewComponent içeriği burada yüklenecek -->
+
+
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form id="editForm" method="post" asp-action="Edit">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="Id" id="editId" />
-                <div class="modal-header bg-pastel-blue">
-                    <h5 class="modal-title">Servis Kaydını Düzenle</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Uygulanan İşlem</label>
-                        <textarea class="form-control" name="AppliedOperations" id="editOps" rows="3"></textarea>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label>Durum</label>
-                            <select class="form-select" name="Status" id="editStatus">
-                                <option value="Devam Ediyor">Devam Ediyor</option>
-                                <option value="Tamamlandı">Tamamlandı</option>
-                                <option value="İptal Edildi">İptal Edildi</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label>Tahmini Kalan Gün</label>
-                            <input type="number" class="form-control" name="EstimatedDaysLeft" id="editDays" />
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                </div>
-            </form>
+        <div class="modal-content" id="editModalContent">
+          
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        // AJAX Filtreleme ve Sıralama
-        function loadRecords(page = 1) {
-            const formData = $('#filterForm').serialize() + `&page=${page}`;
-            $.get('/Service/OngoingPartial', formData, function (data) {
-                $('#recordsTable').html(data.table);
-                $('#paginationContainer').html(data.pagination);
-                initTableEvents();
-            });
-        }
-
-        // Tablo Sıralama
-        function sortTable(column, descending) {
-            $('#sortColumn').val(column);
-            $('#sortDirection').val(descending ? 'desc' : 'asc');
-            loadRecords();
-        }
-
-        // Modal Açılışı
-        function openEditModal(id) {
-            $.get('/Service/GetRecord/' + id, function (data) {
-                $('#editId').val(data.id);
-                $('#editStatus').val(data.status);
-                $('#editOps').val(data.appliedOperations);
-                $('#editDays').val(data.estimatedDaysLeft);
-                $('#editModal').modal('show');
-            });
-        }
-
-        // Toplu İşlem
-        $('#bulkCompleteBtn').click(function () {
-            const selectedIds = $('.record-check:checked').map(function () {
-                return $(this).val();
-            }).get();
-
-            if (selectedIds.length > 0) {
-                $.post('/Service/BulkComplete', { ids: selectedIds }, function () {
-                    toastr.success(`${selectedIds.length} kayıt tamamlandı olarak işaretlendi`);
-                    loadRecords();
-                });
-            }
-        });
-
-        // Sayfa Yüklendiğinde
-        $(document).ready(function () {
-            // Dinamik Filtreleme
-            $('#filterForm').on('input change', function () {
-                loadRecords();
-            });
-
-            // Form Submit
-            $('#filterForm').submit(function (e) {
-                e.preventDefault();
-                loadRecords();
-            });
-
-            // Edit Form Submit
-            $('#editForm').submit(function (e) {
-                e.preventDefault();
-                $.post(this.action, $(this).serialize(), function () {
-                    $('#editModal').modal('hide');
-                    toastr.success("Kayıt güncellendi!");
-                    loadRecords();
-                });
-            });
-
-            initTableEvents();
-        });
-
-        function initTableEvents() {
-            // Checkbox Değişiklikleri
-            $('.record-check').change(function () {
-                const anyChecked = $('.record-check:checked').length > 0;
-                $('#bulkCompleteBtn').prop('disabled', !anyChecked);
-            });
-
-            // Tooltip Aktif Etme
-            $('[data-bs-toggle="tooltip"]').tooltip();
-        }
-    </script>
-}

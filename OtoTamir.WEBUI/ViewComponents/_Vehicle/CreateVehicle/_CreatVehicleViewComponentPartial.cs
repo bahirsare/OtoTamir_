@@ -7,7 +7,7 @@ namespace OtoTamir.WEBUI.ViewComponents._Vehicle.CreateVehicle
     {
         public async Task<IViewComponentResult> InvokeAsync(CreateVehicleDTO model) 
         {
-            
+            model.Year=DateTime.Now.Year;
             return View(model);
         }
     }

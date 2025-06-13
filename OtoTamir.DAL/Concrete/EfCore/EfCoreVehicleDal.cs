@@ -33,7 +33,7 @@ public class EfCoreVehicleDal : EfCoreGenericRepositoryDal<Vehicle, DataContext>
             throw new ArgumentException("Plaka boş olamaz");
 
         vehicle.Plate = vehicle.Plate.ToUpper().Replace(" ", "");
-        vehicle.Name = $"{vehicle.Plate}_{vehicle.Brand}";
+        vehicle.Name = $"{vehicle.Plate}_{vehicle.Brand}".ToUpper();
         vehicle.CreatedDate = DateTime.Now;
         vehicle.ModifiedDate = DateTime.Now;
 

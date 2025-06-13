@@ -94,10 +94,15 @@
                             </div>
                            
                         </td>
-                    </tr>
-                    
-                   
-                }
+                    </tr>         
+                    }
+                <tr class="table-info">
+                    <td colspan="10" class="text-center fw-bold">
+                        Toplam Müşteri Sayısı: @Model.Count() |
+                        Toplam Bakiye: @Model.Sum(client => client.Balance) ₺ |
+                        Toplam Araç Sayısı: @Model.Sum(client => client.Vehicles.Count)
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>

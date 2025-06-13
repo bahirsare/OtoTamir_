@@ -1,48 +1,101 @@
 ﻿@model CreateVehicleDTO
+
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
         <form asp-controller="Home" asp-action="CreateVehicle" method="post">
             <div class="modal-header">
-
-                <h5 class="modal-title">Yeni Müşteri Ekle</h5>
+                <h5 class="modal-title">Yeni Araç Ekle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
             </div>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="card-body">
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label asp-for="Plate" class="form-label"></label>
-                            <input asp-for="Plate" class="form-control" />
-                            <span asp-validation-for="Plate" class="text-danger"></span>
-                        </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="Brand" class="form-label"></label>
-                            <input asp-for="Brand" class="form-control" />
-                            <span asp-validation-for="Brand" class="text-danger"></span>
-                        </div>
+            <div class="modal-body">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <div class="col-md-6">
-                            <label asp-for="Model" class="form-label"></label>
-                            <input asp-for="Model" class="form-control" />
-                            <span asp-validation-for="Model" class="text-danger"></span>
-                        </div>
+                <div class="row g-3">
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Plate" class="form-label"></label>
+                        <input asp-for="Plate" class="form-control"
+                               pattern="^\d{2}[A-ZÇĞİÖŞÜ]{1,3}\d{2,4}$"
+                               title="Lütfen geçerli bir plaka giriniz. Örnek: 34ABC123"
+                               oninput="toTurkishUpper(this)"
+                               required />
+                        <span asp-validation-for="Plate" class="text-danger small"></span>
+                    </div>
 
-                        <div class="col-12">
-                            <label asp-for="Year" class="form-label"></label>
-                            <textarea asp-for="Year" class="form-control"></textarea>
-                            <span asp-validation-for="Year" class="text-danger"></span>
-                        </div>
+                  
+                    <div class="col-md-6">
+                        <label asp-for="Brand" class="form-label"></label>
+                        <input asp-for="Brand" class="form-control" list="brandList" />
+                        <datalist id="brandList">
+                            <option value="Audi" />
+                            <option value="BMW" />
+                            <option value="Citroen" />
+                            <option value="Dacia" />
+                            <option value="Fiat" />
+                            <option value="Ford" />
+                            <option value="Honda" />
+                            <option value="Hyundai" />
+                            <option value="Kia" />
+                            <option value="Mercedes-Benz" />
+                            <option value="Mini" />
+                            <option value="Mitsubishi" />
+                            <option value="Nissan" />
+                            <option value="Opel" />
+                            <option value="Peugeot" />
+                            <option value="Renault" />
+                            <option value="Seat" />
+                            <option value="Skoda" />
+                            <option value="Toyota" />
+                            <option value="Volkswagen" />
+                        </datalist>
+                        <span asp-validation-for="Brand" class="text-danger small" required></span>
+                    </div>
 
-                        <input type="hidden" asp-for="ClientId" />
-                        <input type="hidden" asp-for="ReturnUrl" />
+
+
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Model" class="form-label"></label>
+
+                        <input asp-for="Model" class="form-control" required />
+                        <span asp-validation-for="Model" class="text-danger small"></span>
+                    </div>
+
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Year" class="form-label"></label>
+                        <select asp-for="Year" class="form-select">
+                            <option value="">Yıl seçin</option>
+                                                          
+                                @for (int year = Model.Year; year >= 1980; year--)
+                                {
+                                bool isSelected = Model.Year == year || (Model.Year == null && year == Model.Year);
+                                    <option value="@year" selected="@(isSelected ? "selected" : null)">@year</option>
+                                }
+                            
+                        </select>
+
+
+                        <span asp-validation-for="Year" class="text-danger small"></span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                    <button type="submit" class="btn btn-success">Kaydet</button>
-                </div>
+
+                
+                <input type="hidden" asp-for="ClientId" />
+                <input type="hidden" asp-for="ReturnUrl" />
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" class="btn btn-success">Kaydet</button>
+            </div>
         </form>
     </div>
 </div>
+<script>
+    function toTurkishUpper(input) {
+        input.value = input.value.toLocaleUpperCase('tr-TR');
+    }
+</script>
+

@@ -9,13 +9,13 @@ using System.Security.Claims;
 
 namespace OtoTamir.WEBUI.ViewComponents._ServiceRecord.ListServiceRecord
 {
-    public class _ListServiceRecordViewComponentPartial : ViewComponent
+    public class _ListServiceRecordbyVehicleIdViewComponentPartial : ViewComponent
     {
         private readonly IVehicleService _vehicleService;
         private readonly IServiceRecordService _serviceRecordService;
         private readonly UserManager<Mechanic> _userManager;
 
-        public _ListServiceRecordViewComponentPartial(IVehicleService vehicleService, IServiceRecordService serviceRecordService, UserManager<Mechanic> userManager)
+        public _ListServiceRecordbyVehicleIdViewComponentPartial(IVehicleService vehicleService, IServiceRecordService serviceRecordService, UserManager<Mechanic> userManager)
         {
             _vehicleService = vehicleService;
             _serviceRecordService = serviceRecordService;
@@ -32,16 +32,7 @@ namespace OtoTamir.WEBUI.ViewComponents._ServiceRecord.ListServiceRecord
             }
             return View(vehicle);
         }
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
-            var records= await _serviceRecordService.GetAllAsync(mechanicId:mechanic.Id, includeClient:true,includeSymptoms:true);
-            if (records == null)
-            {
-                TempData["Messaage"] = "Kayıt bulunamadı.";
-            }
-            return View(records);
-        }
+      
 
     }
 }
