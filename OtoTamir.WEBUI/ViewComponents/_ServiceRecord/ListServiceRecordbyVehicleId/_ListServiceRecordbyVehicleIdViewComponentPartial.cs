@@ -22,15 +22,15 @@ namespace OtoTamir.WEBUI.ViewComponents._ServiceRecord.ListServiceRecord
             _userManager = userManager;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(int vehicleid)
+        public async Task<IViewComponentResult> InvokeAsync(int recordId)
         {
             var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
-            var vehicle= await _vehicleService.GetOneAsync(id:vehicleid,mechanicId:mechanic.Id,includeClient:true,includeServiceRecords:true);
-            if (vehicle == null)
+            var record= await _serviceRecordService.GetOneAsync(id: recordId, mechanicId:mechanic.Id,includeVehicle:true,includeSymptoms:true);
+            if (record == null)
             {
-                TempData["Messaage"] = "Araç bulunamadı.";
+                TempData["Messaage"] = "Kayıt bulunamadı.";
             }
-            return View(vehicle);
+            return View(record);
         }
       
 

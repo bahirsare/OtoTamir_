@@ -112,7 +112,12 @@ public class ServiceRecordController : Controller
             symptom.ServiceRecordId = serviceRecord.Id;
 
             var symptomResult = await _symptomService.CreateAsync(symptom);
-
+            if (symptomResult == 0)
+            {
+                TempData["FailMessage"] = "Semptom oluşturulamadı!";
+                break;
+            }
+            TempData["SuccessMessage"] = "Semptom oluşturuldu!";
         }
         return RedirectToAction("Index", new { selectedClientId = clientId });
     }
@@ -160,7 +165,7 @@ public class ServiceRecordController : Controller
                 r.Vehicle.Name.Contains(model.VehicleName, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
-        // Sıralama
+        
         if (!string.IsNullOrEmpty(model.SortColumn) && !string.IsNullOrEmpty(model.SortDirection))
         {
             records = model.SortColumn switch
@@ -182,7 +187,7 @@ public class ServiceRecordController : Controller
         }
         else
         {
-            records = records.OrderByDescending(r => r.CreatedDate).ToList(); // Varsayılan sıralama
+            records = records.OrderByDescending(r => r.CreatedDate).ToList(); 
         }
 
         model.Records = records;
@@ -193,7 +198,7 @@ public class ServiceRecordController : Controller
    
 
     [HttpPost]
-    public async Task<IActionResult> BulkComplete(List<int> ids)
+    public async Task<IActionResult> BulkComplete(List<int> ids) // boş şuan
     {
         if (ids == null || !ids.Any())
         {
@@ -211,7 +216,15 @@ public class ServiceRecordController : Controller
 
         TempData["Success"] = $"{ids.Count} kayıt tamamlandı olarak işaretlendi.";
         return RedirectToAction("Ongoing");
+
     }
+    [HttpPost]
+    public async Task<IActionResult> AddSymptomLog(RepairComment model)// comment ekleme metodu yazılacak
+    {
+        var mechanic = await _userManager.GetUserAsync(User); 
+        return View(model);
+    }
+
 
 
 }

@@ -14,6 +14,9 @@ namespace OtoTamir.CORE.Entities
         public string AuthorName { get; set; }
         public int SymptomId{ get; set; }
         public Symptom Symptom { get; set; }
+        public decimal AdditionalCost { get; set; }
+       
+        public int AdditionalDays { get; set; }
 
     }
 }

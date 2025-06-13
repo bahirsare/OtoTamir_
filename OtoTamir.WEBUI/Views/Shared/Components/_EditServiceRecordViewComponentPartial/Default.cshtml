@@ -1,0 +1,126 @@
+﻿@model EditServiceRecordDTO
+
+<div class="modal-header">
+    <h5 class="modal-title">Servis Kaydı Düzenle</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body p-4">
+    <div class="mb-4">
+        <h6 class="text-primary">Servis Bilgileri</h6>
+        <div class="border rounded p-3 bg-light">
+            <p><strong>Müşteri:</strong> @Model.Vehicle.Client.Name</p>
+            <p><strong>Araç:</strong> @Model.Vehicle.Plate - @Model.Vehicle.Brand @Model.Vehicle.Model</p>
+            <p><strong>Kayıt Başlığı:</strong> @Model.Name</p>
+            <p><strong>Açıklama:</strong> @Model.Description</p>
+            <p><strong>Toplam Tahmini Fiyat:</strong> ₺@Model.Price</p>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="mb-4">
+        <h6 class="text-success">Semptomlar</h6>
+
+        @foreach (var symptom in Model.SymptomList)
+        {
+            <div class="border p-3 rounded mb-4 bg-white shadow-sm">
+                <h6 class="fw-bold">@symptom.Name</h6>
+                <p><strong>Açıklama:</strong> @symptom.Description</p>
+                <p><strong>Çözüm Önerisi:</strong> @symptom.PossibleSolution</p>
+                <p><strong>Tahmini Ücret:</strong> ₺@symptom.EstimatedCost</p>
+                <p><strong>Tahmini Süre:</strong> @symptom.EstimatedDaysToFix gün</p>
+
+                <hr />
+                <h6>İşlem Günlüğü</h6>
+                @if (symptom.ServiceWorkflowLogs != null && symptom.ServiceWorkflowLogs.Any())
+                {
+                    foreach (var log in symptom.ServiceWorkflowLogs)
+                    {
+                        <div class="border-start ps-3 mb-2">
+                            <p class="mb-1"><strong>@log.Title</strong> - <small class="text-muted">@log.AuthorName</small></p>
+                            <p class="text-muted">@log.Content</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">Henüz işlem eklenmemiş.</p>
+                }
+
+                <!-- Yeni log ekleme alanı -->
+                <div class="mt-4 border-top pt-3">
+                    <form asp-action="AddSymptomLog" method="post">
+                        <input type="hidden" name="SymptomId" value="@symptom.Id" />
+
+                        <div class="mb-2">
+                            <label class="form-label">Başlık</label>
+                            <input name="Title" class="form-control" required />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">İçerik</label>
+                            <textarea name="Content" class="form-control" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Yazan Kişi (Çalışan Adı)</label>
+                            <input name="AuthorName" class="form-control" required />
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Ek Tahmini Gün</label>
+                                <input name="AdditionalDays" type="number" class="form-control" min="0" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ek Tahmini Ücret (₺)</label>
+                                <input name="AdditionalCost" type="number" class="form-control" step="0.01" min="0" />
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Lazım Olabilecek Yedek Parçalar</label>
+                            <div id="sparePartsContainer-@symptom.Id">
+                                <div class="input-group mb-2">
+                                    <input name="SparePartNames" class="form-control" placeholder="Parça Adı" />
+                                    <input name="SparePartDescriptions" class="form-control" placeholder="Açıklama (isteğe bağlı)" />
+                                    <button type="button" class="btn btn-outline-danger remove-part-btn">-</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm add-part-btn" data-symptom-id="@symptom.Id">+ Parça Ekle</button>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-outline-success btn-sm">Log Ekle</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+
+    <hr />
+
+    <div class="mb-4">
+        <h6 class="text-danger">Servis Durumu</h6>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="Status" id="ongoing" value="Devam Ediyor" @(Model.Status == "Devam Ediyor" ? "checked" : "") />
+            <label class="form-check-label" for="ongoing">Devam Ediyor</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="Status" id="completed" value="Tamamlandı" @(Model.Status == "Tamamlandı" ? "checked" : "") />
+            <label class="form-check-label" for="completed">Tamamlandı</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="Status" id="cancelled" value="İptal Edildi" @(Model.Status == "İptal Edildi" ? "checked" : "") />
+            <label class="form-check-label" for="cancelled">İptal Edildi</label>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+</div>
+
+    
+

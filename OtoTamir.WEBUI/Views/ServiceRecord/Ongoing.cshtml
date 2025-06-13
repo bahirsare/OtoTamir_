@@ -91,19 +91,26 @@
                     <td>@record.Status</td>
                     <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>
                     <td>
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal" data-id="@record.Id">
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-@record.Id" data-id="@record.Id">
                             Detay
                         </button>
-                        <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal fade" id="detailModal-@record.Id" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content" id="detailModalContent">
                                     @await Component.InvokeAsync("_ListServiceRecordDetailsViewComponentPartial",@record.Id)
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" data-id="@record.Id">
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id" data-id="@record.Id">
                             Düzenle
                         </button>
+                        <div class="modal fade" id="editModal-@record.Id" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content" id="editModalContent">
+                                    @await Component.InvokeAsync("_EditServiceRecordViewComponentPartial", @record.Id)
+                                </div>
+                            </div>
+                        </div>
                         <form asp-action="Cancel" asp-controller="ServiceRecord" method="post" class="d-inline">
                             <input type="hidden" name="id" value="@record.Id" />
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('İşlemi iptal etmek istediğinize emin misiniz?');">
@@ -123,14 +130,34 @@
     </tbody>
 </table>
 
-<!-- MODALS - ViewComponent içeriği burada yüklenecek -->
+
+@section Scripts {
+    <script>
+        document.body.addEventListener('click', function (e) {
+            if (e.target.classList.contains('add-part-btn')) {
+                const btn = e.target;
+                const symptomId = btn.getAttribute('data-symptom-id');
+                const container = document.getElementById(`sparePartsContainer-${symptomId}`);
+                if (!container) return;
+
+                const row = document.createElement('div');
+                row.className = 'input-group mb-2';
+                row.innerHTML = `
+                        <input name="SparePartNames" class="form-control me-1" placeholder="Parça Adı" />
+                        <input name="SparePartDescriptions" class="form-control me-1" placeholder="Açıklama (isteğe bağlı)" />
+                        <button type="button" class="btn btn-outline-danger remove-part-btn">-</button>
+                    `;
+                container.appendChild(row);
+            }
+
+            if (e.target.classList.contains('remove-part-btn')) {
+                const row = e.target.closest('.input-group');
+                if (row) row.remove();
+            }
+        });
+    </script>
+}
 
 
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" id="editModalContent">
-          
-        </div>
-    </div>
-</div>
+
 

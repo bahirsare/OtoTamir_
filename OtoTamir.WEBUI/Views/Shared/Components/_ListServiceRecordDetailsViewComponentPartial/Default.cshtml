@@ -1,42 +1,74 @@
 ﻿@model ServiceRecord
 
-<div class="modal-header">
-    <h5 class="modal-title">Servis Detayları - @Model.Vehicle.Client.Name</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-</div>
+<div class="p-3">
+    <h5 class="mb-3 text-primary">
+        <i class="fas fa-info-circle me-2"></i>Servis Detayı
+    </h5>
 
-<div class="modal-body">
-    <p><strong>Plaka:</strong> @Model.Vehicle.Plate</p>
-    <p><strong>Durum:</strong> @Model.Status</p>
-    <p><strong>Oluşturulma Tarihi:</strong> @Model.CreatedDate.ToString("dd.MM.yyyy")</p>
+    <dl class="row">
+        <dt class="col-sm-4">Başlık:</dt>
+        <dd class="col-sm-8">@Model.Name</dd>
+
+        <dt class="col-sm-4">Açıklama:</dt>
+        <dd class="col-sm-8">@Model.Description</dd>
+
+        <dt class="col-sm-4">Fiyat:</dt>
+        <dd class="col-sm-8">@Model.Price.ToString("C")</dd>
+
+        <dt class="col-sm-4">Durum:</dt>
+        <dd class="col-sm-8">@Model.Status</dd>
+
+        <dt class="col-sm-4">Tamamlanma Tarihi:</dt>
+        <dd class="col-sm-8">@(Model.CompletedDate?.ToString("dd.MM.yyyy") ?? "Henüz tamamlanmadı")</dd>
+
+        <dt class="col-sm-4">Oluşturan:</dt>
+        <dd class="col-sm-8">@Model.AuthorName</dd>
+    </dl>
 
     <hr />
-    <h6>Yapılan İşlemler / Semptomlar:</h6>
+
+    <h6 class="text-secondary">Semptomlar</h6>
     @if (Model.SymptomList != null && Model.SymptomList.Any())
     {
-        <ul class="list-group">
-            @foreach (var symptom in Model.SymptomList)
-            {
-                <li class="list-group-item">
-                    <strong>Şikayet:</strong> @symptom.Description<br />
-                    @if (!string.IsNullOrEmpty(symptom.PossibleSolution))
-                    {
-                        <strong>Çözüm Önerisi:</strong> @symptom.PossibleSolution
+        @foreach (var symptom in Model.SymptomList)
+        {
+            <div class="card mb-3 border-start border-3 border-primary">
+                <div class="card-body">
+                    <h6 class="card-title text-primary">@symptom.Name</h6>
 
-                        <br />
+                    <p class="card-text"><strong>Açıklama:</strong> @symptom.Description</p>
+                    <p class="card-text"><strong>Çözüm Önerisi:</strong> @symptom.PossibleSolution</p>
+                    <p class="card-text"><strong>Tahmini Maliyet:</strong> @symptom.EstimatedCost.ToString("C")</p>
+                    <p class="card-text"><strong>Tahmini Gün:</strong> @symptom.EstimatedDaysToFix</p>
+
+
+                    @if (symptom.PossibleSpareParts != null && symptom.PossibleSpareParts.Any())
+                    {
+                        <p class="mb-1"><strong>Yedek Parçalar:</strong></p>
+                        <ul>
+                            @foreach (var part in symptom.PossibleSpareParts)
+                            {
+                                <li>@part.Name (@part.Brand) - @part.SalePrice.ToString("C")</li>
+                            }
+                        </ul>
                     }
-                    <strong>Fiyat Tahmini:</strong> @(symptom.EstimatedCost.ToString("C") ?? "Belirtilmemiş")<br />
-                    <small class="text-muted">Eklenme: @symptom.CreatedDate.ToString("dd.MM.yyyy HH:mm")</small>
-                </li>
-            }
-        </ul>
+
+                    @if (symptom.ServiceWorkflowLogs != null && symptom.ServiceWorkflowLogs.Any())
+                    {
+                        <p class="mb-1"><strong>Servis Yorumu / İş Akışı:</strong></p>
+                        <ul class="list-unstyled">
+                            @foreach (var log in symptom.ServiceWorkflowLogs)
+                            {
+                                <li>🛠️ <strong>@log.CreatedDate.ToString("dd.MM.yyyy"):</strong> @log.Content</li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        }
     }
     else
     {
-        <p class="text-muted">Bu servise ait işlem kaydı bulunamadı.</p>
+        <p class="text-muted">Bu servis kaydına ait semptom bulunmamaktadır.</p>
     }
-</div>
-
-<div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
 </div>

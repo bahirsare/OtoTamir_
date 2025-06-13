@@ -16,6 +16,11 @@ namespace OtoTamir.CORE.Entities
         public List<SparePart> PossibleSpareParts { get; set; }
         public int ServiceRecordId { get; set; }
         public ServiceRecord ServiceRecord { get; set; }
+        public Symptom()
+        {
+            ServiceWorkflowLogs= new List<RepairComment>();
+            PossibleSpareParts = new List<SparePart>();
+        }
     }
 
 }

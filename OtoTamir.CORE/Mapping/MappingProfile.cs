@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.DTOs.MechanicDTOs;
+using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.DTOs.SymptomDTOs;
 using OtoTamir.CORE.DTOs.VehicleDTOs;
 using OtoTamir.CORE.Entities;
@@ -23,6 +24,7 @@ namespace OtoTamir.CORE.Mapping
             CreateMap<CreateVehicleDTO, Vehicle>().ReverseMap();
             CreateMap<EditProfileDTO, Mechanic>().ReverseMap();
             CreateMap<SymptomDTO, Symptom>().ReverseMap();
+            CreateMap<EditServiceRecordDTO, ServiceRecord>().ReverseMap();
         }
     }
 }

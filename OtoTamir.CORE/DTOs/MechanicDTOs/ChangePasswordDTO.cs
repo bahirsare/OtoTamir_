@@ -16,6 +16,7 @@ namespace OtoTamir.CORE.DTOs.MechanicDTOs
 
         [DisplayName("Yeni Şifre")]
         [DataType(DataType.Password)]
+        [MinLength(6)]
         public string NewPassword { get; set; }
 
         [DisplayName("Yeni Şifre Tekrarı")]
