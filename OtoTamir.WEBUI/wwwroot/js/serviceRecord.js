@@ -1,4 +1,4 @@
-﻿const symptomIndices = {}; // containerId => current index
+﻿const symptomIndices = {};
 
 function addSymptomRow(containerId) {
     const container = document.getElementById(containerId);
@@ -12,31 +12,50 @@ function addSymptomRow(containerId) {
     }
     const index = symptomIndices[containerId];
 
-    const html = `
-        <div class="symptom-group border rounded p-3 mb-3">
-            <div class="mb-2">
-                <label class="form-label">Semptom Adı</label>
-                <input name="Symptoms[${index}].Name" class="form-control" />
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Açıklama</label>
-                <textarea name="Symptoms[${index}].Description" class="form-control"></textarea>
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Tahmini Fiyat</label>
-                <input name="Symptoms[${index}].EstimatedCost" class="form-control" type="number" step="0.01" />
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Olası Çözüm</label>
-                <input name="Symptoms[${index}].PossibleSolution" class="form-control" />
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Gün Sayısı</label>
-                <input name="Symptoms[${index}].EstimatedDaysToFix" class="form-control" type="number" />
-            </div>
+    const card = document.createElement("div");
+    card.className = "border rounded p-3 mb-1 bg-light symptom-item";
+
+    const formRow = document.createElement("div");
+    formRow.className = "d-flex flex-wrap align-items-end gap-3";
+
+    formRow.innerHTML = `
+        <div>
+            <label class="form-label fw-semibold  mb-1">Semptom Adı</label>
+            <input name="Symptoms[${index}].Name" class="form-control form-control-sm" style="width: 150px;" />
+        </div>
+
+        <div>
+            <label class="form-label fw-semibold  mb-1">Fiyat</label>
+            <input name="Symptoms[${index}].EstimatedCost" class="form-control form-control-sm" type="number" step="100" style="width: 100px;" />
+        </div>
+
+        <div>
+            <label class="form-label fw-semibold  mb-1">Gün</label>
+            <input name="Symptoms[${index}].EstimatedDaysToFix" class="form-control form-control-sm" type="number" style="width: 70px;" />
+        </div>
+
+        <div>
+            <label class="form-label fw-semibold  mb-1">Açıklama</label>
+            <textarea name="Symptoms[${index}].Description" class="form-control form-control-sm" rows="1" style="width: 200px;"></textarea>
+        </div>
+
+        <div>
+            <label class="form-label fw-semibold  mb-1">Çözüm</label>
+            <input name="Symptoms[${index}].PossibleSolution" class="form-control form-control-sm" style="width: 200px;" />
+        </div>
+
+        <div>
+            <button type="button" class="btn btn-sm btn-outline-danger" style="margin-top: 22px;">Sil</button>
         </div>
     `;
 
-    container.insertAdjacentHTML("beforeend", html);
+    // Sil butonu için event
+    formRow.querySelector("button").addEventListener("click", function () {
+        card.remove();
+    });
+
+    card.appendChild(formRow);
+    container.appendChild(card);
+
     symptomIndices[containerId]++;
 }

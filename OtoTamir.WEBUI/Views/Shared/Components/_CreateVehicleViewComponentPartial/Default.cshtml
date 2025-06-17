@@ -1,20 +1,20 @@
 ﻿@model CreateVehicleDTO
 
 <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+    <div class="modal-content shadow-sm">
         <form asp-controller="Home" asp-action="CreateVehicle" method="post">
-            <div class="modal-header">
-                <h5 class="modal-title">Yeni Araç Ekle</h5>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title mb-0">Yeni Araç Ekle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
             </div>
 
             <div class="modal-body">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                 <div class="row g-3">
-                    
+
                     <div class="col-md-6">
-                        <label asp-for="Plate" class="form-label"></label>
+                        <label asp-for="Plate" class="form-label fw-semibold"></label>
                         <input asp-for="Plate" class="form-control"
                                pattern="^\d{2}[A-ZÇĞİÖŞÜ]{1,3}\d{2,4}$"
                                title="Lütfen geçerli bir plaka giriniz. Örnek: 34ABC123"
@@ -23,10 +23,9 @@
                         <span asp-validation-for="Plate" class="text-danger small"></span>
                     </div>
 
-                  
                     <div class="col-md-6">
-                        <label asp-for="Brand" class="form-label"></label>
-                        <input asp-for="Brand" class="form-control" list="brandList" />
+                        <label asp-for="Brand" class="form-label fw-semibold"></label>
+                        <input asp-for="Brand" class="form-control" list="brandList" required />
                         <datalist id="brandList">
                             <option value="Audi" />
                             <option value="BMW" />
@@ -49,39 +48,30 @@
                             <option value="Toyota" />
                             <option value="Volkswagen" />
                         </datalist>
-                        <span asp-validation-for="Brand" class="text-danger small" required></span>
+                        <span asp-validation-for="Brand" class="text-danger small"></span>
                     </div>
 
-
-
-                    
                     <div class="col-md-6">
-                        <label asp-for="Model" class="form-label"></label>
-
+                        <label asp-for="Model" class="form-label fw-semibold"></label>
                         <input asp-for="Model" class="form-control" required />
                         <span asp-validation-for="Model" class="text-danger small"></span>
                     </div>
 
-                    
                     <div class="col-md-6">
-                        <label asp-for="Year" class="form-label"></label>
-                        <select asp-for="Year" class="form-select">
+                        <label asp-for="Year" class="form-label fw-semibold"></label>
+                        <select asp-for="Year" class="form-select" required>
                             <option value="">Yıl seçin</option>
-                                                          
-                                @for (int year = Model.Year; year >= 1980; year--)
-                                {
-                                bool isSelected = Model.Year == year || (Model.Year == null && year == Model.Year);
-                                    <option value="@year" selected="@(isSelected ? "selected" : null)">@year</option>
-                                }
-                            
+                            @for (int year = DateTime.Now.Year; year >= 1980; year--)
+                            {
+                                <option value="@year" selected="@(Model.Year == year ? "selected" : null)">
+                                    @year
+                                </option>
+                            }
                         </select>
-
-
                         <span asp-validation-for="Year" class="text-danger small"></span>
                     </div>
                 </div>
 
-                
                 <input type="hidden" asp-for="ClientId" />
                 <input type="hidden" asp-for="ReturnUrl" />
             </div>
@@ -93,9 +83,9 @@
         </form>
     </div>
 </div>
+
 <script>
     function toTurkishUpper(input) {
         input.value = input.value.toLocaleUpperCase('tr-TR');
     }
 </script>
-

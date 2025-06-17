@@ -1,22 +1,38 @@
 ﻿@model CreateSymptomGroupDTO
 
-<form asp-action="CreateServiceRecord" method="post">
+<form asp-action="CreateServiceRecord" method="post" class="border rounded shadow-sm p-3 mb-1 bg-light">
+
     <input type="hidden" asp-for="VehicleId" />
-    <div class="border rounded p-3 mb-3">
-    <div class="mb-3">
-        <label for="AuthorName" class="form-label">Yazar Adı</label>
-        <input asp-for="AuthorName" class="form-control" />
-    </div>
+    
+    
+
     <div id="symptomContainer-@Model.VehicleId">
         <!-- İlk semptom otomatik oluşacak -->
     </div>
-   </div>
+    @* <div class="col-md-2 offset-md-9 ">
+        <label asp-for="AuthorName" class="form-label fw-semibold ">Çalışan</label>
+        <input asp-for="AuthorName" class="form-control form-control-sm " />
+        <span asp-validation-for="AuthorName" class="text-danger small"></span>
+    </div> *@
+    
 
-    <button type="button" class="btn btn-secondary my-2" onclick="addSymptomRow('symptomContainer-@Model.VehicleId')">Yeni Semptom Ekle</button>
+    <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addSymptomRow('symptomContainer-@Model.VehicleId')">
+            <i class="bi bi-plus-circle"></i> Yeni Semptom Ekle
+        </button>
 
-    <button type="submit" class="btn btn-primary">Kaydet</button>
+        <div class="d-flex  col-md-2 offset-md-8 ">
+            <label asp-for="AuthorName" class="form-label fw-semibold ">Çalışan</label>
+            <input asp-for="AuthorName" class="form-control form-control-sm " />
+            <span asp-validation-for="AuthorName" class="text-danger small"></span>
+        </div>
+        <button type="submit" class="btn btn-success btn-sm">
+            <i class="bi bi-check-circle"></i> Kaydet
+        </button>
+
+    </div>
+
 </form>
-
 
 <script>
     // Sayfa yüklendiğinde ilk semptom satırı ekleniyor

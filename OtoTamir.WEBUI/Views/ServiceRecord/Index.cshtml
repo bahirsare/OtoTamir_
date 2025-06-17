@@ -21,7 +21,9 @@
         @TempData["Message"]
     </div>
 }
+
 <section class="content">
+    
     <div class="container-fluid">
         <div class="card card-primary card-outline">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -71,6 +73,7 @@
     <div class="modal fade" id="createClientModal" tabindex="-1" aria-labelledby="createClientModalLabel" aria-hidden="true">
         @await Component.InvokeAsync("_CreateClientViewComponentPartial","/ServiceRecord/Index")
     </div>
+
 </section>
 <script src="~/js/serviceRecord.js"></script>
 

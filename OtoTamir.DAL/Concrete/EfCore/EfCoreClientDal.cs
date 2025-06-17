@@ -63,11 +63,9 @@ public class EfCoreClientDal : EfCoreGenericRepositoryDal<Client, DataContext>, 
     {
         if (includeVehicles)
         {
-            query = query.Include(c => c.Vehicles);
-        }
+            query = query.Include(c => c.Vehicles);   
 
-        else if (includeVehicles)
-        {
+        
             var vehicleInclude = query.Include(c => c.Vehicles);
 
             query = includeServiceRecords

@@ -1,0 +1,83 @@
+﻿@model Client
+
+@{
+    ViewData["Title"] = "Müşteri Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Müşteri Detayları: @Model.Name</h2>
+        <a class="btn btn-secondary" asp-action="Clients" asp-controller="Home">
+            <i class="bi bi-arrow-left"></i> Geri Dön
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    Müşteri Bilgileri
+                </div>
+                <div class="card-body">
+                    <p><strong>Ad Soyad:</strong> @Model.Name</p>
+                    <p><strong>Telefon:</strong> @Model.PhoneNumber</p>
+                    <p><strong>Bakiye:</strong> @Model.Balance ₺</p>
+                    <p><strong>Notlar:</strong> @Model.Notes</p>
+                    <p><strong>Oluşturulma Tarihi:</strong> @Model.CreatedDate.ToString("dd.MM.yyyy")</p>
+                    <p><strong>Son Güncelleme:</strong> @Model.ModifiedDate.ToString("dd.MM.yyyy")</p>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    Toplam İstatistik
+                </div>
+                <div class="card-body">
+                    <p><strong>Toplam Araç Sayısı:</strong> @Model.Vehicles.Count()</p>
+                    <p><strong>Toplam Servis Kayıtları:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count())</p>
+                    <p><strong>Devam Eden İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status == "Devam Ediyor"))</p>
+                    <p><strong>Tamamlanan İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status == "Tamamlandı"))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mt-4 mb-3">Araçlar</h4>
+    <div class="table-responsive shadow rounded">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-primary">
+                <tr>
+                    <th>Araç Adı</th>
+                    <th>Plaka</th>
+                    <th>Servis Kayıtları</th>
+                    <th>Oluşturulma</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vehicle in Model.Vehicles)
+                {
+                    <tr>
+                        <td>@vehicle.Name</td>
+                        <td>@vehicle.Plate</td>
+                        <td>@vehicle.ServiceRecords.Count()</td>
+                        <td>@vehicle.CreatedDate.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            <a class="btn btn-info btn-sm" asp-action="Edit" asp-route-id="@vehicle.Id">Düzenle</a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Vehicles.Any())
+                {
+                    <tr class="table-warning">
+                        <td colspan="5" class="text-center">Bu müşteriye ait araç bulunmamaktadır.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

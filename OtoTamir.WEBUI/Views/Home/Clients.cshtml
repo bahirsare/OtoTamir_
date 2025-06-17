@@ -62,11 +62,12 @@
                         <td>
                             
                             <div class="btn-group" role="group">
+                                <a class="btn btn-info" asp-action="ClientDetails" asp-route-clientId="@item.Id" asp-controller="Client">Detaylar</a>
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editClientModal-@item.Id">Düzenle</button>
                                 <div class="modal fade" id="editClientModal-@item.Id" tabindex="-1" aria-labelledby="editClientModalLabel-@item.Id" aria-hidden="true">
                                     @await Component.InvokeAsync("_EditClientViewComponentPartial", item)
                                 </div>
-                                <a asp-action="DeleteClient" asp-asp-controller="Home" asp-route-id="@item.Id" class=" btn btn-danger">Sil</a>
+                                <a asp-action="DeleteClient" asp-controller="Client" asp-route-id="@item.Id" class=" btn btn-danger">Sil</a>
                             </div>
                             <!-- sil onayı eklenecek -->
 
@@ -74,12 +75,12 @@
                         <td>
                             @if (item.Vehicles.Count > 0)
                             {
-                                foreach (var vehicle in item.Vehicles.Take(5).ToList())
+                                foreach (var vehicle in item.Vehicles.Take(3).ToList())
                                 {
                                     <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@vehicle.Id">@vehicle.Plate</a>
 
                                 }
-                                if (item.Vehicles.Count > 5)
+                                if (item.Vehicles.Count > 3)
                                 {
                                     <span class="text-muted">...</span>
                                 }

@@ -1,32 +1,27 @@
 ﻿@model Client
 
-    <div class="card card-info">
-        <div class="card-header">
-            <h5 class="card-title">Müşteri Bilgileri</h5>
-        </div>
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">Ad Soyad</dt>
-                <dd class="col-sm-9">@Model.Name</dd>
-
-                <dt class="col-sm-3">Telefon</dt>
-                <dd class="col-sm-9">@Model.PhoneNumber</dd>
-
-                <dt class="col-sm-3">Bakiye</dt>
-                <dd class="col-sm-9">@Model.Balance</dd>
-
-                <dt class="col-sm-3">Kayıtlı Araç Sayısı</dt>
-                <dd class="col-sm-9">
-                    <div>
-                        @Model.Vehicles.Count
-                        <row class="m-2">
-                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createVehicleModal-@Model.Id">
-                                Araç Ekle
-                            </button>
-                        </row>
-                    </div>
-                </dd>
-
-            </dl>
-        </div>
+<div class="card shadow-sm mb-4 border-info">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Müşteri Bilgileri</h5>
     </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Ad Soyad</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Telefon</dt>
+            <dd class="col-sm-9">@Model.PhoneNumber</dd>
+
+            <dt class="col-sm-3">Bakiye</dt>
+            <dd class="col-sm-9">@Model.Balance ₺</dd>
+
+            <dt class="col-sm-3">Kayıtlı Araç Sayısı</dt>
+            <dd class="col-sm-9 d-flex align-items-center">
+                <span>@Model.Vehicles.Count</span>
+                <button class="btn btn-sm btn-success ms-3" data-bs-toggle="modal" data-bs-target="#createVehicleModal-@Model.Id">
+                    <i class="bi bi-plus-lg"></i> Araç Ekle
+                </button>
+            </dd>
+        </dl>
+    </div>
+</div>

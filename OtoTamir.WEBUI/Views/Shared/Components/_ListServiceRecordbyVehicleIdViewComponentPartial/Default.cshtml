@@ -13,21 +13,33 @@
         </tr>
     </thead>
     <tbody>
-        
         @foreach(var record in Model.ServiceRecords)
         {
             <tr>
                 <td>@record.CreatedDate</td>
-                
                 <td>@record.Name</td>
                 <td>@record.Description</td>
                 <td>@record.Price</td>
                 <td>@record.ModifiedDate</td>
-
-                <td>@record.Status</td>
+                <td>
+                    @switch (record.Status)
+                    {
+                        case "Tamamlandı":
+                            <span class="badge bg-success">@record.Status</span>
+                            break;
+                        case "Devam Ediyor":
+                            <span class="badge bg-warning text-dark">@record.Status</span>
+                            break;
+                        case "İptal Edildi":
+                            <span class="badge bg-danger">@record.Status</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary">@record.Status</span>
+                            break;
+                    }
+                </td>
                 <td>@record.AuthorName</td>
             </tr>
         }
-        
     </tbody>
 </table>
