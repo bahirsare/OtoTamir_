@@ -17,7 +17,7 @@ namespace OtoTamir.WEBUI.ViewComponents.ListServiceRecordDetails
             _userManager = userManager;
         }
         public async Task<IViewComponentResult> InvokeAsync(int id)
-        {//ilk geliyo sadece
+        {
             var userId = (User as ClaimsPrincipal)?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var record = await _serviceRecordService.GetOneAsync(id,userId,true,true);
             if (record == null)

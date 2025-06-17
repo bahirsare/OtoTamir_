@@ -2,13 +2,31 @@
 
 <h2 class="mb-4">Devam Eden Servis Kayıtları</h2>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["FailMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["FailMessage"]
+    </div>
+}
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Message"]
+    </div>
+}
+<div class="container mt-1">
 <form asp-action="Ongoing" method="get" class="mb-4">
     <div class="row g-2">
         <div class="col-md-2">
             <label>Müşteri Adı</label>
             <input type="text" name="ClientName" value="@Model.ClientName" class="form-control" placeholder="Müşteri Adı" />
         </div>
-        
         <div class="col-md-2">
             <label>Araç Plakası/Markası</label>
             <input type="text" name="VehicleName" value="@Model.VehicleName" class="form-control" placeholder="Araç Plakası/Markası" />
@@ -38,98 +56,72 @@
 </form>
 
 
-<table class="table table-bordered table-hover">
-    <thead class="table-light">
-        <tr>
-            <th>
-                <a asp-action="Ongoing"
-                   asp-route-SortColumn="ClientName"
-                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "ClientName" ? "desc" : "asc")">
-                    Müşteri
-                </a>
-            </th>
-            <th>
-                <a asp-action="Ongoing"
-                   asp-route-SortColumn="VehicleName"
-                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "VehicleName" ? "desc" : "asc")">
-                    Araç Adı
-                </a>
-            </th>
-            <th>
-                <a asp-action="Ongoing"
-                   asp-route-SortColumn="VehiclePlate"
-                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "VehiclePlate" ? "desc" : "asc")">
-                    Araç Plakası
-                </a>
-            </th>
-            <th>
-                <a asp-action="Ongoing"
-                   asp-route-SortColumn="Status"
-                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "Status" ? "desc" : "asc")">
-                    Durum
-                </a>
-            </th>
-            <th>
-                <a asp-action="Ongoing"
-                   asp-route-SortColumn="CreatedDate"
-                   asp-route-SortDirection="@(Model.SortDirection == "asc" && Model.SortColumn == "CreatedDate" ? "desc" : "asc")">
-                    Oluşturulma Tarihi
-                </a>
-            </th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.Records != null && Model.Records.Any())
-        {
-            foreach (var record in Model.Records)
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th></th>
+                <th>Müşteri</th>
+                <th>Araç Adı</th>
+                <th>Araç Plakası</th>
+                <th>Durum</th>
+                <th>Oluşturulma</th>
+                <th>Son Düzenleme</th>
+                <th>Tamamlanma</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Records != null && Model.Records.Any())
             {
-                <tr>
-                    <td>@record.Vehicle.Client.Name</td>
-                    <td>@record.Vehicle.Name</td>
-                    <td>@record.Vehicle.Plate</td>
-                    <td>@record.Status</td>
-                    <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-@record.Id" data-id="@record.Id">
-                            Detay
-                        </button>
-                        <div class="modal fade" id="detailModal-@record.Id" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content" id="detailModalContent">
-                                    @await Component.InvokeAsync("_ListServiceRecordDetailsViewComponentPartial",@record.Id)
+                foreach (var record in Model.Records)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="SelectedIds" value="@record.Id" />
+                        </td>
+                        <td>@record.Vehicle.Client.Name</td>
+                        <td>@record.Vehicle.Name</td>
+                        <td>@record.Vehicle.Plate</td>
+                        <td>@record.Status</td>
+                        <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>
+                        <td>@(record.ModifiedDate.ToString("dd.MM.yyyy") ?? "-")</td>
+                        <td>@(record.CompletedDate?.ToString("dd.MM.yyyy") ?? "-")</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-@record.Id">Detay</button>
+                            <div class="modal fade" id="detailModal-@record.Id" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        @await Component.InvokeAsync("_ListServiceRecordDetailsViewComponentPartial", @record.Id)
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id" data-id="@record.Id">
-                            Düzenle
-                        </button>
-                        <div class="modal fade" id="editModal-@record.Id" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content" id="editModalContent">
-                                    @await Component.InvokeAsync("_EditServiceRecordViewComponentPartial", @record.Id)
+
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id">Düzenle</button>
+                            <div class="modal fade" id="editModal-@record.Id" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        @await Component.InvokeAsync("_EditServiceRecordViewComponentPartial", @record.Id)
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <form asp-action="Cancel" asp-controller="ServiceRecord" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@record.Id" />
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('İşlemi iptal etmek istediğinize emin misiniz?');">
+
+                            <button type="button" class="btn btn-danger btn-sm"
+                                    onclick="submitCancel(@record.Id)">
                                 İptal Et
                             </button>
-                        </form>
-                    </td>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" class="text-center">Kayıt bulunamadı.</td>
                 </tr>
             }
-        }
-        else
-        {
-            <tr>
-                <td colspan="4" class="text-center">Kayıt bulunamadı.</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
+        </tbody>
+    </table>
+    </div>
 
 @section Scripts {
     <script>
@@ -143,10 +135,10 @@
                 const row = document.createElement('div');
                 row.className = 'input-group mb-2';
                 row.innerHTML = `
-                        <input name="SparePartNames" class="form-control me-1" placeholder="Parça Adı" />
-                        <input name="SparePartDescriptions" class="form-control me-1" placeholder="Açıklama (isteğe bağlı)" />
-                        <button type="button" class="btn btn-outline-danger remove-part-btn">-</button>
-                    `;
+                                <input name="SparePartNames" class="form-control me-1" placeholder="Parça Adı" />
+                                <input name="SparePartDescriptions" class="form-control me-1" placeholder="Açıklama (isteğe bağlı)" />
+                                <button type="button" class="btn btn-outline-danger remove-part-btn">-</button>
+                            `;
                 container.appendChild(row);
             }
 
@@ -155,9 +147,28 @@
                 if (row) row.remove();
             }
         });
+        function submitCancel(id) {
+            if (!confirm('İşlemi iptal etmek istediğinize emin misiniz?')) return;
+
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "/ServiceRecord/Cancel";
+
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "id";
+            input.value = id;
+            form.appendChild(input);
+
+            
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token) {
+                const tokenClone = token.cloneNode();
+                form.appendChild(tokenClone);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
     </script>
 }
-
-
-
-

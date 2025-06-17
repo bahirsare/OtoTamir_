@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
-using OtoTamir.CORE.DTOs;
-using OtoTamir.CORE.DTOs.VehicleDTOs;
-using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using System.Security.Claims;
 
@@ -22,15 +19,15 @@ namespace OtoTamir.WEBUI.ViewComponents._ServiceRecord.ListServiceRecord
             _userManager = userManager;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(int recordId)
+        public async Task<IViewComponentResult> InvokeAsync(int vehicleId)
         {
             var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
-            var record= await _serviceRecordService.GetOneAsync(id: recordId, mechanicId:mechanic.Id,includeVehicle:true,includeSymptoms:true);
-            if (record == null)
+            var vehicle= await _vehicleService.GetOneAsync(id: vehicleId, mechanicId:mechanic.Id,includeServiceRecords:true,includeClient:true);
+            if (vehicle == null)
             {
-                TempData["Messaage"] = "Kayıt bulunamadı.";
+                TempData["Messaage"] = "Araç bulunamadı.";
             }
-            return View(record);
+            return View(vehicle);
         }
       
 

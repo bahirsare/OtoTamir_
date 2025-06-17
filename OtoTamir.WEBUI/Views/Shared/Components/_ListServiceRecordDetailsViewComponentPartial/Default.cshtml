@@ -22,7 +22,10 @@
         <dd class="col-sm-8">@(Model.CompletedDate?.ToString("dd.MM.yyyy") ?? "Henüz tamamlanmadı")</dd>
 
         <dt class="col-sm-4">Oluşturan:</dt>
-        <dd class="col-sm-8">@Model.AuthorName</dd>
+        <dd class="col-sm-8">@Model.AuthorName</dd>       
+
+        <dt class="col-sm-4">Son Güncelleme:</dt>
+        <dd class="col-sm-8">@Model.ModifiedDate.ToString("dd.MM.yyyy") ?? "-"</dd>
     </dl>
 
     <hr />
@@ -33,9 +36,9 @@
         @foreach (var symptom in Model.SymptomList)
         {
             <div class="card mb-3 border-start border-3 border-primary">
-                <div class="card-body">
+                <div class="card-body mt-2">
                     <h6 class="card-title text-primary">@symptom.Name</h6>
-
+                    >
                     <p class="card-text"><strong>Açıklama:</strong> @symptom.Description</p>
                     <p class="card-text"><strong>Çözüm Önerisi:</strong> @symptom.PossibleSolution</p>
                     <p class="card-text"><strong>Tahmini Maliyet:</strong> @symptom.EstimatedCost.ToString("C")</p>

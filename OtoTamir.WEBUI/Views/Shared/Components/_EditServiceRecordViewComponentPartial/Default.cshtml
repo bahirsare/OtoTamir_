@@ -1,10 +1,12 @@
 ﻿@model EditServiceRecordDTO
 
+<!-- Modal Header -->
 <div class="modal-header">
     <h5 class="modal-title">Servis Kaydı Düzenle</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
+<!-- Modal Body -->
 <div class="modal-body p-4">
     <div class="mb-4">
         <h6 class="text-primary">Servis Bilgileri</h6>
@@ -48,7 +50,7 @@
                     <p class="text-muted">Henüz işlem eklenmemiş.</p>
                 }
 
-                <!-- Yeni log ekleme alanı -->
+                <!-- Yeni log ekleme formu (HER semptom için ayrı) -->
                 <div class="mt-4 border-top pt-3">
                     <form asp-action="AddSymptomLog" method="post">
                         <input type="hidden" name="SymptomId" value="@symptom.Id" />
@@ -78,6 +80,7 @@
                                 <input name="AdditionalCost" type="number" class="form-control" step="0.01" min="0" />
                             </div>
                         </div>
+
                         <div class="mt-3">
                             <label class="form-label">Lazım Olabilecek Yedek Parçalar</label>
                             <div id="sparePartsContainer-@symptom.Id">
@@ -89,7 +92,8 @@
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm add-part-btn" data-symptom-id="@symptom.Id">+ Parça Ekle</button>
                         </div>
-                        <div class="text-end">
+
+                        <div class="text-end mt-3">
                             <button type="submit" class="btn btn-outline-success btn-sm">Log Ekle</button>
                         </div>
                     </form>
@@ -99,28 +103,32 @@
     </div>
 
     <hr />
+</div>
 
-    <div class="mb-4">
-        <h6 class="text-danger">Servis Durumu</h6>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="Status" id="ongoing" value="Devam Ediyor" @(Model.Status == "Devam Ediyor" ? "checked" : "") />
-            <label class="form-check-label" for="ongoing">Devam Ediyor</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="Status" id="completed" value="Tamamlandı" @(Model.Status == "Tamamlandı" ? "checked" : "") />
-            <label class="form-check-label" for="completed">Tamamlandı</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="Status" id="cancelled" value="İptal Edildi" @(Model.Status == "İptal Edildi" ? "checked" : "") />
-            <label class="form-check-label" for="cancelled">İptal Edildi</label>
+<!-- Modal Footer ve Ayrı Form -->
+<form asp-action="UpdateServiceStatus" method="post">
+    <input type="hidden" name="ServiceRecordId" value="@Model.Id" />
+
+    <div class="modal-body pt-0">
+        <div class="mb-4">
+            <h6 class="text-danger">Servis Durumu</h6>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Status" id="ongoing" value="Devam Ediyor" @(Model.Status == "Devam Ediyor" ? "checked" : "") />
+                <label class="form-check-label" for="ongoing">Devam Ediyor</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Status" id="completed" value="Tamamlandı" @(Model.Status == "Tamamlandı" ? "checked" : "") />
+                <label class="form-check-label" for="completed">Tamamlandı</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Status" id="cancelled" value="İptal Edildi" @(Model.Status == "İptal Edildi" ? "checked" : "") />
+                <label class="form-check-label" for="cancelled">İptal Edildi</label>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="modal-footer">
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-</div>
-
-    
-
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+    </div>
+</form>
