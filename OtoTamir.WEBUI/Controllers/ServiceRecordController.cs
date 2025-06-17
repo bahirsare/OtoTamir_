@@ -156,12 +156,12 @@ public class ServiceRecordController : Controller
         if (!string.IsNullOrWhiteSpace(model.ClientName))
         {
             records = records.Where(r =>
-                r.Vehicle.Client.Name.Contains(model.ClientName, StringComparison.OrdinalIgnoreCase)).ToList();
+                r.Vehicle.Client.Name.IndexOf(model.ClientName, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
         }
         if (!string.IsNullOrWhiteSpace(model.VehicleName))
         {
             records = records.Where(r =>
-                r.Vehicle.Name.Contains(model.VehicleName, StringComparison.OrdinalIgnoreCase)).ToList();
+                r.Vehicle.Name.IndexOf(model.VehicleName, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
         }
 
 

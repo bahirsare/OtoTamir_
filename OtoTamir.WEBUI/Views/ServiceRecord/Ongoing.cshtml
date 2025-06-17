@@ -1,127 +1,145 @@
 ﻿@model ListServiceRecordsDTO
 
-<h2 class="mb-4">Devam Eden Servis Kayıtları</h2>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
+@{
+    ViewData["Title"] = "Servis Kayıtları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@if (TempData["FailMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["FailMessage"]
-    </div>
-}
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-info">
-        @TempData["Message"]
-    </div>
-}
-<div class="container mt-1">
-<form asp-action="Ongoing" method="get" class="mb-4">
-    <div class="row g-2">
-        <div class="col-md-2">
-            <label>Müşteri Adı</label>
-            <input type="text" name="ClientName" value="@Model.ClientName" class="form-control" placeholder="Müşteri Adı" />
-        </div>
-        <div class="col-md-2">
-            <label>Araç Plakası/Markası</label>
-            <input type="text" name="VehicleName" value="@Model.VehicleName" class="form-control" placeholder="Araç Plakası/Markası" />
-        </div>
-        <div class="col-md-2">
-            <label>İşlem Durumu</label>
-            <select name="CurrentStatus" class="form-control">
-                <option value="">Tüm Durumlar</option>
-                <option value="Devam Ediyor" selected="@(Model.CurrentStatus == "Devam Ediyor")">Devam Ediyor</option>
-                <option value="Tamamlandı" selected="@(Model.CurrentStatus == "Tamamlandı")">Tamamlandı</option>
-                <option value="İptal Edildi" selected="@(Model.CurrentStatus == "İptal Edildi")">İptal Edildi</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label>Başlangıç Tarihi</label>
-            <input type="date" name="StartDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" class="form-control" />
-        </div>
-        <div class="col-md-2">
-            <label>Bitiş Tarihi</label>
-            <input type="date" name="EndDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="form-control" />
-        </div>
-        <div class="col-md-2">
-            <label></label>
-            <button type="submit" class="btn btn-primary w-100">Filtrele</button>
-        </div>
-    </div>
-</form>
 
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Devam Eden Servis Kayıtları</h2>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-                <th></th>
-                <th>Müşteri</th>
-                <th>Araç Adı</th>
-                <th>Araç Plakası</th>
-                <th>Durum</th>
-                <th>Oluşturulma</th>
-                <th>Son Düzenleme</th>
-                <th>Tamamlanma</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model.Records != null && Model.Records.Any())
-            {
-                foreach (var record in Model.Records)
+        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkCompleteModal">
+            <i class="bi bi-check-circle"></i> Toplu Tamamlama
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["FailMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["FailMessage"]
+        </div>
+    }
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info">
+            @TempData["Message"]
+        </div>
+    }
+
+    <div class="card shadow rounded p-3 mb-4">
+        <form asp-action="Ongoing" method="get">
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <label>Müşteri Adı</label>
+                    <input type="text" name="ClientName" value="@Model.ClientName" class="form-control" placeholder="Müşteri Adı" />
+                </div>
+                <div class="col-md-2">
+                    <label>Araç</label>
+                    <input type="text" name="VehicleName" value="@Model.VehicleName" class="form-control" placeholder="Plaka/Marka" />
+                </div>
+                <div class="col-md-2">
+                    <label>İşlem Durumu</label>
+                    <select name="CurrentStatus" class="form-select">
+                        <option value="">Tüm</option>
+                        <option value="Devam Ediyor" selected="@(Model.CurrentStatus == "Devam Ediyor")">Devam Ediyor</option>
+                        <option value="Tamamlandı" selected="@(Model.CurrentStatus == "Tamamlandı")">Tamamlandı</option>
+                        <option value="İptal Edildi" selected="@(Model.CurrentStatus == "İptal Edildi")">İptal Edildi</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Başlangıç</label>
+                    <input type="date" name="StartDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label>Bitiş</label>
+                    <input type="date" name="EndDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filtrele</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive shadow rounded">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-primary">
+                <tr>
+                    <th></th>
+                    <th>Müşteri</th>
+                    <th>Araç</th>
+                    <th>Plaka</th>
+                    <th>Durum</th>
+                    <th>Oluşturulma</th>
+                    <th>Son Düzenleme</th>
+                    <th>Tamamlanma</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Records != null && Model.Records.Any())
                 {
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="SelectedIds" value="@record.Id" />
-                        </td>
-                        <td>@record.Vehicle.Client.Name</td>
-                        <td>@record.Vehicle.Name</td>
-                        <td>@record.Vehicle.Plate</td>
-                        <td>@record.Status</td>
-                        <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>
-                        <td>@(record.ModifiedDate.ToString("dd.MM.yyyy") ?? "-")</td>
-                        <td>@(record.CompletedDate?.ToString("dd.MM.yyyy") ?? "-")</td>
-                        <td>
-                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-@record.Id">Detay</button>
-                            <div class="modal fade" id="detailModal-@record.Id" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        @await Component.InvokeAsync("_ListServiceRecordDetailsViewComponentPartial", @record.Id)
+                    foreach (var record in Model.Records)
+                    {
+                        <tr>
+                            <td><input type="checkbox" name="SelectedIds" value="@record.Id" /></td>
+                            <td>@record.Vehicle.Client.Name</td>
+                            <td>@record.Vehicle.Name</td>
+                            <td>@record.Vehicle.Plate</td>
+                            <td>@record.Status</td>
+                            <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>
+                            <td>@(record.ModifiedDate.ToString("dd.MM.yyyy"))</td>
+                            <td>@(record.CompletedDate?.ToString("dd.MM.yyyy") ?? "-")</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-@record.Id">Detay</button>
+                                    @if (record.Status == "Devam Ediyor")
+                                    {
+                                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id">Düzenle</button>
+                                   
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="submitCancel(@record.Id)">İptal</button>
+                                    }
+                                </div>
+
+                                <!-- Detay Modal -->
+                                <div class="modal fade" id="detailModal-@record.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            @await Component.InvokeAsync("_ListServiceRecordDetailsViewComponentPartial", @record.Id)
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id">Düzenle</button>
-                            <div class="modal fade" id="editModal-@record.Id" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        @await Component.InvokeAsync("_EditServiceRecordViewComponentPartial", @record.Id)
+                                <!-- Düzenle Modal -->
+                                <div class="modal fade" id="editModal-@record.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            @await Component.InvokeAsync("_EditServiceRecordViewComponentPartial", @record.Id)
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <button type="button" class="btn btn-danger btn-sm"
-                                    onclick="submitCancel(@record.Id)">
-                                İptal Et
-                            </button>
-                        </td>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr class="table-info">
+                        <td colspan="9" class="text-center fw-bold">Kayıt bulunamadı.</td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="9" class="text-center">Kayıt bulunamadı.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
     </div>
+</div>
+
 
 @section Scripts {
     <script>

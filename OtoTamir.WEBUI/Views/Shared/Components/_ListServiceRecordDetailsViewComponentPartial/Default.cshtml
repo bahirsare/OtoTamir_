@@ -17,9 +17,10 @@
 
         <dt class="col-sm-4">Durum:</dt>
         <dd class="col-sm-8">@Model.Status</dd>
-
-        <dt class="col-sm-4">Tamamlanma Tarihi:</dt>
-        <dd class="col-sm-8">@(Model.CompletedDate?.ToString("dd.MM.yyyy") ?? "Henüz tamamlanmadı")</dd>
+        @if (Model.Status == "Tamamlandı")
+        {
+        <dt class="col-sm-4">Tamamlanma Tarihi:</dt>        
+        <dd class="col-sm-8">@(Model.CompletedDate?.ToString("dd.MM.yyyy") ?? "Tarih girilmemiş")</dd>}
 
         <dt class="col-sm-4">Oluşturan:</dt>
         <dd class="col-sm-8">@Model.AuthorName</dd>       
