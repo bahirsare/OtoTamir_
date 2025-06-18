@@ -13,7 +13,7 @@ function addSymptomRow(containerId) {
     const index = symptomIndices[containerId];
 
     const card = document.createElement("div");
-    card.className = "border rounded p-3 mb-1 bg-light symptom-item";
+    card.className = "border rounded p-3 mb-1 /*col-lg-7*/ bg-light symptom-item";
 
     const formRow = document.createElement("div");
     formRow.className = "d-flex flex-wrap align-items-end gap-3";
@@ -21,7 +21,7 @@ function addSymptomRow(containerId) {
     formRow.innerHTML = `
         <div>
             <label class="form-label fw-semibold  mb-1">Semptom Adı</label>
-            <input name="Symptoms[${index}].Name" class="form-control form-control-sm" style="width: 150px;" />
+            <input name="Symptoms[${index}].Name" class="form-control form-control-sm" class="col-lg-5" />
         </div>
 
         <div>
@@ -36,7 +36,7 @@ function addSymptomRow(containerId) {
 
         <div>
             <label class="form-label fw-semibold  mb-1">Açıklama</label>
-            <textarea name="Symptoms[${index}].Description" class="form-control form-control-sm" rows="1" style="width: 200px;"></textarea>
+            <textarea name="Symptoms[${index}].Description" class="form-control form-control-sm" rows="1" style="width: 250px;"></textarea>
         </div>
 
         <div>

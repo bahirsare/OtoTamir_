@@ -3,35 +3,36 @@
 <form asp-action="CreateServiceRecord" method="post" class="border rounded shadow-sm p-3 mb-1 bg-light">
 
     <input type="hidden" asp-for="VehicleId" />
-    
-    
+    <div class="container-fluid">
+        <div class="row align-items-start">
+            <!-- Sol Taraf (Semptomlar için geniş alan) -->
+            <div id="symptomContainer-@Model.VehicleId" class="col-md-8 pe-3" style="overflow-y: auto; max-height: 40vh;">
+                <!-- JS ile semptomlar buraya eklenecek -->
+            </div>
 
-    <div id="symptomContainer-@Model.VehicleId">
-        <!-- İlk semptom otomatik oluşacak -->
-    </div>
-    @* <div class="col-md-2 offset-md-9 ">
-        <label asp-for="AuthorName" class="form-label fw-semibold ">Çalışan</label>
-        <input asp-for="AuthorName" class="form-control form-control-sm " />
-        <span asp-validation-for="AuthorName" class="text-danger small"></span>
-    </div> *@
-    
+            <!-- Sağ Taraf (Yatay butonlar) -->
+            <div class="col-md-4">
+                <div class="d-flex flex-row gap-2 align-items-center p-2 bg-light rounded">
+                    <!-- Yeni Semptom Ekle Butonu -->
+                    <button type="button" class="btn btn-outline-secondary btn-sm flex-shrink-0"
+                            onclick="addSymptomRow('symptomContainer-@Model.VehicleId')">
+                        <i class="bi bi-plus-circle">Yeni Semptom Ekle</i>
+                    </button>
 
-    <div class="d-flex justify-content-between mt-4">
-        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addSymptomRow('symptomContainer-@Model.VehicleId')">
-            <i class="bi bi-plus-circle"></i> Yeni Semptom Ekle
-        </button>
+                    <!-- Çalışan Input Grubu -->
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <label asp-for="AuthorName" class="form-label fw-semibold me-2 mb-0">Çalışan:</label>
+                        <input asp-for="AuthorName" class="form-control form-control-sm" style="min-width: 100px;" />
+                    </div>
 
-        <div class="d-flex  col-md-2 offset-md-8 ">
-            <label asp-for="AuthorName" class="form-label fw-semibold ">Çalışan</label>
-            <input asp-for="AuthorName" class="form-control form-control-sm " />
-            <span asp-validation-for="AuthorName" class="text-danger small"></span>
+                    <!-- Kaydet Butonu -->
+                    <button type="submit" class="btn btn-success btn-sm flex-shrink-0">
+                        <i class="bi bi-check-circle">Kaydet</i>
+                    </button>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-success btn-sm">
-            <i class="bi bi-check-circle"></i> Kaydet
-        </button>
-
     </div>
-
 </form>
 
 <script>

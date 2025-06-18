@@ -48,6 +48,7 @@ public class ServiceRecordController : Controller
         if (selectedClientId != null)
         {
             model.SelectedClientId = (int)selectedClientId;
+            
         }
         return View(model);
     }
@@ -55,12 +56,14 @@ public class ServiceRecordController : Controller
     public async Task<IActionResult> GetVehiclesByClientId(int selectedClientId)
     {
         var user = await _userManager.GetUserAsync(User);
-        var clients = await _clientService.GetAllAsync(user.Id, true, false);
+        var clients = await _clientService.GetAllAsync(user.Id, true, false, i => i.Id != selectedClientId);
         var model = new ListClientDTO
         {
             Clients = clients,
-            SelectedClientId = selectedClientId
+            SelectedClientId = selectedClientId,
+            
         };
+        model.SelectedClientName = (await _clientService.GetOneAsync((int)model.SelectedClientId, user.Id, false, false)).Name;
         if (clients.Count == 0)
         {
             clients = await _clientService.GetAllAsync(user.Id, false, false);

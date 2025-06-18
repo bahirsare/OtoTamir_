@@ -13,38 +13,8 @@
         </a>
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    Müşteri Bilgileri
-                </div>
-                <div class="card-body">
-                    <p><strong>Ad Soyad:</strong> @Model.Name</p>
-                    <p><strong>Telefon:</strong> @Model.PhoneNumber</p>
-                    <p><strong>Bakiye:</strong> @Model.Balance ₺</p>
-                    <p><strong>Notlar:</strong> @Model.Notes</p>
-                    <p><strong>Oluşturulma Tarihi:</strong> @Model.CreatedDate.ToString("dd.MM.yyyy")</p>
-                    <p><strong>Son Güncelleme:</strong> @Model.ModifiedDate.ToString("dd.MM.yyyy")</p>
-                    
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    Toplam İstatistik
-                </div>
-                <div class="card-body">
-                    <p><strong>Toplam Araç Sayısı:</strong> @Model.Vehicles.Count()</p>
-                    <p><strong>Toplam Servis Kayıtları:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count())</p>
-                    <p><strong>Devam Eden İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status == "Devam Ediyor"))</p>
-                    <p><strong>Tamamlanan İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status == "Tamamlandı"))</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    @await Component.InvokeAsync("_CardClientViewComponentPartial", Model.Id)
+ 
 
     <h4 class="mt-4 mb-3">Araçlar</h4>
     <div class="table-responsive shadow rounded">

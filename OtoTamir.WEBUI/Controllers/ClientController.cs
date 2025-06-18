@@ -5,7 +5,6 @@ using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
-using System.Security.Cryptography.X509Certificates;
 
 namespace OtoTamir.WEBUI.Controllers
 {
@@ -20,24 +19,53 @@ namespace OtoTamir.WEBUI.Controllers
         public ClientController(IClientService clientService, IMechanicService mechanicService, UserManager<Mechanic> userManager, IVehicleService vehicleService, IMapper mapper)
         {
             _clientService = clientService;
-            _userManager = userManager;           
+            _userManager = userManager;
             _mapper = mapper;
         }
         public async Task<IActionResult> ClientDetails(int clientId)
         {
 
             var mechanic = await _userManager.GetUserAsync(User);
-            if (mechanic == null) {
+            if (mechanic == null)
+            {
                 TempData["FailMessage"] = "Tamirci bulunamadı.";
-                RedirectToAction("Clients", "Home");
+                return RedirectToAction("Clients", "Home");
             }
             var client = await _clientService.GetOneAsync(clientId, mechanic.Id, includeServiceRecords: true, includeVehicles: true);
-            if (client == null) {
+            if (client == null)
+            {
 
                 TempData["FailMessage"] = "Müşteri bulunamadı.";
-                RedirectToAction("Clients", "Home");
+                return RedirectToAction("Clients", "Home");
             }
             return View(client);
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdateNotes(string note, int clientId,string returnUrl)
+        {
+            List<string> URL = returnUrl.Split('/').ToList();
+            var mechanic = await _userManager.GetUserAsync(User);
+            if (mechanic == null)
+            {
+                TempData["FailMessage"] = "Tamirci Bulunamadı.";
+                return RedirectToAction(URL[0], URL[1]);
+            }
+            var client = await _clientService.GetOneAsync(clientId, mechanic.Id, includeServiceRecords: true, includeVehicles: true);
+            if (client == null)
+            {
+                TempData["FailMessage"] = "Müşteri bulunamadı.";
+                return RedirectToAction(URL[0], URL[1]);
+            }
+            client.Notes = note;
+            var result = await _clientService.UpdateAsync();
+            if (result > 0)
+            {
+                TempData["SuccessMessage"] = "Not güncellendi.";
+                return RedirectToAction(URL[0], URL[1]); ;
+            }
+            TempData["FailMessage"] = "Bir hata oluştu.Lütfen tekrar deneyiniz.";
+
+            return RedirectToAction(URL[0], URL[1]);
         }
         [HttpPost]
         public async Task<IActionResult> CreateClient(CreateClientDTO model)

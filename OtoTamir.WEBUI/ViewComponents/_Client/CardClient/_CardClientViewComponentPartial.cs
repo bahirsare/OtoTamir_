@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
-using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Identity;
 using System.Security.Claims;
 
@@ -18,13 +17,12 @@ namespace OtoTamir.WEBUI.ViewComponents._Client.CardClient
             _userManager = userManager;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(int clientId)
+        public async Task<IViewComponentResult> InvokeAsync(int clientId,string returnUrl)
         {
             var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
             var model = await _clientService.GetOneAsync(clientId,mechanic.Id,includeVehicles:true,includeServiceRecords:false);
-
+            ViewData["ReturnUrl"] = returnUrl;
             return View(model);
-
         }
     }
 }
