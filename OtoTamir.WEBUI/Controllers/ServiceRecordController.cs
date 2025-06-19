@@ -48,7 +48,7 @@ public class ServiceRecordController : Controller
         if (selectedClientId != null)
         {
             model.SelectedClientId = (int)selectedClientId;
-            
+
         }
         return View(model);
     }
@@ -66,7 +66,7 @@ public class ServiceRecordController : Controller
         {
             Clients = clients,
             SelectedClientId = selectedClientId,
-            
+
         };
         model.SelectedClientName = (await _clientService.GetOneAsync((int)model.SelectedClientId, user.Id, false, false)).Name;
         if (clients.Count == 0)
@@ -94,6 +94,31 @@ public class ServiceRecordController : Controller
         return View("Index", model);
 
     }
+    [HttpPost]
+    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["FailMessage"] = "Lütfen kaydı eksiksiz doldurun.";
+          return  RedirectToAction("ongoing", "ServiceRecord");
+
+        }
+        var user = await _userManager.GetUserAsync(User);
+        var symptom = await _symptomService.GetOneAsync(mechanicId:user.Id,id:WorkflowLogDTO.SymptomId);
+        var WorkflowLog=  _mapper.Map<RepairComment>(WorkflowLogDTO);
+        WorkflowLog.ModifiedDate=DateTime.Now;
+        WorkflowLog.CreatedDate=DateTime.Now;
+        symptom.ServiceWorkflowLogs.Add(WorkflowLog);
+        var result = await _symptomService.UpdateAsync();
+        if (result==0)
+        {
+            TempData["FailMessage"] = "Log kaydı eklenemedi.";
+            return RedirectToAction("ongoing", "ServiceRecord");
+        }
+        TempData["SuccessMessage"] = "Log kaydı eklendi.";
+        return RedirectToAction("ongoing", "ServiceRecord");
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateServiceRecord(CreateSymptomGroupDTO model)
     {
@@ -222,7 +247,7 @@ public class ServiceRecordController : Controller
     }
     [HttpPost]
     public async Task<IActionResult> Cancel(int id)
-    {       
+    {
         var mechanic = await _userManager.GetUserAsync(User);
         var record = await _serviceRecordService.GetOneAsync(id, mechanic.Id);
         if (record == null)
@@ -232,7 +257,7 @@ public class ServiceRecordController : Controller
         }
         else if (record.Status == "Tamamlandı")
         {
-            TempData["FailMessage"]="Tamamlanan kayıt iptal edilemez!";
+            TempData["FailMessage"] = "Tamamlanan kayıt iptal edilemez!";
             return RedirectToAction("Ongoing");
         }
         else if (record.Status == "İptal Edildi")
@@ -244,7 +269,7 @@ public class ServiceRecordController : Controller
 
         record.Status = "İptal Edildi";
         var result = await _serviceRecordService.UpdateAsync();
-        if (result >0)
+        if (result > 0)
         {
             TempData["SuccessMessage"] = "Servis kaydı iptal edildi.";
             return RedirectToAction("Ongoing");

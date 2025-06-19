@@ -55,7 +55,6 @@
                         Listele
                     </button>
                     </form>
-
                     
                 </div>
                 <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClientModal">
@@ -63,13 +62,8 @@
                 </a>
                 
             </div>
-
-            
-        </div>
-        
-       
+        </div>      
       
-        
         @if (Model.SelectedClientId != null && Model.SelectedClientId!=0)
         {
             @await Component.InvokeAsync("_CardClientViewComponentPartial", new { clientId = Model.SelectedClientId, returnUrl="ServiceRecord/Index" })
@@ -77,10 +71,7 @@
             <div class="modal fade" id="createVehicleModal-@Model.SelectedClientId" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
                 @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = (int)Model.SelectedClientId, ReturnUrl = "ServiceRecord/Index" })
             </div>
-
-        }
-        
-       
+        }     
        
     </div>
     <div class="modal fade" id="createClientModal" tabindex="-1" aria-labelledby="createClientModalLabel" aria-hidden="true">
