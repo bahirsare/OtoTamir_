@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OtoTamir.BLL.Abstract;
+using OtoTamir.BLL.Concrete;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Context;
 
 namespace OtoTamir.WEBUI.Controllers
@@ -13,152 +17,33 @@ namespace OtoTamir.WEBUI.Controllers
     public class VehicleController : Controller
     {
         private readonly DataContext _context;
+        private readonly IVehicleService _vehicleService;
+        private readonly UserManager<Mechanic> _userManager;
 
-        public VehicleController(DataContext context)
-        {
+             
+        
+        public VehicleController(DataContext context, IVehicleService vehicleService, UserManager<Mechanic> userManager)
+        { 
             _context = context;
+            _vehicleService = vehicleService;
+            _userManager = userManager;
         }
-
-        // GET: Vehicle
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> VehicleDetails(int vehicleId)
         {
-            var dataContext = _context.Vehicles.Include(v => v.Client);
-            return View(await dataContext.ToListAsync());
-        }
-
-        // GET: Vehicle/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            var mechanic = await _userManager.GetUserAsync(User);
+            if (mechanic == null)
             {
-                return NotFound();
+                TempData["FailMessage"] = "Tamirci bulunamadı.";
+                return RedirectToAction("Clients", "Home");
             }
-
-            var vehicle = await _context.Vehicles
-                .Include(v => v.Client)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var vehicle = await _vehicleService.GetOneAsync(id:vehicleId,mechanicId: mechanic.Id, includeServiceRecords: true,includeClient:true);
             if (vehicle == null)
             {
-                return NotFound();
-            }
 
+                TempData["FailMessage"] = "Müşteri bulunamadı.";
+                return RedirectToAction("Clients", "Home");
+            }
             return View(vehicle);
-        }
-
-        // GET: Vehicle/Create
-        public IActionResult Create()
-        {
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "MechanicId");
-            return View();
-        }
-
-        // POST: Vehicle/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Plate,Brand,Model,Year,ClientId,Id,CreatedDate,DeletedDate,ModifiedDate")] Vehicle vehicle)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(vehicle);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "MechanicId", vehicle.ClientId);
-            return View(vehicle);
-        }
-
-        // GET: Vehicle/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var vehicle = await _context.Vehicles.FindAsync(id);
-            if (vehicle == null)
-            {
-                return NotFound();
-            }
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "MechanicId", vehicle.ClientId);
-            return View(vehicle);
-        }
-
-        // POST: Vehicle/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Plate,Brand,Model,Year,ClientId,Id,CreatedDate,DeletedDate,ModifiedDate")] Vehicle vehicle)
-        {
-            if (id != vehicle.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(vehicle);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!VehicleExists(vehicle.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "MechanicId", vehicle.ClientId);
-            return View(vehicle);
-        }
-
-        // GET: Vehicle/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var vehicle = await _context.Vehicles
-                .Include(v => v.Client)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (vehicle == null)
-            {
-                return NotFound();
-            }
-
-            return View(vehicle);
-        }
-
-        // POST: Vehicle/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var vehicle = await _context.Vehicles.FindAsync(id);
-            if (vehicle != null)
-            {
-                _context.Vehicles.Remove(vehicle);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool VehicleExists(int id)
-        {
-            return _context.Vehicles.Any(e => e.Id == id);
         }
     }
 }

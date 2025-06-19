@@ -13,8 +13,8 @@
         </a>
     </div>
 
-    @await Component.InvokeAsync("_CardClientViewComponentPartial", Model.Id)
- 
+    @await Component.InvokeAsync("_CardClientViewComponentPartial", new { clientId = Model.Id, returnUrl = "Client/ClientDetails" })
+
 
     <h4 class="mt-4 mb-3">Araçlar</h4>
     <div class="table-responsive shadow rounded">

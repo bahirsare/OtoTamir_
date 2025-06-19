@@ -10,6 +10,8 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
 {
     public class CreateSymptomGroupDTO
     {
+    
+
         public int VehicleId { get; set; }
         [Required(ErrorMessage = "Yazar Adı boş bırakılamaz.")]
         [StringLength(15, ErrorMessage = "Yazar adı en fazla 15 karakter olabilir.")]
@@ -17,6 +19,14 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public string AuthorName { get; set; }
 
         public List<SymptomDTO> Symptoms { get; set; }
+        public string ReturnController { get; set; }
+        public string ReturnAction { get; set; }
+        public int? ReturnId { get; set; }
+
+        public CreateSymptomGroupDTO()
+        {
+           Symptoms= new List<SymptomDTO>();
+        }
     }
 
    

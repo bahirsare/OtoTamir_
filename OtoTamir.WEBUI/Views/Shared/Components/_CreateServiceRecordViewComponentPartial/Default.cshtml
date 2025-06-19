@@ -1,8 +1,11 @@
 ﻿@model CreateSymptomGroupDTO
 
-<form asp-action="CreateServiceRecord" method="post" class="border rounded shadow-sm p-3 mb-1 bg-light">
+<form asp-action="CreateServiceRecord" asp-controller="ServiceRecord" method="post" class="border rounded shadow-sm p-3 mb-1 bg-light">
 
     <input type="hidden" asp-for="VehicleId" />
+    <input type="hidden" asp-for="ReturnController" />
+    <input type="hidden" asp-for="ReturnAction" />
+    <input type="hidden" asp-for="ReturnId" />
     <div class="container-fluid">
         <div class="row align-items-start">
             <!-- Sol Taraf (Semptomlar için geniş alan) -->

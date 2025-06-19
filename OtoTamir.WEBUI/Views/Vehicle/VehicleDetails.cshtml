@@ -1,0 +1,124 @@
+﻿@model Vehicle
+
+@{
+    ViewData["Title"] = "Araç Detayları";
+}
+
+<div class="container mt-4">
+
+    <!-- Başlık ve Araç Bilgileri -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header py-2 bg-primary text-white">
+            <h5 class="mb-0">Araç Bilgileri</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Plaka</label>
+                    <div class="form-control-plaintext">@Model.Plate</div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Marka</label>
+                    <div class="form-control-plaintext">@Model.Brand</div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Model</label>
+                    <div class="form-control-plaintext">@Model.Model</div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Yıl</label>
+                    <div class="form-control-plaintext">@Model.Year</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Müşteri Bilgileri -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header py-2 bg-info text-white">
+            <h6 class="mb-0">Müşteri Bilgileri</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Ad Soyad</label>
+                    <div class="form-control-plaintext">@Model.Client.Name</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Telefon</label>
+                    <div class="form-control-plaintext">@Model.Client.PhoneNumber</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Bakiye</label>
+                    <div class="form-control-plaintext">@Model.Client.Balance ₺</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Servis Kayıtları -->
+    <div class="card shadow-sm">
+        <div class="card-header py-2 bg-success text-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Servis Kayıtları</h6>
+            <a class="btn btn-sm btn-light" data-bs-toggle="collapse" href="#newServiceRecordCollapse">Yeni Kayıt</a>
+        </div>
+        <div class="card-body">
+            @if (Model.ServiceRecords != null && Model.ServiceRecords.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Başlık</th>
+                                <th>Açıklama</th>
+                                <th>Fiyat</th>
+                                <th>Durum</th>
+                                <th>Yazan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in Model.ServiceRecords.OrderByDescending(r => r.CreatedDate))
+                            {
+                                <tr>
+                                    <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>
+                                    <td>@record.Name</td>
+                                    <td>@record.Description</td>
+                                    <td>@record.Price.ToString("C")</td>
+                                    <td>
+                                        @if (record.Status == "Tamamlandı")
+                                        {
+                                            <span class="badge bg-success">Tamamlandı</span>
+                                        }
+                                        else if (record.Status == "İptal Edildi")
+                                        {
+                                            <span class="badge bg-danger">İptal</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Devam Ediyor</span>
+                                        }
+                                    </td>
+                                    <td>@record.AuthorName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-secondary mb-0">Bu araç için kayıtlı servis işlemi bulunmamaktadır.</div>
+            }
+        </div>
+
+        <!-- Yeni Kayıt Collapse -->
+        <div class="collapse" id="newServiceRecordCollapse">
+
+            @await Component.InvokeAsync("_CreateServiceRecordViewComponentPartial", new  { VehicleId = Model.Id, ReturnContext = "Vehicle" })
+            
+        </div>
+    </div>
+
+</div>
+<script src="~/js/serviceRecord.js"></script>

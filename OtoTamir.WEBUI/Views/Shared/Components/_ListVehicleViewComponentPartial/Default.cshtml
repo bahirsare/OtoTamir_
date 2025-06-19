@@ -50,8 +50,8 @@
                                 </td>
                             </tr>
                             <tr class="collapse" id="collapse-new-@vehicle.Id">
-                                <td colspan="5" class="p-0 border-0">                                    
-                                        @await Component.InvokeAsync("_CreateServiceRecordViewComponentPartial", vehicle.Id)                                    
+                                <td colspan="5" class="p-0 border-0">
+                                    @await Component.InvokeAsync("_CreateServiceRecordViewComponentPartial", new { VehicleId = vehicle.Id, ReturnContext = "ServiceRecord" })
                                 </td>
                             </tr>
                         }

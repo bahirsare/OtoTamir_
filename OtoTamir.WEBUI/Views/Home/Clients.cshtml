@@ -77,7 +77,7 @@
                             {
                                 foreach (var vehicle in item.Vehicles.Take(3).ToList())
                                 {
-                                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@vehicle.Id">@vehicle.Plate</a>
+                                    <a class="btn btn-sm btn-warning"asp-controller="Vehicle" asp-action="VehicleDetails" asp-route-vehicleid="@vehicle.Id">@vehicle.Plate</a>
 
                                 }
                                 if (item.Vehicles.Count > 3)

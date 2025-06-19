@@ -55,6 +55,11 @@ public class ServiceRecordController : Controller
     [HttpPost]
     public async Task<IActionResult> GetVehiclesByClientId(int selectedClientId)
     {
+        if (selectedClientId == null)
+        {
+            TempData["FailMessage"] = "Görüntülemek istediğiniz müşteriyi seçiniz.";
+            return View("Index");
+        }
         var user = await _userManager.GetUserAsync(User);
         var clients = await _clientService.GetAllAsync(user.Id, true, false, i => i.Id != selectedClientId);
         var model = new ListClientDTO
@@ -70,26 +75,45 @@ public class ServiceRecordController : Controller
         }
         return View("Index", model);
     }
+    [HttpGet]
+    public async Task<IActionResult> GetClientDetails(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var clients = await _clientService.GetAllAsync(user.Id, true, false, i => i.Id != id);
+        var model = new ListClientDTO
+        {
+            Clients = clients,
+            SelectedClientId = id,
+
+        };
+        model.SelectedClientName = (await _clientService.GetOneAsync((int)model.SelectedClientId, user.Id, false, false)).Name;
+        if (clients.Count == 0)
+        {
+            clients = await _clientService.GetAllAsync(user.Id, false, false);
+        }
+        return View("Index", model);
+
+    }
     [HttpPost]
     public async Task<IActionResult> CreateServiceRecord(CreateSymptomGroupDTO model)
     {
         var user = await _userManager.GetUserAsync(User);
         var vehicle = await _vehicleService.GetOneAsync(id: model.VehicleId, mechanicId: user.Id, includeClient: true, includeServiceRecords: true);
+
         if (vehicle == null)
         {
             TempData["FailMessage"] = "Araç bulunamadı!";
-            return RedirectToAction("Index");
+            return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
         }
-
-        int clientId = vehicle.ClientId;
 
         if (!ModelState.IsValid)
         {
             TempData["FailMessage"] = "Girilen bilgiler geçersiz veya eksik.";
-            return RedirectToAction("Index", new { selectedClientId = clientId });
+            return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
         }
 
         var totalCost = model.Symptoms.Sum(s => s.EstimatedCost);
+
         var serviceRecord = new ServiceRecord
         {
             VehicleId = model.VehicleId,
@@ -98,15 +122,14 @@ public class ServiceRecordController : Controller
             Price = totalCost,
             Status = "Devam Ediyor",
             AuthorName = model.AuthorName
-
         };
+
         var result = await _serviceRecordService.CreateAsync(serviceRecord);
         if (result == 0)
         {
             TempData["FailMessage"] = "Servis kaydı oluşturulamadı!";
-            return RedirectToAction("Index", new { selectedClientId = clientId });
+            return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
         }
-        TempData["SuccessMessage"] = "Servis kaydı oluşturuldu!";
 
         foreach (var item in model.Symptoms)
         {
@@ -119,9 +142,10 @@ public class ServiceRecordController : Controller
                 TempData["FailMessage"] = "Semptom oluşturulamadı!";
                 break;
             }
-            TempData["SuccessMessage"] = "Semptom oluşturuldu!";
         }
-        return RedirectToAction("Index", new { selectedClientId = clientId });
+
+        TempData["SuccessMessage"] = "Servis kaydı ve semptomlar başarıyla oluşturuldu!";
+        return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
     }
 
 

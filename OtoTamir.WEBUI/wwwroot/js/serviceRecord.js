@@ -13,7 +13,7 @@ function addSymptomRow(containerId) {
     const index = symptomIndices[containerId];
 
     const card = document.createElement("div");
-    card.className = "border rounded p-3 mb-1 /*col-lg-7*/ bg-light symptom-item";
+    card.className = "border rounded p-3 mb-1 bg-light symptom-item";
 
     const formRow = document.createElement("div");
     formRow.className = "d-flex flex-wrap align-items-end gap-3";

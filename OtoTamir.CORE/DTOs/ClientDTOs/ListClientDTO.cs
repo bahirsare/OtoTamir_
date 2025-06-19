@@ -12,5 +12,9 @@ namespace OtoTamir.CORE.DTOs.ClientDTOs
         public List<Client> Clients;
         public int? SelectedClientId;
         public string? SelectedClientName;
+        public ListClientDTO()
+        {
+            Clients = new List<Client>();
+        }
     }
 }

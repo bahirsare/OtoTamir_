@@ -47,25 +47,25 @@ namespace OtoTamir.WEBUI.Controllers
             var mechanic = await _userManager.GetUserAsync(User);
             if (mechanic == null)
             {
-                TempData["FailMessage"] = "Tamirci Bulunamadı.";
-                return RedirectToAction(URL[0], URL[1]);
+                TempData["FailMessage"] = "Tamirci bulunamadı, devam etmek için giriş yapınız.";
+                return RedirectToAction("Login","Account");
             }
             var client = await _clientService.GetOneAsync(clientId, mechanic.Id, includeServiceRecords: true, includeVehicles: true);
             if (client == null)
             {
                 TempData["FailMessage"] = "Müşteri bulunamadı.";
-                return RedirectToAction(URL[0], URL[1]);
+                return RedirectToAction(URL[1], URL[0]);
             }
             client.Notes = note;
             var result = await _clientService.UpdateAsync();
             if (result > 0)
             {
                 TempData["SuccessMessage"] = "Not güncellendi.";
-                return RedirectToAction(URL[0], URL[1]); ;
+                return RedirectToAction(URL[1], URL[0],clientId); ;
             }
             TempData["FailMessage"] = "Bir hata oluştu.Lütfen tekrar deneyiniz.";
 
-            return RedirectToAction(URL[0], URL[1]);
+            return RedirectToAction(URL[1], URL[0], clientId);
         }
         [HttpPost]
         public async Task<IActionResult> CreateClient(CreateClientDTO model)
