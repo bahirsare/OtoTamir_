@@ -15,6 +15,7 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public int SymptomId { get; set; }
         public decimal? AdditionalCost { get; set; }
         public int? AdditionalDays { get; set; }
+        public string WorkflowStatus { get; set; }
 
         public List<SparePart>? NeededParts { get; set; }
 

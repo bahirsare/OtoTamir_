@@ -49,7 +49,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
 
         if (includeSymptoms)
         {
-            query = query.Include(sr => sr.SymptomList);
+            query = query.Include(sr => sr.SymptomList).ThenInclude(s=>s.ServiceWorkflowLogs);
         }
 
 
@@ -80,7 +80,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
 
         if (includeSymptoms)
         {
-            query = query.Include(sr => sr.SymptomList);
+            query = query.Include(sr => sr.SymptomList).ThenInclude(s => s.ServiceWorkflowLogs); ;
         }
 
         return await query.FirstOrDefaultAsync();
@@ -96,7 +96,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
                         sr.Vehicle.Client.MechanicId == mechanicId);
         if (includeSymptoms)
         {
-            query = query.Include(sr => sr.SymptomList);
+            query = query.Include(sr => sr.SymptomList).ThenInclude(s => s.ServiceWorkflowLogs); ;
         }
         return await query.ToListAsync();
     }

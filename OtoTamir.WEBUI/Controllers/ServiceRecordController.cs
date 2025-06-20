@@ -95,22 +95,33 @@ public class ServiceRecordController : Controller
 
     }
     [HttpPost]
-    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)
+    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)//status bilgisi işlenmedi daha
     {
         if (!ModelState.IsValid)
         {
             TempData["FailMessage"] = "Lütfen kaydı eksiksiz doldurun.";
-          return  RedirectToAction("ongoing", "ServiceRecord");
+            return RedirectToAction("ongoing", "ServiceRecord");
 
         }
         var user = await _userManager.GetUserAsync(User);
-        var symptom = await _symptomService.GetOneAsync(mechanicId:user.Id,id:WorkflowLogDTO.SymptomId);
-        var WorkflowLog=  _mapper.Map<RepairComment>(WorkflowLogDTO);
-        WorkflowLog.ModifiedDate=DateTime.Now;
-        WorkflowLog.CreatedDate=DateTime.Now;
+        if (user == null)
+        {
+            TempData["FailMessage"] = "Bu işlemi yapmak için giriş yapmanız gerekmektedir.";
+            return RedirectToAction("Login", "Account");
+        }
+        var symptom = await _symptomService.GetOneAsync(mechanicId: user.Id, id: WorkflowLogDTO.SymptomId);
+        if (symptom == null)
+        {
+            TempData["FailMessage"] = "Semptom bulunamadı.";
+            return RedirectToAction("ongoing", "ServiceRecord");
+        }
+
+        var WorkflowLog = _mapper.Map<RepairComment>(WorkflowLogDTO);
+        WorkflowLog.ModifiedDate = DateTime.Now;
+        WorkflowLog.CreatedDate = DateTime.Now;
         symptom.ServiceWorkflowLogs.Add(WorkflowLog);
         var result = await _symptomService.UpdateAsync();
-        if (result==0)
+        if (result == 0)
         {
             TempData["FailMessage"] = "Log kaydı eklenemedi.";
             return RedirectToAction("ongoing", "ServiceRecord");

@@ -269,6 +269,10 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("SymptomId")
                         .HasColumnType("int");
 

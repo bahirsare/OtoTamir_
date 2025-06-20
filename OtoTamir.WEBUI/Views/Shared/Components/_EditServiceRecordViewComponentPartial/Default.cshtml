@@ -70,6 +70,19 @@
                             <input name="AuthorName" class="form-control" required />
                         </div>
 
+                        <!-- Servis Durumu -->
+                        <div class="mb-2">
+                            <label class="form-label">Servis Durumu</label>
+                            <select name="WorkflowStatus" class="form-select fw-bold text-white
+            @(Model.Status == "Devam Ediyor" ? "bg-primary" :
+              Model.Status == "Tamamlandı" ? "bg-success" :
+              "bg-danger")">
+                                <option value="Devam Ediyor" selected="@(Model.Status == "Devam Ediyor")">Devam Ediyor</option>
+                                <option value="Tamamlandı" selected="@(Model.Status == "Tamamlandı")">Tamamlandı</option>
+                                <option value="İptal Edildi" selected="@(Model.Status == "İptal Edildi")">İptal Edildi</option>
+                            </select>
+                        </div>
+
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Ek Tahmini Gün</label>
@@ -97,6 +110,7 @@
                             <button type="submit" class="btn btn-outline-success btn-sm">Log Ekle</button>
                         </div>
                     </form>
+
                 </div>
             </div>
         }
