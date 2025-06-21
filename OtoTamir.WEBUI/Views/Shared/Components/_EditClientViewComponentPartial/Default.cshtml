@@ -3,7 +3,7 @@
 
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form asp-action="UpdateClient" method="post">
+            <form asp-action="UpdateClient" asp-controller="Client" method="post">
                 <div class="modal-header">
                     <h5 class="modal-title">Müşteri Düzenle - @Model.Name</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -32,7 +32,7 @@
                             <p><strong>Marka:</strong> @vehicle.Brand</p>
                             <p><strong>Model:</strong> @vehicle.Model</p>
                             <p><strong>Yıl:</strong> @vehicle.Year</p>
-                            <a class="btn btn-sm btn-secondary" asp-controller="Home" asp-action="EditVehicle" asp-route-id="@vehicle.Id">Aracı Düzenle</a>
+                        <a class="btn btn-sm btn-secondary" asp-controller="Vehicle" asp-action="VehicleDetails" asp-route-vehicleId="@vehicle.Id">Aracı Düzenle</a>
                         </div>
                     }
                 </div>

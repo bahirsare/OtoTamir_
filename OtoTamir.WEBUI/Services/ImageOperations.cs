@@ -24,7 +24,11 @@
 
         public static void DeleteImage(string fileName)
         {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", fileName);
+            if (fileName == "avatar.png")
+            {
+                return;
+            }
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot","images", fileName);
             if (System.IO.File.Exists(path))
             {
                 System.IO.File.Delete(path);

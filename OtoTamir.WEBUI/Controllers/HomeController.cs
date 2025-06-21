@@ -54,33 +54,7 @@ namespace OtotamirWEBUI.Controllers
         }
         
 
-        [HttpPost]
-        public async Task<IActionResult> CreateVehicleAsync(CreateVehicleDTO _model)
-        {
-            List<string> URL = _model.ReturnUrl.Split('/').ToList();
-            if (!ModelState.IsValid)
-            {
-
-                TempData["Message"] = "Araç Eklenemedi. Lütfen bilgileri eksiksiz doldurun.";
-                return RedirectToAction(URL[2], URL[1]);
-            }
-
-
-            var vehicle = _mapper.Map<Vehicle>(_model);
-
-            var result = await _vehicleService.CreateAsync(vehicle);
-
-            if (result > 0)
-            {
-                TempData["Message"] = "Araç baþarýyla eklendi.";
-            }
-            else
-            {
-                TempData["Message"] = "Araç eklenirken bir hata oluþtu.";
-            }
-
-            return RedirectToAction(URL[2], URL[1]);
-        }
+        
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

@@ -37,7 +37,7 @@ namespace OtoTamir.CORE.DTOs.MechanicDTOs
         [DisplayName("Telefon Numarası")]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
-        public string ImageUrl { get; set; }
+       
 
        
     }

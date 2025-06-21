@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.DotNet.Scaffolding.Shared.Project;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.MechanicDTOs;
 
@@ -90,54 +91,41 @@ namespace OtotamirWEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Profile(EditProfileDTO model, IFormFile? file)
         {
-            string successMessage = "";
-            string failMessage = "";
-
-            ModelState.Remove("ImageUrl");
             ModelState.Remove("file");
             if (ModelState.IsValid)
             {
-                var user = await _userManager.GetUserAsync(User);
-                var mechanic = await _mechanicService.GetOneAsync(user.Id);
+                
+                var mechanic = await _userManager.GetUserAsync(User);
+                var oldImage = mechanic.ImageUrl;
                 if (file != null)
                 {
-                    model.ImageUrl = await ImageOperations.UploadImageAsync(file);
+                    mechanic.ImageUrl = await ImageOperations.UploadImageAsync(file);
                 }
-                else
-                {
-                    model.ImageUrl = mechanic.ImageUrl;
-                }
+               
                 _mapper.Map(model, mechanic);
                 mechanic.IsProfileCompleted = true;
                 var update = await _mechanicService.UpdateAsync();
                 if (update == 1)
                 {
-                    successMessage += "Profil güncelleme başarılı!";
+                    TempData["SuccessMessage"] = "Profil güncelleme başarılı!";
+                   if(oldImage!=null)
+                        ImageOperations.DeleteImage(oldImage);
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Profil güncelleme başarısız.");
+                    TempData["FailMessage"] = "Profil güncelleme başarısız.";
                 }
             }
-            //else
-            //{
-            //    failMessage = "Formu tamamen doldurunuz.";
-            //}
-            if (!string.IsNullOrEmpty(successMessage))
-            {
-                TempData["SuccessMessage"] = successMessage;
-            }
-            if (!string.IsNullOrEmpty(failMessage))
-            {
-                TempData["FailMessage"] = failMessage;
-            }
+            
+           
+            
             return View(model);
         }
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            if (ModelState.IsValid)// 
+            if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
@@ -159,7 +147,7 @@ namespace OtotamirWEBUI.Controllers
                     return View("Profile", model);
                 }
 
-                TempData["Message"] = "Şifre güncelleme başarılı!";
+                TempData["SuccessMessage"] = "Şifre güncelleme başarılı!";
                 return RedirectToAction("Profile", "Account",result.Errors);
             }
 

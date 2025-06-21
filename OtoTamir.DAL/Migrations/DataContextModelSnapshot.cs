@@ -424,8 +424,9 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<int>("ServiceRecordId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

@@ -13,7 +13,7 @@ namespace OtoTamir.WEBUI.ViewComponents._Client.EditClient
         {
             _mapper = mapper;
         }
-        public IViewComponentResult Invoke(CORE.Entities.Client model)
+        public IViewComponentResult Invoke(Client model)
         {
             var editClientDTO = _mapper.Map<EditClientDTO>(model);
 

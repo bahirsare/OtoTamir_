@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.WEBUI.Services;
 
 namespace OtoTamir.WEBUI.Controllers
 {
@@ -76,9 +77,11 @@ namespace OtoTamir.WEBUI.Controllers
                 return RedirectToAction("Mechanic", "Admin");
             }
             var result = await _mechanicService.DeleteAsync(id);
+           
             if (result > 0)
             {
                 TempData["SuccessMessage"] = "Tamirci başarıyla silindi.";
+                ImageOperations.DeleteImage(mechanic.ImageUrl);
             }
             else
             {

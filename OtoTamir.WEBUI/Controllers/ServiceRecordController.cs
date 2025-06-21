@@ -76,14 +76,14 @@ public class ServiceRecordController : Controller
         return View("Index", model);
     }
     [HttpGet]
-    public async Task<IActionResult> GetClientDetails(int id)
+    public async Task<IActionResult> GetClientDetails(int clientId)
     {
         var user = await _userManager.GetUserAsync(User);
-        var clients = await _clientService.GetAllAsync(user.Id, true, false, i => i.Id != id);
+        var clients = await _clientService.GetAllAsync(user.Id, true, false, i => i.Id != clientId);
         var model = new ListClientDTO
         {
             Clients = clients,
-            SelectedClientId = id,
+            SelectedClientId = clientId,
 
         };
         model.SelectedClientName = (await _clientService.GetOneAsync((int)model.SelectedClientId, user.Id, false, false)).Name;
@@ -290,63 +290,7 @@ public class ServiceRecordController : Controller
 
     }
 
-    [HttpPost]
-    public async Task<IActionResult> BulkComplete(List<int> ids) // boş şuan
-    {
-        if (ids == null || !ids.Any())
-        {
-            TempData["Error"] = "Hiçbir kayıt seçilmedi.";
-            return RedirectToAction("Ongoing");
-        }
-        var mechanic = await _userManager.GetUserAsync(User);
-        foreach (int item in ids)
-        {
-            var record = await _serviceRecordService.GetOneAsync(item, mechanic.Id, false, false);
-            record.Status = "Tamamlandı";
-            record.CompletedDate = DateTime.Now;
-            await _serviceRecordService.UpdateAsync();
-        }
-
-
-        TempData["Success"] = $"{ids.Count} kayıt tamamlandı olarak işaretlendi.";
-        return RedirectToAction("Ongoing");
-
-    }
-    [HttpPost]
-    public async Task<IActionResult> BulkUpdate(string NewStatus, List<int> SelectedIds)
-    {
-        if (string.IsNullOrEmpty(NewStatus) || SelectedIds == null || !SelectedIds.Any())
-        {
-            TempData["FailMessage"] = "İşlem yapılacak kayıt ve durum seçilmelidir.";
-            return RedirectToAction("Ongoing");
-        }
-
-        var mechanic = await _userManager.GetUserAsync(User);
-
-        int updatedCount = 0;
-        foreach (var id in SelectedIds)
-        {
-            var record = await _serviceRecordService.GetOneAsync(id, mechanic.Id);
-            if (record != null && record.Status != "Tamamlandı" && record.Status != "İptal Edildi")
-            {
-                record.Status = NewStatus;
-                record.ModifiedDate = DateTime.Now;
-
-                if (NewStatus == "Tamamlandı" && record.CompletedDate == null)
-                    record.CompletedDate = DateTime.Now;
-
-                await _serviceRecordService.UpdateAsync(); // her biri ayrı ayrı güncelleniyor
-                updatedCount++;
-            }
-        }
-
-        if (updatedCount > 0)
-            TempData["SuccessMessage"] = $"{updatedCount} kayıt başarıyla güncellendi.";
-        else
-            TempData["FailMessage"] = "Uygun durumda kayıt bulunamadı veya zaten işlem yapılmış.";
-
-        return RedirectToAction("Ongoing");
-    }
+   
     [HttpPost]
     public async Task<IActionResult> AddSymptomLog(RepairComment model)// comment ekleme metodu yazılacak
     {

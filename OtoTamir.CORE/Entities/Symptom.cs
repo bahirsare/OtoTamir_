@@ -10,7 +10,7 @@ namespace OtoTamir.CORE.Entities
         public string PossibleSolution {  get; set; }
 
         public int EstimatedDaysToFix { get; set; }
-        public bool Status { get; set; }
+        public string Status { get; set; }
         public List<RepairComment> ServiceWorkflowLogs { get; set; }
 
         public List<SparePart> PossibleSpareParts { get; set; }

@@ -17,7 +17,11 @@
                         <dd class="col-sm-7">@Model.PhoneNumber</dd>
 
                         <dt class="col-sm-5">Bakiye</dt>
-                        <dd class="col-sm-7">@Model.Balance ₺</dd>
+                        <dd class="col-sm-7">@Model.Balance ₺
+                            <button class="btn btn-sm btn-success ms-3" data-bs-toggle="modal" data-bs-target="#AddPaymentModal-@Model.Id">
+                                <i class="bi bi-plus-lg"></i> Ödeme Ekle
+                            </button>
+                        </dd>
 
                         <dt class="col-sm-5">Oluşturulma Tarihi:</dt>
                         <dd class="col-sm-7">@Model.CreatedDate</dd>
@@ -31,6 +35,9 @@
                             <button class="btn btn-sm btn-success ms-3" data-bs-toggle="modal" data-bs-target="#createVehicleModal-@Model.Id">
                                 <i class="bi bi-plus-lg"></i> Araç Ekle
                             </button>
+                            <div class="modal fade" id="createVehicleModal-@Model.Id" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
+                                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = Model.Id, ReturnUrl = "/Client/ClientDetails" })
+                            </div>
                         </dd>
                     </dl>
                 </div>

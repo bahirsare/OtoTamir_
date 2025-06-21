@@ -104,7 +104,7 @@ namespace OtoTamir.WEBUI.Controllers
                 return RedirectToAction(URL[0], URL[1]);
             }
         }
-        public async Task<IActionResult> DeleteClientAsync(int id)
+        public async Task<IActionResult> DeleteClient(int id)
         {
             var mechanicId = _userManager.GetUserId(User);
             var client = await _clientService.GetOneAsync(id, mechanicId, includeVehicles: false, includeServiceRecords: false);
@@ -126,7 +126,7 @@ namespace OtoTamir.WEBUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateClientAsync(EditClientDTO model, IFormFile image)
+        public async Task<IActionResult> UpdateClient(EditClientDTO model, IFormFile image)
         {
             var mechanicId = _userManager.GetUserId(User);
             if (!ModelState.IsValid)
