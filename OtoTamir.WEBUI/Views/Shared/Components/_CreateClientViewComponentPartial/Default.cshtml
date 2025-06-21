@@ -7,57 +7,59 @@
     </div>
 }
 
-<div class="modal-dialog modal-lg">
-    <div class="modal-content">
-        <form asp-controller="Home" asp-action="CreateClient" method="post">
-            <div class="modal-header">
+<div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content shadow rounded">
+        <form asp-controller="Client" asp-action="CreateClient" method="post">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">Yeni Müşteri Ekle</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
             </div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger m-3 d-none"></div>
 
-            <div class="card-body">
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label asp-for="Name" class="form-label"></label>
-                            <input asp-for="Name" class="form-control" required maxlength="50" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
+            <div class="modal-body">
+                <div class="row g-3">
 
-                        <div class="col-md-6">
-                            <label asp-for="PhoneNumber" class="form-label"></label>
-                            <input asp-for="PhoneNumber" class="form-control" placeholder="05xxxxxxxxx" type="tel"
-                                   pattern="[0-9]*" inputmode="numeric" required minlength="11" maxlength="11" />
-                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                        </div>
-
-
-                        <div class="col-md-6">
-                            <label asp-for="Balance" class="form-label"></label>
-                            <input asp-for="Balance" class="form-control" required min="0" step="10" />
-                            <span asp-validation-for="Balance" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-12">
-                            <label asp-for="Notes" class="form-label"></label>
-                            <textarea asp-for="Notes" class="form-control" maxlength="500"></textarea>
-                            <span asp-validation-for="Notes" class="text-danger"></span>
-                        </div>
-
-                        <input type="hidden" asp-for="ReturnUrl" />
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label fw-semibold">Ad Soyad</label>
+                        <input asp-for="Name" class="form-control shadow-sm" required maxlength="50" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                    <button type="submit" class="btn btn-success">Kaydet</button>
+                    <div class="col-md-6">
+                        <label asp-for="PhoneNumber" class="form-label fw-semibold">Telefon</label>
+                        <input asp-for="PhoneNumber" class="form-control shadow-sm" placeholder="05xxxxxxxxx"
+                               type="tel" pattern="[0-9]*" inputmode="numeric" required minlength="11" maxlength="11" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Balance" class="form-label fw-semibold">Bakiye (₺)</label>
+                        <input asp-for="Balance" class="form-control shadow-sm" required min="0" step="10" />
+                        <span asp-validation-for="Balance" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="Notes" class="form-label fw-semibold">Notlar</label>
+                        <textarea asp-for="Notes" class="form-control shadow-sm" rows="3" maxlength="500"
+                                  placeholder="Varsa müşteri notları..."></textarea>
+                        <span asp-validation-for="Notes" class="text-danger small"></span>
+                    </div>
+
+                    <input type="hidden" asp-for="ReturnUrl" />
+
                 </div>
             </div>
+
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Vazgeç
+                </button>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Kaydet
+                </button>
+            </div>
+
         </form>
     </div>
 </div>
-
-
-

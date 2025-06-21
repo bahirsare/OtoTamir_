@@ -23,9 +23,9 @@ namespace OtoTamir.BLL.Concrete
             return await _serviceRecordDal.CreateAsync(entity);
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public int Delete(int id)
         {
-            return await _serviceRecordDal.DeleteAsync(id);
+            return  _serviceRecordDal.Delete(id);
         }
 
 

@@ -106,7 +106,7 @@
                             </a>                            
                         </li>
                         <li class="nav-item ">
-                            <a href="/Home/Clients" class="nav-link active">
+                            <a href="/Client/Clients" class="nav-link active">
                                 <i class="nav-icon bi bi-person-fill"></i>
                                 <p>
                                     Müşteriler
@@ -177,6 +177,27 @@
             @RenderBody()
             <!--end::App Content-->
         </main>
+        <div class="modal fade" id="genericConfirmModal" tabindex="-1" aria-labelledby="genericConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="confirmModalForm" method="post" action="">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="genericConfirmModalLabel">Onayla</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="confirmModalMessage">Bu işlemi yapmak istediğinize emin misiniz?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                            <button type="submit" class="btn btn-danger">Evet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+       
         <!--end::App Main-->
         <!--begin::Footer-->
         <footer class="app-footer">

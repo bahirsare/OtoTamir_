@@ -39,6 +39,9 @@ namespace OtoTamir.WEBUI
 
             builder.Services.AddScoped<ISymptomDal, EfCoreSymptomDal>();
             builder.Services.AddScoped<ISymptomService, SymptomService>();
+            
+            builder.Services.AddScoped<IBalanceLogDal, EfCoreBalanceLogDal>();
+            builder.Services.AddScoped<IBalanceLogService, BalanceLogService>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {

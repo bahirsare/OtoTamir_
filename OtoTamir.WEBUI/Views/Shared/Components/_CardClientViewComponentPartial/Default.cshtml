@@ -18,9 +18,14 @@
 
                         <dt class="col-sm-5">Bakiye</dt>
                         <dd class="col-sm-7">@Model.Balance ₺
-                            <button class="btn btn-sm btn-success ms-3" data-bs-toggle="modal" data-bs-target="#AddPaymentModal-@Model.Id">
-                                <i class="bi bi-plus-lg"></i> Ödeme Ekle
+                            <button class="btn btn-sm btn-info ms-3" data-bs-toggle="modal" data-bs-target="#balanceLogModal">
+                                <i class="bi bi-info-lg"></i> Ödeme Geçmişi
                             </button>
+                            <div class="modal fade" id="balanceLogModal" tabindex="-1" aria-labelledby="balanceLogModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        @await Component.InvokeAsync("_BalanceLogViewComponentPartial", new { clientId = Model.Id })
+    </div>
+</div>
                         </dd>
 
                         <dt class="col-sm-5">Oluşturulma Tarihi:</dt>
@@ -84,3 +89,4 @@
         </div>
     </div>
 </div>
+

@@ -30,15 +30,15 @@ namespace OtoTamir.DAL.Concrete.EfCore
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public  int Delete(int id)
         {
-            var entity = await _context.Set<T>().FindAsync(id);
+            var entity =  _context.Set<T>().Find(id);
 
             if (entity != null)
             {
                 _context.Set<T>().Remove(entity);
             }
-            return await _context.SaveChangesAsync();
+            return _context.SaveChanges();
         }
     }
 }

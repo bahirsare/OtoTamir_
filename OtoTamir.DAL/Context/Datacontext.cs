@@ -42,6 +42,7 @@ namespace OtoTamir.DAL.Context
         public DbSet<PurchaseDetail> PurchaseDetails { get; set; }
         public DbSet<RepairComment> RepairComments { get; set; }
         public DbSet<SparePart> SpareParts { get; set; }
+        public DbSet<BalanceLog> BalanceLogs { get; set; }
         
         public override int SaveChanges()
         {

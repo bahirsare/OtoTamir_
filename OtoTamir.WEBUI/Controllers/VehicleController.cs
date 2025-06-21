@@ -76,5 +76,22 @@ namespace OtoTamir.WEBUI.Controllers
 
             return RedirectToAction(URL[2], URL[1]);
         }
+        public async Task<IActionResult> DeleteVehicle(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                TempData["FailMessage"] = "Tamirci bulunamadı.";
+                return RedirectToAction("VehicleDetails", "Vehicle",id);
+            }
+            var result =  _vehicleService.Delete(id);
+            if (result == 0) {
+                TempData["FailMessage"] = "Araç silinemedi.";
+                return RedirectToAction("VehicleDetails", "Vehicle", id);
+            }
+            TempData["SuccessMessage"] = "Araç silindi.";
+
+            return RedirectToAction("Clients", "Home");
+        }
     }
 }

@@ -25,11 +25,11 @@ namespace OtoTamir.CORE.Repositories
         Task<int> UpdateAsync();
 
         /// <summary>
-        /// Asynchronously deletes the entity with the specified ID from the database.
+        /// Deletes the entity with the specified ID from the database.
         /// </summary>
         /// <param name="id">The ID of the entity to delete.</param>
         /// <returns>The number of state entries written to the database.</returns>
-        Task<int> DeleteAsync(int id);
+        int Delete(int id);
 
         /// <summary>
         /// Asynchronously checks if any entity exists in the database matching the given filter.

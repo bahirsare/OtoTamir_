@@ -24,9 +24,9 @@ namespace OtoTamir.BLL.Concrete
             return await _mechanicDal.CreateAsync(mechanic);
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public  int Delete(int id)
         {
-            return await _mechanicDal.DeleteAsync(id);
+            return  _mechanicDal.Delete(id);
         }
 
         

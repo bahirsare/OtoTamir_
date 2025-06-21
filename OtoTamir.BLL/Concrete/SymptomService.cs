@@ -23,9 +23,9 @@ namespace OtoTamir.BLL.Concrete
             return await _symptomDal.CreateAsync(entity);
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public int Delete(int id)
         {
-            return await _symptomDal.DeleteAsync(id);
+            return  _symptomDal.Delete(id);
         }
 
         public async Task<Symptom> GetOneAsync(

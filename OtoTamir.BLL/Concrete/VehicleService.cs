@@ -24,9 +24,9 @@ namespace OtoTamir.BLL.Concrete
             return await _vehicleDal.CreateAsync(entity);
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public  int Delete(int id)
         {
-            return await _vehicleDal.DeleteAsync(id);
+            return  _vehicleDal.Delete(id);
         }
 
         public async Task<List<Vehicle>> GetAllAsync(string mechanicId, Expression<Func<Vehicle, bool>> filter = null)

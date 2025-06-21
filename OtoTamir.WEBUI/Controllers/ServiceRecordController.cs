@@ -171,6 +171,8 @@ public class ServiceRecordController : Controller
         {
             var symptom = _mapper.Map<Symptom>(item);
             symptom.ServiceRecordId = serviceRecord.Id;
+            symptom.Status = "Devam Ediyor";
+
 
             var symptomResult = await _symptomService.CreateAsync(symptom);
             if (symptomResult == 0)

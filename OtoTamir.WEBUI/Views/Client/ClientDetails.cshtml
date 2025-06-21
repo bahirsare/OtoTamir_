@@ -37,7 +37,7 @@
                         <td>@vehicle.ServiceRecords.Count()</td>
                         <td>@vehicle.CreatedDate.ToString("dd.MM.yyyy")</td>
                         <td>
-                            <a class="btn btn-info btn-sm" asp-action="Edit" asp-route-id="@vehicle.Id">Düzenle</a>
+                            <a class="btn btn-info btn-sm" asp-action="VehicleDetails" asp-controller="Vehicle" asp-route-vehicleId="@vehicle.Id">Düzenle</a>
                         </td>
                     </tr>
                 }
