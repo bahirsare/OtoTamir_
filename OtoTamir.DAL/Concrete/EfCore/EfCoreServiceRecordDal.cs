@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Concrete.EfCore;
@@ -109,4 +110,36 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
                             sr.Vehicle.Client != null &&
                             sr.Vehicle.Client.MechanicId == mechanicId);
     }
+    public async Task UpdateStatusAsync(int id,string mechanicId)
+    {
+
+        
+        
+
+        var record = await GetOneAsync(id,mechanicId,false,false);
+        if (record == null)
+            throw new Exception("ServiceRecord not found");
+
+        bool anyOngoing = record.SymptomList.Any(s => s.Status == "Devam Ediyor");
+        bool anyCompleted = record.SymptomList.Any(s => s.Status == "Tamamlandı");
+
+        if (anyOngoing)
+        {
+            record.Status = "Devam Ediyor";
+        }
+        else if (anyCompleted)
+        {
+            record.Status = "Tamamlandı";
+        }
+        else
+        {
+            record.Status = "İptal Edildi";
+        }
+
+        await UpdateAsync();
+    }
+
+
+
+
 }

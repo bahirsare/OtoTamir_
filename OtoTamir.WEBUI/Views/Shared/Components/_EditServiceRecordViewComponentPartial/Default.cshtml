@@ -41,7 +41,7 @@
                     {
                         <div class="border-start ps-3 mb-2">
                             <p class="mb-1"><strong>@log.Title</strong> - <small class="text-muted">@log.AuthorName</small></p>
-                            <p class="text-muted">@log.Content</p>
+                            <p class="text-muted">@log.Content - <small class="text-muted">@log.Status</small></p>
                         </div>
                     }
                 }
@@ -54,10 +54,19 @@
                 <div class="mt-4 border-top pt-3">
                     <form asp-action="AddServiceWorkflowLogs" method="post">
                         <input type="hidden" name="SymptomId" value="@symptom.Id" />
-
                         <div class="mb-2">
-                            <label class="form-label">Başlık</label>
-                            <input name="Title" class="form-control" required />
+                            <input name="Title" class="form-control" value="@($"{DateTime.Now:dd.MM.yyyy} Tarihli İşlem Güncellemesi")" readonly />
+
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">İşlem Durumu</label>
+                            <select name="Status" class="form-select" required>
+                                <option value="">Seçiniz...</option>
+                                <option value="Devam Ediyor">Devam Ediyor</option>
+                                <option value="Tamamlandı">Tamamlandı</option>
+                                <option value="İptal Edildi">İptal Edildi</option>
+                              
+                            </select>
                         </div>
 
                         <div class="mb-2">
@@ -68,19 +77,6 @@
                         <div class="mb-2">
                             <label class="form-label">Yazan Kişi (Çalışan Adı)</label>
                             <input name="AuthorName" class="form-control" required />
-                        </div>
-
-                        <!-- Servis Durumu -->
-                        <div class="mb-2">
-                            <label class="form-label">Servis Durumu</label>
-                            <select name="WorkflowStatus" class="form-select fw-bold text-white
-            @(Model.Status == "Devam Ediyor" ? "bg-primary" :
-              Model.Status == "Tamamlandı" ? "bg-success" :
-              "bg-danger")">
-                                <option value="Devam Ediyor" selected="@(Model.Status == "Devam Ediyor")">Devam Ediyor</option>
-                                <option value="Tamamlandı" selected="@(Model.Status == "Tamamlandı")">Tamamlandı</option>
-                                <option value="İptal Edildi" selected="@(Model.Status == "İptal Edildi")">İptal Edildi</option>
-                            </select>
                         </div>
 
                         <div class="row mb-3">
@@ -110,8 +106,8 @@
                             <button type="submit" class="btn btn-outline-success btn-sm">Log Ekle</button>
                         </div>
                     </form>
-
                 </div>
+
             </div>
         }
     </div>

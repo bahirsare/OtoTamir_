@@ -49,6 +49,10 @@ namespace OtoTamir.BLL.Concrete
         {
             return await _serviceRecordDal.UpdateAsync();
         }
+        public async Task UpdateStatusAsync(int id, string mechanicId)
+        {
+            await _serviceRecordDal.UpdateStatusAsync(id, mechanicId);
+        }
     }
 }
 

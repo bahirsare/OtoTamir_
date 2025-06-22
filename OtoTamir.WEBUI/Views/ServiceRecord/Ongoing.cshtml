@@ -104,7 +104,14 @@
                                     {
                                     <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id">Düzenle</button>
                                    
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="submitCancel(@record.Id)">İptal</button>
+                                       <button type="button"
+        class="btn btn-danger btn-sm confirm-button"
+        data-confirm-message="Bu işlemi iptal etmek istediğinize emin misiniz?"
+        data-form-action="@Url.Action("Cancel", "ServiceRecord", new { id = record.Id })"
+        data-form-method="post">
+    İptal
+</button>
+
                                     } 
                                 </div>
 
@@ -165,28 +172,6 @@
                 if (row) row.remove();
             }
         });
-        function submitCancel(id) {
-            if (!confirm('İşlemi iptal etmek istediğinize emin misiniz?')) return;
-
-            const form = document.createElement("form");
-            form.method = "post";
-            form.action = "/ServiceRecord/Cancel";
-
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "id";
-            input.value = id;
-            form.appendChild(input);
-
-            
-            const token = document.querySelector('input[name="__RequestVerificationToken"]');
-            if (token) {
-                const tokenClone = token.cloneNode();
-                form.appendChild(tokenClone);
-            }
-
-            document.body.appendChild(form);
-            form.submit();
-        }
+       
     </script>
 }

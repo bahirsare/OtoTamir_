@@ -1,50 +1,57 @@
 ﻿@model ServiceRecord
 
-<div class="p-3">
-    <h5 class="mb-3 text-primary">
+<!-- Modal İçeriği -->
+<div class="modal-header">
+    <h5 class="modal-title text-primary">
         <i class="fas fa-info-circle me-2"></i>Servis Detayı
     </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+</div>
+
+<div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
 
     <dl class="row">
-        <dt class="col-sm-4">Başlık:</dt>
+        <dt class="col-sm-4 fw-semibold">Başlık:</dt>
         <dd class="col-sm-8">@Model.Name</dd>
 
-        <dt class="col-sm-4">Açıklama:</dt>
+        <dt class="col-sm-4 fw-semibold">Açıklama:</dt>
         <dd class="col-sm-8">@Model.Description</dd>
 
-        <dt class="col-sm-4">Fiyat:</dt>
+        <dt class="col-sm-4 fw-semibold">Fiyat:</dt>
         <dd class="col-sm-8">@Model.Price.ToString("C")</dd>
 
-        <dt class="col-sm-4">Durum:</dt>
+        <dt class="col-sm-4 fw-semibold">Durum:</dt>
         <dd class="col-sm-8">@Model.Status</dd>
+
         @if (Model.Status == "Tamamlandı")
         {
-        <dt class="col-sm-4">Tamamlanma Tarihi:</dt>        
-        <dd class="col-sm-8">@(Model.CompletedDate?.ToString("dd.MM.yyyy") ?? "Tarih girilmemiş")</dd>}
+            <dt class="col-sm-4 fw-semibold">Tamamlanma Tarihi:</dt>
+            <dd class="col-sm-8">@(Model.CompletedDate?.ToString("dd.MM.yyyy") ?? "Tarih girilmemiş")</dd>
+        }
 
-        <dt class="col-sm-4">Oluşturan:</dt>
-        <dd class="col-sm-8">@Model.AuthorName</dd>       
+        <dt class="col-sm-4 fw-semibold">Oluşturan:</dt>
+        <dd class="col-sm-8">@Model.AuthorName</dd>
 
-        <dt class="col-sm-4">Son Güncelleme:</dt>
-        <dd class="col-sm-8">@Model.ModifiedDate.ToString("dd.MM.yyyy") ?? "-"</dd>
+        <dt class="col-sm-4 fw-semibold">Son Güncelleme:</dt>
+        <dd class="col-sm-8">@Model.ModifiedDate.ToString("dd.MM.yyyy")</dd>
     </dl>
 
     <hr />
 
-    <h6 class="text-secondary">Semptomlar</h6>
+    <h6 class="text-secondary mb-3">Semptomlar</h6>
     @if (Model.SymptomList != null && Model.SymptomList.Any())
     {
         @foreach (var symptom in Model.SymptomList)
         {
-            <div class="card mb-3 border-start border-3 border-primary">
-                <div class="card-body mt-2">
-                    <h6 class="card-title text-primary">@symptom.Name</h6>
-                    >
-                    <p class="card-text"><strong>Açıklama:</strong> @symptom.Description</p>
-                    <p class="card-text"><strong>Çözüm Önerisi:</strong> @symptom.PossibleSolution</p>
-                    <p class="card-text"><strong>Tahmini Maliyet:</strong> @symptom.EstimatedCost.ToString("C")</p>
-                    <p class="card-text"><strong>Tahmini Gün:</strong> @symptom.EstimatedDaysToFix</p>
-
+            <div class="card mb-3 border-start border-4 border-secondary shadow-sm">
+                <div class="card-header bg-secondary text-white small-header">
+                    <h6 class="mb-0 fw-bold fs-6">@symptom.Name</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Açıklama:</strong> @symptom.Description</p>
+                    <p><strong>Çözüm Önerisi:</strong> @symptom.PossibleSolution</p>
+                    <p><strong>Tahmini Maliyet:</strong> @symptom.EstimatedCost.ToString("C")</p>
+                    <p><strong>Tahmini Gün:</strong> @symptom.EstimatedDaysToFix</p>
 
                     @if (symptom.PossibleSpareParts != null && symptom.PossibleSpareParts.Any())
                     {
@@ -63,7 +70,19 @@
                         <ul class="list-unstyled">
                             @foreach (var log in symptom.ServiceWorkflowLogs)
                             {
-                                <li>🛠️ <strong>@log.CreatedDate.ToString("dd.MM.yyyy"):</strong> @log.Content</li>
+                                <li>
+                                    🛠️ <strong>@log.CreatedDate.ToString("dd.MM.yyyy"):</strong> @log.Content
+                                    @{
+                                        string iconClass = log.Status switch
+                                        {
+                                            "Devam Ediyor" => "bi bi-hourglass-split text-warning",
+                                            "Tamamlandı" => "bi bi-check-circle-fill text-success",
+                                            "İptal Edildi" => "bi bi-x-circle-fill text-danger",
+                                            _ => "bi bi-info-circle"
+                                        };
+                                    }
+                                    <strong>İşlem Durumu:</strong> <i class="@iconClass me-1"></i> @log.Status
+                                </li>
                             }
                         </ul>
                     }
@@ -75,4 +94,8 @@
     {
         <p class="text-muted">Bu servis kaydına ait semptom bulunmamaktadır.</p>
     }
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
 </div>

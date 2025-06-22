@@ -119,7 +119,13 @@ public class ServiceRecordController : Controller
         var WorkflowLog = _mapper.Map<RepairComment>(WorkflowLogDTO);
         WorkflowLog.ModifiedDate = DateTime.Now;
         WorkflowLog.CreatedDate = DateTime.Now;
+        symptom.Status = WorkflowLog.Status;
         symptom.ServiceWorkflowLogs.Add(WorkflowLog);
+
+        await _serviceRecordService.UpdateStatusAsync(symptom.ServiceRecordId,user.Id);
+
+
+
         var result = await _symptomService.UpdateAsync();
         if (result == 0)
         {
@@ -299,7 +305,7 @@ public class ServiceRecordController : Controller
         var mechanic = await _userManager.GetUserAsync(User);
         return View(model);
     }
-
+  
 
 
 }

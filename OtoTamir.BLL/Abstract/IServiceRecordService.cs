@@ -21,5 +21,7 @@ namespace OtoTamir.BLL.Abstract
            string mechanicId,
            bool includeVehicle=false, 
            bool includeSymptoms=false);
+        Task UpdateStatusAsync(int id, string mechanicId);
     }
+
 }

@@ -55,5 +55,6 @@ namespace OtoTamir.DAL.Abstract
         /// Counts records by status for a specific mechanic
         /// </summary>
         Task<int> CountByStatusAsync(string mechanicId, string status);
+        Task UpdateStatusAsync(int id, string mechanicId);
     }
 }
