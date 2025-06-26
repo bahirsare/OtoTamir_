@@ -115,6 +115,34 @@ public class ServiceRecordController : Controller
             TempData["FailMessage"] = "Semptom bulunamadı.";
             return RedirectToAction("ongoing", "ServiceRecord");
         }
+        if (WorkflowLogDTO.AdditionalDays != null || WorkflowLogDTO.AdditionalCost != null)
+        {
+            if (WorkflowLogDTO.AdditionalDays != null&&WorkflowLogDTO.AdditionalDays>0)
+            {
+                symptom.EstimatedDaysToFix += (int)WorkflowLogDTO.AdditionalDays;
+            }
+
+            if (WorkflowLogDTO.AdditionalCost != null && WorkflowLogDTO.AdditionalCost > 0)
+            {
+                symptom.EstimatedCost += (decimal)WorkflowLogDTO.AdditionalCost;
+            }
+
+            // Eski içeriğe otomatik açıklama ekle
+            string log = "";
+
+            if (WorkflowLogDTO.AdditionalDays != null)
+            {
+                log += $" +{WorkflowLogDTO.AdditionalDays} gün";
+            }
+
+            if (WorkflowLogDTO.AdditionalCost != null)
+            {
+                log += $" +{WorkflowLogDTO.AdditionalCost:C} ek maliyet";
+            }
+
+            WorkflowLogDTO.Content += $" ({log.Trim()} eklendi)";
+        }
+
 
         var WorkflowLog = _mapper.Map<RepairComment>(WorkflowLogDTO);
         WorkflowLog.ModifiedDate = DateTime.Now;
@@ -122,17 +150,13 @@ public class ServiceRecordController : Controller
         symptom.Status = WorkflowLog.Status;
         symptom.ServiceWorkflowLogs.Add(WorkflowLog);
 
+        
+
+
         await _serviceRecordService.UpdateStatusAsync(symptom.ServiceRecordId,user.Id);
 
 
 
-        var result = await _symptomService.UpdateAsync();
-        if (result == 0)
-        {
-            TempData["FailMessage"] = "Log kaydı eklenemedi.";
-            return RedirectToAction("ongoing", "ServiceRecord");
-        }
-        TempData["SuccessMessage"] = "Log kaydı eklendi.";
         return RedirectToAction("ongoing", "ServiceRecord");
     }
 
