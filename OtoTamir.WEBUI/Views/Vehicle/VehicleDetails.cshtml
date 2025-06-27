@@ -48,7 +48,51 @@
                     <div class="form-control-plaintext">@Model.ModifiedDate.ToString("dd.MM.yyyy HH:mm")</div>
                 </div>
             </div>
+            <!-- Araç Düzenle Modal -->
+            <div class="modal fade" id="editVehicleModal" tabindex="-1" aria-labelledby="editVehicleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <form asp-action="UpdateVehicle" asp-controller="Vehicle" method="post">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="editVehicleModalLabel"><i class="bi bi-pencil"></i> Araç Bilgilerini Düzenle</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="Id" value="@Model.Id" />
 
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Plaka</label>
+                                        <input type="text" name="Plate" class="form-control" value="@Model.Plate" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Marka</label>
+                                        <input type="text" name="Brand" class="form-control" value="@Model.Brand" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Model</label>
+                                        <input type="text" name="Model" class="form-control" value="@Model.Model" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Yıl</label>
+                                        <input type="number" name="Year" class="form-control" value="@Model.Year" required />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+                                <button type="submit" class="btn btn-success btn-sm">Değişiklikleri Kaydet</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <button type="button"
+                    class="btn btn-outline-primary btn-sm me-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editVehicleModal">
+                <i class="bi bi-pencil-square"></i> Aracı Düzenle
+            </button>
             <!-- Araç Sil Butonu -->
             <div class="mt-4 d-flex justify-content-end">
                 <button type="button"
@@ -58,6 +102,7 @@
                         data-form-method="post">
                     <i class="bi bi-trash"></i> Aracı Sil
                 </button>
+
             </div>
         </div>
     </div>

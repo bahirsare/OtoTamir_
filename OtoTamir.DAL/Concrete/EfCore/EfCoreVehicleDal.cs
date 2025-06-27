@@ -25,7 +25,7 @@ public class EfCoreVehicleDal : EfCoreGenericRepositoryDal<Vehicle, DataContext>
 
         return await query.ToListAsync();
     }
-
+    
     public override async Task<int> CreateAsync(Vehicle vehicle)
     {
 

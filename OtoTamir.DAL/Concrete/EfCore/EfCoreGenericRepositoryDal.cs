@@ -25,7 +25,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> UpdateAsync()
+        public virtual async Task<int> UpdateAsync()
         {
             return await _context.SaveChangesAsync();
         }

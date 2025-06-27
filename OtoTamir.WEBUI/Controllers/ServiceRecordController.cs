@@ -76,14 +76,14 @@ public class ServiceRecordController : Controller
         return View("Index", model);
     }
     [HttpGet]
-    public async Task<IActionResult> GetClientDetails(int clientId)
+    public async Task<IActionResult> GetClientDetails(int id)
     {
         var user = await _userManager.GetUserAsync(User);
-        var clients = await _clientService.GetAllAsync(user.Id, true, false, i => i.Id != clientId);
+        var clients = await _clientService.GetAllAsync(user.Id, true, false, i => i.Id != id);
         var model = new ListClientDTO
         {
             Clients = clients,
-            SelectedClientId = clientId,
+            SelectedClientId = id,
 
         };
         model.SelectedClientName = (await _clientService.GetOneAsync((int)model.SelectedClientId, user.Id, false, false)).Name;
@@ -97,6 +97,7 @@ public class ServiceRecordController : Controller
     [HttpPost]
     public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)//status bilgisi işlenmedi daha
     {
+       
         if (!ModelState.IsValid)
         {
             TempData["FailMessage"] = "Lütfen kaydı eksiksiz doldurun.";
@@ -127,7 +128,6 @@ public class ServiceRecordController : Controller
                 symptom.EstimatedCost += (decimal)WorkflowLogDTO.AdditionalCost;
             }
 
-            // Eski içeriğe otomatik açıklama ekle
             string log = "";
 
             if (WorkflowLogDTO.AdditionalDays != null)

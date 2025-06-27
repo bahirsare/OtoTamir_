@@ -96,4 +96,6 @@
     </Content>
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties wwwroot_4adminlte-master_4dist_4css_4adminlte_1css_1map__JsonSchema="" /></VisualStudio></ProjectExtensions>
+
 </Project>

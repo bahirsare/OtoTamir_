@@ -22,6 +22,7 @@ namespace OtoTamir.CORE.Mapping
             CreateMap<CreateClientDTO,Client>().ReverseMap();
             CreateMap<EditClientDTO,Client>().ReverseMap();
             CreateMap<CreateVehicleDTO, Vehicle>().ReverseMap();
+            CreateMap<EditVehicleDTO, Vehicle>().ReverseMap();
             CreateMap<EditProfileDTO, Mechanic>().ReverseMap();
             CreateMap<SymptomDTO, Symptom>().ReverseMap();
             CreateMap<EditServiceRecordDTO, ServiceRecord>().ReverseMap();
