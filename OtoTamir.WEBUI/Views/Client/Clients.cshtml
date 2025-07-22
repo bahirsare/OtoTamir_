@@ -121,25 +121,46 @@
                                
                                 <td>@item.ModifiedDate.ToString("dd.MM.yyyy")</td>
 
+                                
                                 <td>
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <a class="btn btn-info" asp-controller="Client" asp-action="ClientDetails" asp-route-clientId="@item.Id">Detay</a>
-                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editClientModal-@item.Id">Düzenle</button>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-width: 240px;">
+                                        <!-- Detay butonu -->
+                                        <a class="btn btn-sm btn-info"
+                                           asp-controller="Client"
+                                           asp-action="ClientDetails"
+                                           asp-route-clientId="@item.Id">
+                                            Detay
+                                        </a>
 
+                                        <!-- Düzenle butonu ve modal -->
+                                        <button class="btn btn-sm btn-warning"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editClientModal-@item.Id">
+                                            Düzenle
+                                        </button>
                                         <div class="modal fade" id="editClientModal-@item.Id" tabindex="-1">
                                             @await Component.InvokeAsync("_EditClientViewComponentPartial", item)
                                         </div>
-                                        <a class="btn btn-info" asp-controller="Client" asp-action="BalanceLogs" asp-route-clientId="@item.Id">Ödeme Ekle</a>
+
+                                        <!-- Ödeme butonu -->
+                                        <a class="btn btn-sm btn-success"
+                                           asp-controller="Client"
+                                           asp-action="BalanceLogs"
+                                           asp-route-clientId="@item.Id">
+                                            Ödeme Ekle
+                                        </a>
+
+                                        <!-- Sil butonu -->
                                         <button type="button"
-                                                class="btn btn-danger confirm-button"
+                                                class="btn btn-sm btn-danger confirm-button"
                                                 data-confirm-message="Bu müşteriyi silmek istediğinize emin misiniz?"
                                                 data-form-action="@Url.Action("DeleteClient", "Client", new { id = item.Id })"
                                                 data-form-method="post">
                                             Sil
                                         </button>
-
                                     </div>
                                 </td>
+
 
                                 <td>
                                     @if (item.Vehicles.Any())

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Concrete.EfCore;
@@ -50,7 +49,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
 
         if (includeSymptoms)
         {
-            query = query.Include(sr => sr.SymptomList).ThenInclude(s=>s.ServiceWorkflowLogs);
+            query = query.Include(sr => sr.SymptomList).ThenInclude(s => s.ServiceWorkflowLogs);
         }
 
 
@@ -66,7 +65,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         int id,
         string mechanicId,
         bool includeVehicle,
-        bool includeSymptoms )
+        bool includeSymptoms)
     {
         var query = _context.ServiceRecords
             .Where(sr => sr.Id == id
@@ -110,13 +109,9 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
                             sr.Vehicle.Client != null &&
                             sr.Vehicle.Client.MechanicId == mechanicId);
     }
-    public async Task UpdateStatusAsync(int id,string mechanicId)
+    public async Task UpdateStatusAsync(int id, string mechanicId)
     {
-
-        
-        
-
-        var record = await GetOneAsync(id,mechanicId,false,false);
+        var record = await GetOneAsync(id, mechanicId, false, false);
         if (record == null)
             throw new Exception("ServiceRecord not found");
 

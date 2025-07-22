@@ -224,20 +224,17 @@ public class ServiceRecordController : Controller
 
         Expression<Func<ServiceRecord, bool>> filter = sr => true;
 
-        if (!string.IsNullOrWhiteSpace(model.CurrentStatus))
-        {
+        if (string.IsNullOrEmpty(model.CurrentStatus))
+            model.CurrentStatus = "Devam Ediyor";
+
+        if (!string.IsNullOrWhiteSpace(model.CurrentStatus) && model.CurrentStatus != "Tümü")
             filter = filter.AndAlso(sr => sr.Status == model.CurrentStatus);
-        }
 
         if (model.StartDate.HasValue)
-        {
             filter = filter.AndAlso(sr => sr.CreatedDate >= model.StartDate.Value);
-        }
 
         if (model.EndDate.HasValue)
-        {
             filter = filter.AndAlso(sr => sr.CreatedDate <= model.EndDate.Value);
-        }
 
         var records = await _serviceRecordService.GetAllAsync(
             mechanic.Id,
@@ -247,47 +244,49 @@ public class ServiceRecordController : Controller
             filter: filter
         );
 
-
         if (!string.IsNullOrWhiteSpace(model.ClientName))
-        {
-            records = records.Where(r =>
-                r.Vehicle.Client.Name.IndexOf(model.ClientName, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
-        }
+            records = records.Where(r => r.Vehicle.Client.Name.IndexOf(model.ClientName, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
+
         if (!string.IsNullOrWhiteSpace(model.VehicleName))
+            records = records.Where(r => r.Vehicle.Name.IndexOf(model.VehicleName, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
+
+        
+        string sortCol = model.SortColumn?.Trim() ?? "CreatedDate";
+        string sortDir = model.SortDirection?.ToLower() ?? "desc";
+
+        records = (sortCol, sortDir) switch
         {
-            records = records.Where(r =>
-                r.Vehicle.Name.IndexOf(model.VehicleName, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
-        }
+            ("ClientName", "asc") => records.OrderBy(r => r.Vehicle.Client.Name).ToList(),
+            ("ClientName", "desc") => records.OrderByDescending(r => r.Vehicle.Client.Name).ToList(),
 
+            ("VehicleName", "asc") => records.OrderBy(r => r.Vehicle.Name).ToList(),
+            ("VehicleName", "desc") => records.OrderByDescending(r => r.Vehicle.Name).ToList(),
 
-        if (!string.IsNullOrEmpty(model.SortColumn) && !string.IsNullOrEmpty(model.SortDirection))
-        {
-            records = model.SortColumn switch
-            {
-                "CreatedDate" => model.SortDirection == "asc"
-                    ? records.OrderBy(r => r.CreatedDate).ToList()
-                    : records.OrderByDescending(r => r.CreatedDate).ToList(),
+            ("Plate", "asc") => records.OrderBy(r => r.Vehicle.Plate).ToList(),
+            ("Plate", "desc") => records.OrderByDescending(r => r.Vehicle.Plate).ToList(),
 
-                "Status" => model.SortDirection == "asc"
-                    ? records.OrderBy(r => r.Status).ToList()
-                    : records.OrderByDescending(r => r.Status).ToList(),
+            ("Status", "asc") => records.OrderBy(r => r.Status).ToList(),
+            ("Status", "desc") => records.OrderByDescending(r => r.Status).ToList(),
 
-                "ClientName" => model.SortDirection == "asc"
-                    ? records.OrderBy(r => r.Vehicle.Client.Name).ToList()
-                    : records.OrderByDescending(r => r.Vehicle.Client.Name).ToList(),
+            ("CreatedDate", "asc") => records.OrderBy(r => r.CreatedDate).ToList(),
+            ("CreatedDate", "desc") => records.OrderByDescending(r => r.CreatedDate).ToList(),
 
-                _ => records.OrderByDescending(r => r.CreatedDate).ToList()
-            };
-        }
-        else
-        {
-            records = records.OrderByDescending(r => r.CreatedDate).ToList();
-        }
+            ("ModifiedDate", "asc") => records.OrderBy(r => r.ModifiedDate).ToList(),
+            ("ModifiedDate", "desc") => records.OrderByDescending(r => r.ModifiedDate).ToList(),
+
+            ("CompletedDate", "asc") => records.OrderBy(r => r.CompletedDate).ToList(),
+            ("CompletedDate", "desc") => records.OrderByDescending(r => r.CompletedDate).ToList(),
+
+            _ => records.OrderByDescending(r => r.CreatedDate).ToList()
+        };
 
         model.Records = records;
 
+        
+
         return View(model);
     }
+
     [HttpPost]
     public async Task<IActionResult> Cancel(int id)
     {

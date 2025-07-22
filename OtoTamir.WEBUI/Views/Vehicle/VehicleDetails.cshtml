@@ -113,18 +113,23 @@
             <h5 class="mb-0">Müşteri Bilgileri</h5>
         </div>
         <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Ad Soyad:</label>
+            <div class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-0">Ad Soyad:</label>
                     <div class="form-control-plaintext">@Model.Client.Name</div>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Telefon:</label>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-0">Telefon:</label>
                     <div class="form-control-plaintext">@Model.Client.PhoneNumber</div>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Bakiye:</label>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-0">Bakiye:</label>
                     <div class="form-control-plaintext">@Model.Client.Balance ₺</div>
+                </div>
+                <div class="col-md-3 d-flex justify-content-end">
+                    <a asp-controller="Client" asp-action="ClientDetails" asp-route-clientId="@Model.Client.Id" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-person"></i> Müşteri Detayı
+                    </a>
                 </div>
             </div>
         </div>
