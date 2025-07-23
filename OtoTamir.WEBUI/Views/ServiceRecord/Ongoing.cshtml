@@ -182,9 +182,25 @@
                     foreach (var record in Model.Records)
                     {
                         <tr>
-                            <td><input type="checkbox" name="SelectedIds" value="@record.Id" /></td>
-                            <td>@record.Vehicle.Client.Name</td>
-                            <td>@record.Vehicle.Name</td>
+                            <td>
+                                <button onclick="window.location.href='/Client/ClientDetails?clientId=@record.Vehicle.ClientId'"
+                                        class="btn-sm btn btn-outline-secondary">
+                                    <span class="bi bi-person" style="font-size: 12px;"></span>
+                                </button>
+                            </td>
+                            <td>
+
+                                
+                               @record.Vehicle.Client.Name
+                            </td>
+                            <td>
+                                <button onclick="window.location.href='/Vehicle/VehicleDetails?vehicleid=@record.VehicleId'"
+                                        class="btn-sm btn btn-outline-secondary">
+                                    <span class="bi bi-car-front" style="font-size: 12px;">
+                                        @record.Vehicle.Name
+                                    </span>
+                                </button>
+                                </td>
                             <td>@record.Vehicle.Plate</td>
                             <td>@record.Status</td>
                             <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>

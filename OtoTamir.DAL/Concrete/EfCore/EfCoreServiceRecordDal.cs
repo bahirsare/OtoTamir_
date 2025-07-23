@@ -111,7 +111,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
     }
     public async Task UpdateStatusAsync(int id, string mechanicId)
     {
-        var record = await GetOneAsync(id, mechanicId, false, false);
+        var record = await GetOneAsync(id, mechanicId, false, true);
         if (record == null)
             throw new Exception("ServiceRecord not found");
 
@@ -125,12 +125,14 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         else if (anyCompleted)
         {
             record.Status = "Tamamlandı";
+            record.CompletedDate = DateTime.Now;
         }
         else
         {
             record.Status = "İptal Edildi";
+            record.CompletedDate = DateTime.Now;
         }
-
+        
         await UpdateAsync();
     }
 

@@ -95,7 +95,7 @@ public class ServiceRecordController : Controller
 
     }
     [HttpPost]
-    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)//status bilgisi işlenmedi daha
+    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)
     {
        
         if (!ModelState.IsValid)
@@ -114,6 +114,11 @@ public class ServiceRecordController : Controller
         if (symptom == null)
         {
             TempData["FailMessage"] = "Semptom bulunamadı.";
+            return RedirectToAction("ongoing", "ServiceRecord");
+        }
+        if( symptom.Status!="Devam Ediyor")
+        {
+            TempData["FailMessage"] = "Tamamlanmış ya da İptal edilmiş işlemlere güncelleme yapılamaz.";
             return RedirectToAction("ongoing", "ServiceRecord");
         }
         if (WorkflowLogDTO.AdditionalDays != null || WorkflowLogDTO.AdditionalCost != null)
@@ -310,6 +315,9 @@ public class ServiceRecordController : Controller
         }
 
         record.Status = "İptal Edildi";
+        record.CompletedDate = DateTime.Now;
+        record.ModifiedDate = DateTime.Now;
+
         var result = await _serviceRecordService.UpdateAsync();
         if (result > 0)
         {
