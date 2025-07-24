@@ -53,8 +53,9 @@
                 {
                     <!-- Yeni log ekleme formu (HER semptom için ayrı) -->
                     <div class="mt-4 border-top pt-3">
-                        <form asp-action="AddServiceWorkflowLogs" method="post">
+                        <form asp-action="AddServiceWorkflowLogs" asp-controller="ServiceRecord" method="post">
                         <input type="hidden" name="SymptomId" value="@symptom.Id" />
+                        <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
                         <div class="mb-2">
                             <input name="Title" class="form-control" value="@($"{DateTime.Now:dd.MM.yyyy} Tarihli İşlem Güncellemesi")" readonly />
 

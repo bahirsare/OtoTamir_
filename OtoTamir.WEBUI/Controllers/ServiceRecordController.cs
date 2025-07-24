@@ -97,11 +97,11 @@ public class ServiceRecordController : Controller
     [HttpPost]
     public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)
     {
-       
+        List<string> URL = WorkflowLogDTO.ReturnUrl.Split('/').ToList();
         if (!ModelState.IsValid)
         {
             TempData["FailMessage"] = "Lütfen kaydı eksiksiz doldurun.";
-            return RedirectToAction("ongoing", "ServiceRecord");
+            return RedirectToAction(URL[2], URL[1]);
 
         }
         var user = await _userManager.GetUserAsync(User);
@@ -114,12 +114,12 @@ public class ServiceRecordController : Controller
         if (symptom == null)
         {
             TempData["FailMessage"] = "Semptom bulunamadı.";
-            return RedirectToAction("ongoing", "ServiceRecord");
+            return RedirectToAction(URL[2], URL[1]);
         }
         if( symptom.Status!="Devam Ediyor")
         {
             TempData["FailMessage"] = "Tamamlanmış ya da İptal edilmiş işlemlere güncelleme yapılamaz.";
-            return RedirectToAction("ongoing", "ServiceRecord");
+            return RedirectToAction(URL[2], URL[1]);
         }
         if (WorkflowLogDTO.AdditionalDays != null || WorkflowLogDTO.AdditionalCost != null)
         {
@@ -159,10 +159,10 @@ public class ServiceRecordController : Controller
 
 
         await _serviceRecordService.UpdateStatusAsync(symptom.ServiceRecordId,user.Id);
+        TempData["SuccessMessage"] = "İşlem başarılı! Kayıt güncellendi.";
 
 
-
-        return RedirectToAction("ongoing", "ServiceRecord");
+        return RedirectToAction(URL[2], URL[1]);
     }
 
     [HttpPost]

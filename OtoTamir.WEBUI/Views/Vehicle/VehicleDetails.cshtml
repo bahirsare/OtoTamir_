@@ -214,7 +214,7 @@
                                         <div class="modal fade" id="editModal-@record.Id" tabindex="-1" aria-hidden="true">
                                             <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
-                                                    @await Component.InvokeAsync("_EditServiceRecordViewComponentPartial", record.Id)
+                                                    @await Component.InvokeAsync("_EditServiceRecordViewComponentPartial", new { ReturnUrl = "/Vehicle/VehicleDetails", recordId = record.Id })
                                                 </div>
                                             </div>
                                         </div>

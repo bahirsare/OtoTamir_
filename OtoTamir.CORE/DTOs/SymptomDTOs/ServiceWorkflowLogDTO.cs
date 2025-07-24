@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace OtoTamir.CORE.DTOs.SymptomDTOs
 {
     public class ServiceWorkflowLogDTO
-    {
+    { 
         public string Title { get; set; }
         public string Content { get; set; }
         public string AuthorName { get; set; }
@@ -16,6 +16,8 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public decimal? AdditionalCost { get; set; }
         public int? AdditionalDays { get; set; }
         public string Status { get; set; }
+        public string ReturnUrl { get; set; }
+
 
         public List<SparePart>? NeededParts { get; set; }
 

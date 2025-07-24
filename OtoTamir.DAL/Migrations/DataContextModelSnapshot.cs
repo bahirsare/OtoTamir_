@@ -182,7 +182,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("BalanceLogs");
+                    b.ToTable("BalanceLogs", (string)null);
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.Client", b =>
@@ -225,7 +225,7 @@ namespace OtoTamir.DAL.Migrations
                     b.HasIndex("MechanicId", "PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.PurchaseDetail", b =>
@@ -265,7 +265,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasIndex("SparePartId");
 
-                    b.ToTable("PurchaseDetails");
+                    b.ToTable("PurchaseDetails", (string)null);
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.RepairComment", b =>
@@ -314,7 +314,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasIndex("SymptomId");
 
-                    b.ToTable("RepairComments");
+                    b.ToTable("RepairComments", (string)null);
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.ServiceRecord", b =>
@@ -363,7 +363,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("ServiceRecords");
+                    b.ToTable("ServiceRecords", (string)null);
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.SparePart", b =>
@@ -413,7 +413,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasIndex("SymptomId");
 
-                    b.ToTable("SpareParts");
+                    b.ToTable("SpareParts", (string)null);
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.Symptom", b =>
@@ -462,7 +462,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasIndex("ServiceRecordId");
 
-                    b.ToTable("Symptoms");
+                    b.ToTable("Symptoms", (string)null);
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.Vehicle", b =>
@@ -508,7 +508,7 @@ namespace OtoTamir.DAL.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Identity.Mechanic", b =>

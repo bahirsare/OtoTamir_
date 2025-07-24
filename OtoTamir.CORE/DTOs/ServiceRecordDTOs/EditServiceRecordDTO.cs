@@ -1,7 +1,9 @@
-﻿using OtoTamir.CORE.Entities;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using OtoTamir.CORE.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +21,7 @@ namespace OtoTamir.CORE.DTOs.ServiceRecordDTOs
         public decimal AdditionalPriceNote { get; set; }
         public List<Symptom> SymptomList { get; set; }
         public List<RepairComment> RepairComments { get; set; }
+        public string ReturnUrl { get; set; }
     }
 }
 

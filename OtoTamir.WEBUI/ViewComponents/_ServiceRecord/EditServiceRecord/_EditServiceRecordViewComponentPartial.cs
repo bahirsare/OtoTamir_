@@ -24,7 +24,7 @@ namespace OtoTamir.WEBUI.ViewComponents._ServiceRecord.EditServiceRecord
             _mapper = mapper;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(int recordId)
+        public async Task<IViewComponentResult> InvokeAsync(int recordId,string returnUrl)
         {
             var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
             var record = await _serviceRecordService.GetOneAsync(id: recordId, mechanicId: mechanic.Id, includeSymptoms: true,includeVehicle:false);
@@ -33,6 +33,7 @@ namespace OtoTamir.WEBUI.ViewComponents._ServiceRecord.EditServiceRecord
                 TempData["Messaage"] = "Kayıt bulunamadı.";
             }
             var recordDTO = _mapper.Map<EditServiceRecordDTO>(record);
+            recordDTO.ReturnUrl = returnUrl;
             return View(recordDTO);
         }
     }
