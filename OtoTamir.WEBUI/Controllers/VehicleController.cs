@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.BLL.Concrete;
 using OtoTamir.CORE.DTOs.VehicleDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
@@ -50,24 +51,36 @@ namespace OtoTamir.WEBUI.Controllers
             {
 
                 TempData["Message"] = "Araç Eklenemedi. Lütfen bilgileri eksiksiz doldurun.";
+                if (URL[2]=="ClientDetails")
+                    return RedirectToAction(URL[2], URL[1], new { clientId = 3 });
                 return RedirectToAction(URL[2], URL[1]);
+                
             }
+            bool mustBeUnique = await _vehicleService
+   .AnyAsync(v => v.Plate == _model.Plate && v.ClientId == _model.ClientId);
 
-
-            var vehicle = _mapper.Map<Vehicle>(_model);
-
-            var result = await _vehicleService.CreateAsync(vehicle);
-
-            if (result > 0)
+            if (!mustBeUnique)
             {
-                TempData["Message"] = "Araç başarıyla eklendi.";
-            }
-            else
-            {
-                TempData["Message"] = "Araç eklenirken bir hata oluştu.";
-            }
 
-            return RedirectToAction(URL[2], URL[1]);
+                var vehicle = _mapper.Map<Vehicle>(_model);
+
+                var result = await _vehicleService.CreateAsync(vehicle);
+
+
+                if (result > 0)
+                {
+                    TempData["Message"] = "Araç başarıyla eklendi.";
+                }
+                else
+                {
+                    TempData["Message"] = "Araç eklenirken bir hata oluştu.";
+                }
+            }
+                if (URL[2] == "ClientDetails")
+                    return RedirectToAction(URL[2], URL[1], new { clientId = _model.ClientId });
+                return RedirectToAction(URL[2], URL[1]);
+            
+            
         }
         public async Task<IActionResult> UpdateVehicle(EditVehicleDTO _model)
         {
