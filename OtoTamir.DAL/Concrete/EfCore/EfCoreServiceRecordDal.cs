@@ -126,6 +126,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         {
             record.Status = "Tamamlandı";
             record.CompletedDate = DateTime.Now;
+            record.Vehicle.Client.Balance += record.Price;
         }
         else
         {

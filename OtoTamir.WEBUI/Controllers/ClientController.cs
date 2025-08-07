@@ -246,9 +246,9 @@ namespace OtoTamir.WEBUI.Controllers
 
 
             var balanceLogResult = await _balanceLogService.CreateAsync(log);
-            //var clientUpdateResult = await _clientService.UpdateAsync();
+            
 
-            if (balanceLogResult > 0 /*&& clientUpdateResult > 0*/)
+            if (balanceLogResult > 0)
             {
                 TempData["SuccessMessage"] = "Bakiye hareketi başarıyla kaydedildi.";
             }

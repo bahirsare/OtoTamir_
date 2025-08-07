@@ -157,9 +157,18 @@ public class ServiceRecordController : Controller
 
         
 
-
+        
         await _serviceRecordService.UpdateStatusAsync(symptom.ServiceRecordId,user.Id);
+        
         TempData["SuccessMessage"] = "İşlem başarılı! Kayıt güncellendi.";
+        var record = await _serviceRecordService.GetOneAsync(symptom.ServiceRecordId, user.Id,true, false);
+        if (record.Status == "Tamamlandı")
+        {
+            var client = await _clientService.GetOneAsync(record.Vehicle.ClientId,user.Id, false, false);
+            client.Balance += record.Price;
+            
+            await _clientService.UpdateAsync();
+        }
 
 
         return RedirectToAction(URL[2], URL[1]);
@@ -201,6 +210,7 @@ public class ServiceRecordController : Controller
             TempData["FailMessage"] = "Servis kaydı oluşturulamadı!";
             return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
         }
+        
 
         foreach (var item in model.Symptoms)
         {

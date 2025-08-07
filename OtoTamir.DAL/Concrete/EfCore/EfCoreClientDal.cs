@@ -75,4 +75,16 @@ public class EfCoreClientDal : EfCoreGenericRepositoryDal<Client, DataContext>, 
         }
         return query;
     }
+    public async Task<bool> UpdateBalanceAsync(string mechanicId, int clientId, decimal amount)
+    {
+        var client = await _context.Clients.FirstOrDefaultAsync(c => c.Id == clientId && c.MechanicId == mechanicId);
+        if (client == null)
+            return false;
+
+        client.Balance += amount;
+        _context.Clients.Update(client);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
 }
