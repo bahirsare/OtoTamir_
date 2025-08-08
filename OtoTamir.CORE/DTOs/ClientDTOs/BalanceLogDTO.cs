@@ -9,7 +9,13 @@ namespace OtoTamir.CORE.DTOs.ClientDTOs
 {
     public class BalanceLogDTO
     {
+        
+
         public Client Client { get; set; }
         public List<BalanceLog> BalanceLogs { get; set; }
+        public BalanceLogDTO()
+        {
+            BalanceLogs = new List<BalanceLog>();
+        }
     }
 }

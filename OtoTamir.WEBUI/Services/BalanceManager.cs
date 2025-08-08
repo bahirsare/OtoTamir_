@@ -1,63 +1,51 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using OtoTamir.BLL.Abstract;
+﻿using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
-using OtoTamir.CORE.Identity;
 
 namespace OtoTamir.WEBUI.Services
 {
     public class BalanceManager
     {
-        private readonly IClientService _clientService;
-        private readonly UserManager<Mechanic> _userManager;
-        private readonly IBalanceLogService _balanceLogService;
-        private readonly IMapper _mapper;
-
-        public BalanceManager(IClientService clientService, UserManager<Mechanic> userManager, IBalanceLogService balanceLogService, IMapper mapper)
+        
+        public async Task<BalanceLogDTO> UpdateBalanceAsync(Client client, decimal Amount)
         {
-            _clientService = clientService;
-            _userManager = userManager;
-            _balanceLogService = balanceLogService;
-            _mapper = mapper;
 
-        }
-        public async Task<bool> AddPayment(int ClientId, DateTime PaymentDate, decimal Amount)
-        {
-            
+            List<BalanceLog> log = new List<BalanceLog>();
 
-            var client = await _clientService.GetOneAsync(id: ClientId, mechanicId: user.Id, false, false);
-           
+
+
             decimal oldBalance = client.Balance;
-            decimal newBalance = oldBalance - Amount;
-
-
-            var log = new BalanceLog
+            decimal newBalance = oldBalance + Amount;
+            log.Add(new BalanceLog
             {
-                ClientId = ClientId,
-                PaymentDate = PaymentDate,
+                ClientId = client.Id,
+                PaymentDate = DateTime.Now,
                 Amount = Amount,
                 OldBalance = oldBalance,
                 NewBalance = newBalance
+            });
+
+            var result = new BalanceLogDTO
+            {
+                Client = client,
+                BalanceLogs = log
             };
+
 
 
             client.Balance = newBalance;
 
 
-            var balanceLogResult = await _balanceLogService.CreateAsync(log);
 
 
-            if (balanceLogResult > 0)
-            {
-                return true;
-            }
-            
-            
-            return false;
-            
 
-            
+
+
+
+            return result;
+
+
+
         }
 
 

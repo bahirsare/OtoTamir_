@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.BLL.Concrete;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.DTOs.SymptomDTOs;
@@ -19,8 +20,9 @@ public class ServiceRecordController : Controller
     private readonly ISymptomService _symptomService;
     private readonly IMapper _mapper;
     private readonly UserManager<Mechanic> _userManager;
+    private readonly IBalanceLogService _balanceLogService;
 
-    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager)
+    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager,IBalanceLogService balanceLogService)
     {
         _vehicleService = vehicleService;
         _clientService = clientService;
@@ -28,7 +30,8 @@ public class ServiceRecordController : Controller
         _symptomService = symptomService;
         _mapper = mapper;
         _userManager = userManager;
-    }
+        _balanceLogService= balanceLogService;
+}
 
 
     public async Task<IActionResult> Index(int? selectedClientId)
@@ -95,7 +98,7 @@ public class ServiceRecordController : Controller
 
     }
     [HttpPost]
-    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)
+    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO, BalanceManager balanceManager)
     {
         List<string> URL = WorkflowLogDTO.ReturnUrl.Split('/').ToList();
         if (!ModelState.IsValid)
@@ -164,9 +167,20 @@ public class ServiceRecordController : Controller
         var record = await _serviceRecordService.GetOneAsync(symptom.ServiceRecordId, user.Id,true, false);
         if (record.Status == "Tamamlandı")
         {
-            var client = await _clientService.GetOneAsync(record.Vehicle.ClientId,user.Id, false, false);
-            client.Balance += record.Price;
-            
+             var client = await _clientService.GetOneAsync(record.Vehicle.ClientId, user.Id, false, false);
+            var result = await balanceManager.UpdateBalanceAsync(client,record.Price);
+
+            var balanceLogResult = await _balanceLogService.CreateAsync(result.BalanceLogs[0]);
+
+
+            if (balanceLogResult > 0)
+            {
+                TempData["SuccessMessage"] = "Bakiye hareketi başarıyla kaydedildi.";
+            }
+            else
+            {
+                TempData["FailMessage"] = "Kayıt sırasında hata oluştu.";
+            }
             await _clientService.UpdateAsync();
         }
 

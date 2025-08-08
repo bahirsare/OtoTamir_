@@ -5,6 +5,8 @@ using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
+using OtoTamir.WEBUI.Services;
+using System.Security.Permissions;
 
 namespace OtoTamir.WEBUI.Controllers
 {
@@ -14,14 +16,15 @@ namespace OtoTamir.WEBUI.Controllers
         private readonly UserManager<Mechanic> _userManager;
         private readonly IBalanceLogService _balanceLogService;
         private readonly IMapper _mapper;
+        
 
-        public ClientController(IClientService clientService, UserManager<Mechanic> userManager, IBalanceLogService balanceLogService, IMapper mapper)
+        public ClientController(IClientService clientService, UserManager<Mechanic> userManager, IBalanceLogService balanceLogService, IMapper mapper, BalanceManager balanceManager)
         {
             _clientService = clientService;
             _userManager = userManager;
             _balanceLogService = balanceLogService;
             _mapper = mapper;
-
+           
         }
         public async Task<IActionResult> Clients(string sortOrder, string searchString)
         {
@@ -261,6 +264,6 @@ namespace OtoTamir.WEBUI.Controllers
         }
 
 
-
+        
     }
 }
