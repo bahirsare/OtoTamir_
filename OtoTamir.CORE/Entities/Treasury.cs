@@ -21,7 +21,7 @@ namespace OtoTamir.CORE.Entities
     public class Treasury:BaseEntity
     {
         
-        public int MechanicId { get; set; }
+        public string MechanicId { get; set; }
         public Mechanic Mechanic { get; set; }
 
         public decimal CashBalance { get; set; }

@@ -43,6 +43,11 @@ namespace OtoTamir.BLL.Concrete
             return _treasuryTransactionService.GetOneAsync(id, mechanicId);
         }
 
+        public async Task<decimal> GetTotalBalanceAsync(int treasuryId)
+        {
+            return await _treasuryTransactionService.GetTotalBalanceAsync(treasuryId);
+        }
+
         public async Task<int> UpdateAsync()
         {
             return await _treasuryTransactionService.UpdateAsync();

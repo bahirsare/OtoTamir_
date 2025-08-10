@@ -10,8 +10,7 @@ namespace OtoTamir.BLL.Abstract
         int id,
         string mechanicId);
         Task<List<Bank>> GetAllAsync(
-        string mechanicId,
-        ,
+        string mechanicId,int treasuryId,
         Expression<Func<Bank, bool>> filter = null
         );
     }

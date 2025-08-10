@@ -19,18 +19,18 @@ namespace OtoTamir.DAL.Concrete.EfCore
         int id,
         string mechanicId)
         {
-            var query = _context.Banks.Where(b => b.Id == id && b.MechanicId == mechanicId);
+            var query = _context.Banks.Where(b => b.Id == id && b.Treasury.MechanicId ==mechanicId);
 
             return await query.FirstOrDefaultAsync();
         }
         public async Task<List<Bank>> GetAllAsync(
         string mechanicId,
-        int clientId,
+        int treasuryId,
         Expression<Func<Bank, bool>> filter = null
         )
         {
             var query = _context.Banks
-                .Where(b => b.MechanicId == mechanicId);
+                .Where(b =>b.TreasuryId==treasuryId&& b.Treasury.MechanicId == mechanicId);
 
 
 
