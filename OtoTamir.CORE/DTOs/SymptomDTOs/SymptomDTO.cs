@@ -11,7 +11,9 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal EstimatedCost { get; set; }
-        public string PossibleSolution { get; set; }
         public int EstimatedDaysToFix { get; set; }
+        
+        public bool IsComplated { get; set; }
+        public string PaymentMethod { get; set; }
     }
 }

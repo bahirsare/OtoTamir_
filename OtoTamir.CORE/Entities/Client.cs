@@ -29,6 +29,7 @@ namespace OtoTamir.CORE.Entities
         public decimal Amount { get; set; }
         public decimal NewBalance { get; set; }
         public decimal OldBalance { get; set; }
+        public string Description { get; set; }
         public Client Client { get; set; }
         public int ClientId {  get; set; }
 

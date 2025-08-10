@@ -18,7 +18,7 @@ namespace OtoTamir.WEBUI.Controllers
         private readonly IMapper _mapper;
         
 
-        public ClientController(IClientService clientService, UserManager<Mechanic> userManager, IBalanceLogService balanceLogService, IMapper mapper, BalanceManager balanceManager)
+        public ClientController(IClientService clientService, UserManager<Mechanic> userManager, IBalanceLogService balanceLogService, IMapper mapper)
         {
             _clientService = clientService;
             _userManager = userManager;
