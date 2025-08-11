@@ -33,9 +33,9 @@ namespace OtoTamir.BLL.Concrete
             return _treasuryTransactionService.Delete(id);
         }
 
-        public Task<List<TreasuryTransaction>> GetAllAsync(string mechanicId, int clientId, Expression<Func<TreasuryTransaction, bool>> filter = null)
+        public Task<List<TreasuryTransaction>> GetAllAsync(string mechanicId, int treasuryId, Expression<Func<TreasuryTransaction, bool>> filter = null)
         {
-            return _treasuryTransactionService.GetAllAsync(mechanicId, clientId, filter);
+            return _treasuryTransactionService.GetAllAsync(mechanicId, treasuryId, filter);
         }
 
         public Task<TreasuryTransaction> GetOneAsync(int id, string mechanicId)
