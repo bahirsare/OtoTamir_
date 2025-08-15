@@ -2,22 +2,7 @@
 
 namespace OtoTamir.CORE.Entities
 {
-    //public class Treasury : BaseEntity
-    //{
-      
-
-    //    public string Name { get; set; }
-    //    public decimal TotalReceivables { get; set; }
-    //    public decimal CashBalance { get; set; }
-    //    public decimal TotalBalance => CashBalance + BankAccounts.Sum(b => b.Balance);
-    //    public decimal NetWorth => TotalBalance + TotalReceivables;
-
-    //    public Mechanic Mechanic { get; set; }
-    //    public string MechanicId { get; set; }
-
-    //    public List<Bank> BankAccounts { get; set; }
-    //    
-    //}
+   
     public class Treasury:BaseEntity
     {
         

@@ -15,5 +15,7 @@ namespace OtoTamir.DAL.Abstract
         Task<TreasuryTransaction> GetOneAsync(
         int id,
         string mechanicId);
+        Task<List<TreasuryTransaction>> GetByPaymentSourceAsync(int treasuryId, string mechanicId, PaymentSource source);
+        Task<List<TreasuryTransaction>> GetByDateRangeAsync(int treasuryId, string mechanicId, DateTime start, DateTime end);
     }
 }

@@ -13,13 +13,13 @@ namespace OtoTamir.DAL.Abstract
 {
     public interface ITreasuryDal:IRepositoryService<Treasury>
     {
-        Task<decimal> GetTotalBalanceAsync(int treasuryId);
-        Task<List<TreasuryTransaction>> GetAllAsync(
+        Task<decimal> GetTotalBalanceAsync(int treasuryId,string mechanicId);
+        Task<List<Treasury>> GetAllAsync(
         string mechanicId,
         int treasuryId,
-        Expression<Func<TreasuryTransaction, bool>> filter = null
+        Expression<Func<Treasury, bool>> filter = null
         );
-        Task<TreasuryTransaction> GetOneAsync(
+        Task<Treasury> GetOneAsync(
         int id,
         string mechanicId);
     }

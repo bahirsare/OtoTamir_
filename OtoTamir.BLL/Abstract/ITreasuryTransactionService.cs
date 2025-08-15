@@ -15,5 +15,9 @@ namespace OtoTamir.BLL.Abstract
         int id,
         string mechanicId);
         Task<decimal> GetTotalBalanceAsync(int treasuryId);
+        Task<List<TreasuryTransaction>> GetByPaymentSourceAsync(int treasuryId, string mechanicId, PaymentSource source);
+        Task<List<TreasuryTransaction>> GetByDateRangeAsync(int treasuryId, string mechanicId, DateTime start, DateTime end);
+        Task AddCardTransactionAsync(TreasuryTransaction transaction);
+        Task AddTransactionAsync(TreasuryTransaction transaction);
     }
 }

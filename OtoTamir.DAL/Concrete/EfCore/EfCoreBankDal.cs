@@ -15,6 +15,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
         {
             _context = context;
         }
+        public override async Task<int> CreateAsync(Bank bank)
+        {
+            bank.CreatedDate = DateTime.Now;
+            bank.ModifiedDate = DateTime.Now;
+            return await base.CreateAsync(bank);
+        }
         public async Task<Bank> GetOneAsync(
         int id,
         string mechanicId)

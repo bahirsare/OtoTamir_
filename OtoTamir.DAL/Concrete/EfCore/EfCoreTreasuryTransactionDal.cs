@@ -54,5 +54,18 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 .SumAsync(t => t.Amount);
         }
 
+        public async Task<List<TreasuryTransaction>> GetByPaymentSourceAsync(int treasuryId, string mechanicId, PaymentSource source)
+        {
+            return await _context.Transactions
+          .Where(t => t.TreasuryId == treasuryId &&t.Treasury.MechanicId==mechanicId && t.PaymentSource == source)
+          .ToListAsync();
+        }
+
+        public async Task<List<TreasuryTransaction>> GetByDateRangeAsync(int treasuryId, string mechanicId, DateTime start, DateTime end)
+        {
+            return await _context.Transactions
+            .Where(t => t.TreasuryId == treasuryId && t.Treasury.MechanicId == mechanicId && t.TransactionDate >= start && t.TransactionDate <= end)
+            .ToListAsync();
+        }
     }
 }

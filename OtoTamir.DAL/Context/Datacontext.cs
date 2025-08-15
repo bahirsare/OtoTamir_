@@ -45,8 +45,10 @@ namespace OtoTamir.DAL.Context
         public DbSet<SparePart> SpareParts { get; set; }
         public DbSet<BalanceLog> BalanceLogs { get; set; }
         public DbSet<Bank> Banks { get; set; }
+        public DbSet<BankCard> BankCards { get; set; }
         public DbSet<TransactionCategory> TransactionCategories  { get; set; }
         public DbSet<TreasuryTransaction> Transactions  { get; set; }
+        public DbSet<Treasury> Treasuries { get; set; }
         
         public override int SaveChanges()
         {
