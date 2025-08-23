@@ -1,5 +1,6 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
+using OtoTamir.DAL.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,41 +12,41 @@ namespace OtoTamir.BLL.Concrete
 {
     public class BankCardService : IBankCardService
     {
-        private readonly IBankCardService _bankCardService;
+        private readonly IBankCardDal _bankCardDal;
 
-        public BankCardService(IBankCardService bankCardService)
+        public BankCardService(IBankCardDal bankCardDal)
         {
-            _bankCardService = bankCardService;
+            _bankCardDal = bankCardDal;
         }
 
         public async Task<bool> AnyAsync(Expression<Func<BankCard, bool>> filter)
         {
-            return await _bankCardService.AnyAsync(filter);
+            return await _bankCardDal.AnyAsync(filter);
         }
 
         public async Task<int> CreateAsync(BankCard entity)
         {
-           return await _bankCardService.CreateAsync(entity);
+           return await _bankCardDal.CreateAsync(entity);
         }
 
         public int Delete(int id)
         {
-           return _bankCardService.Delete(id);
+           return _bankCardDal.Delete(id);
         }
 
         public async Task<List<BankCard>> GetAllAsync(string mechanicId, int treasuryId, Expression<Func<BankCard, bool>> filter = null)
         {
-          return await _bankCardService.GetAllAsync(mechanicId, treasuryId, filter);
+          return await _bankCardDal.GetAllAsync(mechanicId, treasuryId, filter);
         }
 
         public async Task<BankCard> GetOneAsync(int id, string mechanicId)
         {
-            return await _bankCardService.GetOneAsync(id, mechanicId);
+            return await _bankCardDal.GetOneAsync(id, mechanicId);
         }
 
         public async Task<int> UpdateAsync()
         {
-           return await _bankCardService.UpdateAsync();
+           return await _bankCardDal.UpdateAsync();
         }
     }
 }

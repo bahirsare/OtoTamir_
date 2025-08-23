@@ -42,6 +42,18 @@ namespace OtoTamir.WEBUI
             
             builder.Services.AddScoped<IBalanceLogDal, EfCoreBalanceLogDal>();
             builder.Services.AddScoped<IBalanceLogService, BalanceLogService>();
+            
+            builder.Services.AddScoped<IBankCardDal, EfCoreBankCardDal>();
+            builder.Services.AddScoped<IBankCardService, BankCardService>();
+            
+            builder.Services.AddScoped<IBankDal, EfCoreBankDal>();
+            builder.Services.AddScoped<IBankService, BankService>();
+            
+            builder.Services.AddScoped<ITreasuryTransactionDal, EfCoreTreasuryTransactionDal>();
+            builder.Services.AddScoped<ITreasuryTransactionService, TreasuryTransactionService>();
+            
+            builder.Services.AddScoped<ITreasuryDal, EfCoreTreasuryDal>();
+            builder.Services.AddScoped<ITreasuryService, TreasuryService>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
