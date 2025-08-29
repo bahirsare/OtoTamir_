@@ -22,6 +22,10 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public string ReturnController { get; set; }
         public string ReturnAction { get; set; }
         public int? ReturnId { get; set; }
+        public bool IsCompleted { get; set; }
+        public string? PaymentMethod { get; set; }
+        public string? Bank { get; set; }
+
 
         public CreateSymptomGroupDTO()
         {

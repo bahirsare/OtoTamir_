@@ -1,6 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
+using OtoTamir.DAL.Migrations;
 using System.Linq.Expressions;
 
 namespace OtoTamir.BLL.Concrete
@@ -8,9 +9,11 @@ namespace OtoTamir.BLL.Concrete
     public class ServiceRecordService : IServiceRecordService
     {
         private readonly IServiceRecordDal _serviceRecordDal;
-        public ServiceRecordService(IServiceRecordDal serviceRecordDal)
+        private readonly ITreasuryTransactionService _treasuryTransactionService;
+        public ServiceRecordService(IServiceRecordDal serviceRecordDal, ITreasuryTransactionService treasuryTransactionService)
         {
             _serviceRecordDal = serviceRecordDal;
+            _treasuryTransactionService = treasuryTransactionService;
         }
 
         public async Task<bool> AnyAsync(Expression<Func<ServiceRecord, bool>> filter)
@@ -25,7 +28,7 @@ namespace OtoTamir.BLL.Concrete
 
         public int Delete(int id)
         {
-            return  _serviceRecordDal.Delete(id);
+            return _serviceRecordDal.Delete(id);
         }
 
 
@@ -48,10 +51,27 @@ namespace OtoTamir.BLL.Concrete
         public async Task<int> UpdateAsync()
         {
             return await _serviceRecordDal.UpdateAsync();
+
         }
         public async Task UpdateStatusAsync(int id, string mechanicId)
         {
             await _serviceRecordDal.UpdateStatusAsync(id, mechanicId);
+            var record = await _serviceRecordDal.GetOneAsync(id, mechanicId, false, true);
+            if (record == null)
+                throw new Exception("Servis kaydı bulunamadı.");
+            if (record.Status == "Tamamlandı")
+            {
+                var transaction = new TreasuryTransaction
+                {
+                    TreasuryId = (int)record.Vehicle.Client.Mechanic.TreasuryId,  // mekanikten alınacak
+                    TransactionType = TransactionType.Incoming,
+                    Amount = record.Price, // örnek: kayıttaki fiyat
+                    PaymentSource = PaymentSource.Cash, // ödeme şekli senin mantığına göre
+                    TransactionDate = DateTime.Now
+                };
+
+                await _treasuryTransactionService.AddTransactionAsync(transaction);
+            }
         }
     }
 }

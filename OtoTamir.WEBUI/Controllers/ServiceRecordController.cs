@@ -217,14 +217,17 @@ public class ServiceRecordController : Controller
             Status = "Devam Ediyor",
             AuthorName = model.AuthorName
         };
-
+        
         var result = await _serviceRecordService.CreateAsync(serviceRecord);
         if (result == 0)
         {
             TempData["FailMessage"] = "Servis kaydı oluşturulamadı!";
             return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
         }
-        
+        if (model.IsCompleted) {
+            await _serviceRecordService.UpdateStatusAsync(serviceRecord.Id, user.Id);
+            
+        }
 
         foreach (var item in model.Symptoms)
         {

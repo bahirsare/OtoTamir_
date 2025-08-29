@@ -32,8 +32,43 @@
                     <button type="submit" class="btn btn-success btn-sm flex-shrink-0">
                         <i class="bi bi-check-circle">Kaydet</i>
                     </button>
+
                 </div>
+                <div class="d-flex flex-wrap gap-2 ms-auto">
+                    <div style="width: 140px;">
+                        <label asp-for="IsCompleted" class="form-label fw-semibold mb-1 d-block">Tamamlandı</label>
+                        <div class="form-check">
+                            <input type="checkbox"
+                                   asp-for="IsCompleted"
+                                   class="form-check-input"
+                                    />
+                        </div>
+                    </div>
+
+                    <div style="width: 160px;">
+                        <label class="form-label fw-semibold mb-1">Ödeme Yöntemi</label>
+                        <select asp-for="PaymentMethod" class="form-select form-select-sm payment-method" disabled>
+                            <option value="">Seçiniz</option>
+                            <option value="Nakit">Nakit</option>
+                            <option value="Banka">Banka</option>
+                            <option value="Bakiye">Bakiye</option>
+                        </select>
+
+                        <!-- Banka seçimi, aynı hücre içinde altına yerleşecek -->
+                        <div class="bank-selection-group mt-2"  style="display: none;">
+                            <label class="form-label fw-semibold mb-1">Banka</label>
+                            <select asp-for="Bank" class="form-select form-select-sm">
+                                <option value="">Seçiniz</option>
+                                <option value="Ziraat">Ziraat</option>
+                                <option value="İş Bankası">İş Bankası</option>
+                                <option value="Garanti">Garanti</option>
+                            </select>
+                        </div>
+                    </div>
+
+
             </div>
+
         </div>
     </div>
 </form>

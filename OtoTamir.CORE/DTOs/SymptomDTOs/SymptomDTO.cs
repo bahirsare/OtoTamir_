@@ -13,7 +13,7 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public decimal EstimatedCost { get; set; }
         public int EstimatedDaysToFix { get; set; }
         
-        public bool IsComplated { get; set; }
-        public string PaymentMethod { get; set; }
+        public bool IsCompleted { get; set; }
+        public string? PaymentMethod { get; set; }
     }
 }

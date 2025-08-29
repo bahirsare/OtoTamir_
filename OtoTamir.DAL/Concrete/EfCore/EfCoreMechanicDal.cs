@@ -26,24 +26,24 @@ namespace OtoTamir.DAL.Concrete.EfCore
         {
             return await _userManager.FindByIdAsync(id);
         }
-        
+
 
         public async Task<List<Mechanic>> GetAllAsync(
-            bool includeClient ,
-            bool includeVehicle ,
+            bool includeClient,
+            bool includeVehicle,
             Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy = null,
-            Expression<Func<Mechanic, bool>> filter = null          
+            Expression<Func<Mechanic, bool>> filter = null
             )
         {
             var query = _context.Mechanics.AsQueryable();
 
-           
+
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            
+
             if (includeClient)
             {
                 var clientInclude = query.Include(m => m.Clients);
@@ -53,7 +53,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
                     : clientInclude;
             }
 
-            
+
             if (orderBy != null)
             {
                 query = orderBy(query);
@@ -83,19 +83,28 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now,
                 IsProfileCompleted = false,
-                ImageUrl = "avatar.png"
+                ImageUrl = "avatar.png",
+
             };
 
             var result = await _userManager.CreateAsync(mechanic, password);
 
             if (result.Succeeded)
             {
+                mechanic.Treasury = new Treasury
+                {
+                    BankBalance = 0,
+                    CashBalance = 0,
+                    ReceivablesBalance = 0,
+                    CreatedDate = DateTime.Now,
+                    MechanicId = mechanic.Id  
+                };
                 return (true, password, new List<string>());
             }
 
             var errors = result.Errors.Select(e => e.Description).ToList();
             return (false, password, errors);
-        }   
+        }
 
         public string GenerateRandomPassword()
         {
@@ -105,6 +114,6 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        
+
     }
 }
