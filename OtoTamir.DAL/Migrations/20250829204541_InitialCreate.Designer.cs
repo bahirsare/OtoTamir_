@@ -12,8 +12,8 @@ using OtoTamir.DAL.Context;
 namespace OtoTamir.DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250524134159_ServiceRecords-AuthorName-added")]
-    partial class ServiceRecordsAuthorNameadded
+    [Migration("20250829204541_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,6 +158,134 @@ namespace OtoTamir.DAL.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("OtoTamir.CORE.Entities.BalanceLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("NewBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("OldBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("BalanceLogs");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.Bank", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Iban")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MechanicId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OwnerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TreasuryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MechanicId");
+
+                    b.HasIndex("TreasuryId");
+
+                    b.ToTable("Banks");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.BankCard", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BankId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("BillingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CardName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Debt")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Last4Digit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Limit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BankId");
+
+                    b.ToTable("BankCards");
+                });
+
             modelBuilder.Entity("OtoTamir.CORE.Entities.Client", b =>
                 {
                     b.Property<int>("Id")
@@ -249,6 +377,12 @@ namespace OtoTamir.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("AdditionalCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("AdditionalDays")
+                        .HasColumnType("int");
+
                     b.Property<string>("AuthorName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -265,6 +399,10 @@ namespace OtoTamir.DAL.Migrations
 
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SymptomId")
                         .HasColumnType("int");
@@ -291,6 +429,9 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<string>("AuthorName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -391,7 +532,6 @@ namespace OtoTamir.DAL.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("EstimatedCost")
@@ -407,21 +547,128 @@ namespace OtoTamir.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PossibleSolution")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ServiceRecordId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ServiceRecordId");
 
                     b.ToTable("Symptoms");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.TransactionCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TransactionCategories");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.Treasury", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("BankBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CashBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MechanicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("ReceivablesBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Treasuries");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.TreasuryTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("BankCardId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BankId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentSource")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TransactionCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TreasuryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BankCardId");
+
+                    b.HasIndex("BankId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("TransactionCategoryId");
+
+                    b.HasIndex("TreasuryId");
+
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.Vehicle", b =>
@@ -544,6 +791,9 @@ namespace OtoTamir.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("TreasuryId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -560,6 +810,10 @@ namespace OtoTamir.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("TreasuryId")
+                        .IsUnique()
+                        .HasFilter("[TreasuryId] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -613,6 +867,43 @@ namespace OtoTamir.DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.BalanceLog", b =>
+                {
+                    b.HasOne("OtoTamir.CORE.Entities.Client", "Client")
+                        .WithMany("BalanceLogs")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.Bank", b =>
+                {
+                    b.HasOne("OtoTamir.CORE.Identity.Mechanic", null)
+                        .WithMany("Banks")
+                        .HasForeignKey("MechanicId");
+
+                    b.HasOne("OtoTamir.CORE.Entities.Treasury", "Treasury")
+                        .WithMany("BankAccounts")
+                        .HasForeignKey("TreasuryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Treasury");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.BankCard", b =>
+                {
+                    b.HasOne("OtoTamir.CORE.Entities.Bank", "Bank")
+                        .WithMany("Cards")
+                        .HasForeignKey("BankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bank");
                 });
 
             modelBuilder.Entity("OtoTamir.CORE.Entities.Client", b =>
@@ -677,6 +968,39 @@ namespace OtoTamir.DAL.Migrations
                     b.Navigation("ServiceRecord");
                 });
 
+            modelBuilder.Entity("OtoTamir.CORE.Entities.TreasuryTransaction", b =>
+                {
+                    b.HasOne("OtoTamir.CORE.Entities.BankCard", "BankCard")
+                        .WithMany()
+                        .HasForeignKey("BankCardId");
+
+                    b.HasOne("OtoTamir.CORE.Entities.Bank", "Bank")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
+                    b.HasOne("OtoTamir.CORE.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId");
+
+                    b.HasOne("OtoTamir.CORE.Entities.TransactionCategory", null)
+                        .WithMany("Transactions")
+                        .HasForeignKey("TransactionCategoryId");
+
+                    b.HasOne("OtoTamir.CORE.Entities.Treasury", "Treasury")
+                        .WithMany("Transactions")
+                        .HasForeignKey("TreasuryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bank");
+
+                    b.Navigation("BankCard");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Treasury");
+                });
+
             modelBuilder.Entity("OtoTamir.CORE.Entities.Vehicle", b =>
                 {
                     b.HasOne("OtoTamir.CORE.Entities.Client", "Client")
@@ -688,8 +1012,24 @@ namespace OtoTamir.DAL.Migrations
                     b.Navigation("Client");
                 });
 
+            modelBuilder.Entity("OtoTamir.CORE.Identity.Mechanic", b =>
+                {
+                    b.HasOne("OtoTamir.CORE.Entities.Treasury", "Treasury")
+                        .WithOne("Mechanic")
+                        .HasForeignKey("OtoTamir.CORE.Identity.Mechanic", "TreasuryId");
+
+                    b.Navigation("Treasury");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.Bank", b =>
+                {
+                    b.Navigation("Cards");
+                });
+
             modelBuilder.Entity("OtoTamir.CORE.Entities.Client", b =>
                 {
+                    b.Navigation("BalanceLogs");
+
                     b.Navigation("Vehicles");
                 });
 
@@ -710,6 +1050,21 @@ namespace OtoTamir.DAL.Migrations
                     b.Navigation("ServiceWorkflowLogs");
                 });
 
+            modelBuilder.Entity("OtoTamir.CORE.Entities.TransactionCategory", b =>
+                {
+                    b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("OtoTamir.CORE.Entities.Treasury", b =>
+                {
+                    b.Navigation("BankAccounts");
+
+                    b.Navigation("Mechanic")
+                        .IsRequired();
+
+                    b.Navigation("Transactions");
+                });
+
             modelBuilder.Entity("OtoTamir.CORE.Entities.Vehicle", b =>
                 {
                     b.Navigation("ServiceRecords");
@@ -717,6 +1072,8 @@ namespace OtoTamir.DAL.Migrations
 
             modelBuilder.Entity("OtoTamir.CORE.Identity.Mechanic", b =>
                 {
+                    b.Navigation("Banks");
+
                     b.Navigation("Clients");
                 });
 #pragma warning restore 612, 618

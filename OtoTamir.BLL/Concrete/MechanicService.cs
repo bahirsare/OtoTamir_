@@ -12,16 +12,20 @@ namespace OtoTamir.BLL.Concrete
     {
         private readonly IMechanicDal _mechanicDal;
         private readonly UserManager<Mechanic> _userManager;
+        private readonly ITreasuryService _treasuryService; 
 
-        public MechanicService(IMechanicDal mechanicDal, UserManager<Mechanic> userManager)
+        public MechanicService(IMechanicDal mechanicDal, UserManager<Mechanic> userManager, ITreasuryService treasuryService)
         {
             _mechanicDal = mechanicDal;
             _userManager = userManager;
+            _treasuryService = treasuryService;
         }
 
         public async Task<int> CreateAsync(Mechanic mechanic)
         {
-            return await _mechanicDal.CreateAsync(mechanic);
+             return await _mechanicDal.CreateAsync(mechanic);
+           
+
         }
 
         public  int Delete(int id)
@@ -60,7 +64,21 @@ namespace OtoTamir.BLL.Concrete
 
         public async Task<(bool Success, string Password, List<string> Errors)> CreateMechanicAsync(string storeName)
         {
-            return await _mechanicDal.CreateMechanicAsync(storeName);
+            var result = await _mechanicDal.CreateMechanicAsync(storeName);
+            var mechanic = await _mechanicDal.GetAllAsync(false,false,null,m => m.StoreName == storeName);
+            var treasury = new Treasury
+            {
+                BankBalance = 0,
+                CashBalance = 0,
+                ReceivablesBalance = 0,
+                CreatedDate = DateTime.Now,
+                MechanicId = mechanic[0].Id
+            };
+            var treasuryResult = await _treasuryService.CreateAsync(treasury);
+           
+                return result;
+          
+
         }
 
         public string GenerateRandomPassword()

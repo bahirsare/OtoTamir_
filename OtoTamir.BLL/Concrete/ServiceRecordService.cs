@@ -1,7 +1,6 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
-using OtoTamir.DAL.Migrations;
 using System.Linq.Expressions;
 
 namespace OtoTamir.BLL.Concrete
@@ -10,10 +9,12 @@ namespace OtoTamir.BLL.Concrete
     {
         private readonly IServiceRecordDal _serviceRecordDal;
         private readonly ITreasuryTransactionService _treasuryTransactionService;
-        public ServiceRecordService(IServiceRecordDal serviceRecordDal, ITreasuryTransactionService treasuryTransactionService)
+        private readonly IMechanicService _mechanicService;
+        public ServiceRecordService(IServiceRecordDal serviceRecordDal, ITreasuryTransactionService treasuryTransactionService, IMechanicService mechanicService)
         {
             _serviceRecordDal = serviceRecordDal;
             _treasuryTransactionService = treasuryTransactionService;
+            _mechanicService = mechanicService;
         }
 
         public async Task<bool> AnyAsync(Expression<Func<ServiceRecord, bool>> filter)
@@ -56,14 +57,15 @@ namespace OtoTamir.BLL.Concrete
         public async Task UpdateStatusAsync(int id, string mechanicId)
         {
             await _serviceRecordDal.UpdateStatusAsync(id, mechanicId);
-            var record = await _serviceRecordDal.GetOneAsync(id, mechanicId, false, true);
+            var record = await _serviceRecordDal.GetOneAsync(id, mechanicId, true, true);
             if (record == null)
                 throw new Exception("Servis kaydı bulunamadı.");
             if (record.Status == "Tamamlandı")
             {
+                var mechanic =await _mechanicService.GetOneAsync(mechanicId);
                 var transaction = new TreasuryTransaction
                 {
-                    TreasuryId = (int)record.Vehicle.Client.Mechanic.TreasuryId,  // mekanikten alınacak
+                    TreasuryId = (int)mechanic.TreasuryId,  // mekanikten alınacak
                     TransactionType = TransactionType.Incoming,
                     Amount = record.Price, // örnek: kayıttaki fiyat
                     PaymentSource = PaymentSource.Cash, // ödeme şekli senin mantığına göre

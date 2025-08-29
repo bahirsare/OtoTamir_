@@ -25,6 +25,8 @@ namespace OtoTamir.CORE.Identity
         {
             Clients = new List<Client>();
             Banks = new List<Bank>();
+            Treasury = new Treasury();
+          
         }
     }
 }

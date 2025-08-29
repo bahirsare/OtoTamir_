@@ -99,6 +99,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
                     CreatedDate = DateTime.Now,
                     MechanicId = mechanic.Id  
                 };
+                
                 return (true, password, new List<string>());
             }
 

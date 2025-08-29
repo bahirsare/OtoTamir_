@@ -224,17 +224,19 @@ public class ServiceRecordController : Controller
             TempData["FailMessage"] = "Servis kaydı oluşturulamadı!";
             return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
         }
-        if (model.IsCompleted) {
-            await _serviceRecordService.UpdateStatusAsync(serviceRecord.Id, user.Id);
-            
-        }
 
         foreach (var item in model.Symptoms)
         {
             var symptom = _mapper.Map<Symptom>(item);
             symptom.ServiceRecordId = serviceRecord.Id;
-            symptom.Status = "Devam Ediyor";
-
+            if (model.IsCompleted)
+            {
+                symptom.Status = "Tamamlandı";
+            }
+            else
+            {
+                symptom.Status = "Devam Ediyor";
+            }
 
             var symptomResult = await _symptomService.CreateAsync(symptom);
             if (symptomResult == 0)
@@ -242,8 +244,10 @@ public class ServiceRecordController : Controller
                 TempData["FailMessage"] = "Semptom oluşturulamadı!";
                 break;
             }
+            await _serviceRecordService.UpdateStatusAsync(serviceRecord.Id, user.Id);
         }
 
+       
         TempData["SuccessMessage"] = "Servis kaydı ve semptomlar başarıyla oluşturuldu!";
         return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
     }
