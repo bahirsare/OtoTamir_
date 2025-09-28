@@ -197,13 +197,13 @@ public class ServiceRecordController : Controller
         if (vehicle == null)
         {
             TempData["FailMessage"] = "Araç bulunamadı!";
-            return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
+            return RedirectToAction(model.ReturnAction, model.ReturnController, new { vehicleId = model.ReturnId });
         }
 
         if (!ModelState.IsValid)
         {
             TempData["FailMessage"] = "Girilen bilgiler geçersiz veya eksik.";
-            return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
+            return RedirectToAction(model.ReturnAction, model.ReturnController, new { vehicleId = model.ReturnId });
         }
 
         var totalCost = model.Symptoms.Sum(s => s.EstimatedCost);
@@ -222,7 +222,7 @@ public class ServiceRecordController : Controller
         if (result == 0)
         {
             TempData["FailMessage"] = "Servis kaydı oluşturulamadı!";
-            return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
+            return RedirectToAction(model.ReturnAction, model.ReturnController, new { vehicleId = model.ReturnId });
         }
 
         foreach (var item in model.Symptoms)
@@ -249,7 +249,7 @@ public class ServiceRecordController : Controller
 
        
         TempData["SuccessMessage"] = "Servis kaydı ve semptomlar başarıyla oluşturuldu!";
-        return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
+        return RedirectToAction(model.ReturnAction, model.ReturnController, new { vehicleId = model.ReturnId });
     }
 
 
