@@ -173,33 +173,15 @@ public class ServiceRecordController : Controller
                 ServiceRecordId = symptom.ServiceRecordId,
                 MechanicId = user.Id,
                 PaymentMethod = WorkflowLogDTO.PaymentMethod, 
-                BankId = WorkflowLogDTO.BankId
+                BankId = WorkflowLogDTO.BankId,
+                AuthorName= WorkflowLogDTO.AuthorName
             };
 
             
             await _processManager.CompleteServiceProcessAsync(completionModel);
         }
 
-        //TempData["SuccessMessage"] = "İşlem başarılı! Kayıt güncellendi.";
-        //var record = await _serviceRecordService.GetOneAsync(symptom.ServiceRecordId, user.Id,true, false);
-        //if (record.Status == "Tamamlandı")
-        //{
-        //     var client = await _clientService.GetOneAsync(record.Vehicle.ClientId, user.Id, false, false);
-        //    var result = await balanceManager.UpdateBalanceAsync(client,record.Price);
-
-        //    var balanceLogResult = await _balanceLogService.CreateAsync(result.BalanceLogs[0]);
-
-
-        //    if (balanceLogResult > 0)
-        //    {
-        //        TempData["SuccessMessage"] = "Bakiye hareketi başarıyla kaydedildi.";
-        //    }
-        //    else
-        //    {
-        //        TempData["FailMessage"] = "Kayıt sırasında hata oluştu.";
-        //    }
-        //    await _clientService.UpdateAsync();
-        //}
+      
 
         TempData["SuccessMessage"] = "İşlem günlüğü başarıyla eklendi.";
         return RedirectToAction(URL[2], URL[1]);
@@ -266,7 +248,7 @@ public class ServiceRecordController : Controller
 
        
         TempData["SuccessMessage"] = "Servis kaydı ve semptomlar başarıyla oluşturuldu!";
-        return RedirectToAction(model.ReturnAction, model.ReturnController, new { vehicleId = model.ReturnId });
+        return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
     }
 
 

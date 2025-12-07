@@ -32,29 +32,20 @@ namespace OtoTamir.BLL.Managers
 
         public async Task CompleteServiceProcessAsync(ServiceCompletionDTO model)
         {
-            // Transaction başlatıyoruz: Hata olursa her şeyi geri alabilmek için.
+          
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    // 1. Servis Kaydını Bul
+                   
                     var record = await _serviceRecordService.GetOneAsync(model.ServiceRecordId, model.MechanicId, true, false);
                     if (record == null) throw new Exception("Servis kaydı bulunamadı.");
-                    //if (record.Status == "Tamamlandı") throw new Exception("Bu servis zaten tamamlanmış.");
-
-                    //// 2. Servis Durumunu Güncelle (Sadece statü değişir, para işlemi yapılmaz)
-                    //// Not: Mevcut UpdateStatusAsync metodunun içindeki finansal kodları temizlemen gerekecek (Adım 3'te yapacağız).
-                    //record.Status = "Tamamlandı";
-                    //record.CompletedDate = DateTime.Now;
-                    //await _serviceRecordService.UpdateAsync();
-
-                    // 3. Finansal İşlemleri Yönet
-                    // Veresiye (Müşteri Bakiyesinden Düşme)
+                    
                     if (model.PaymentMethod == PaymentSource.ClientBalance)
                     {
                         var client = await _clientService.GetOneAsync(record.Vehicle.ClientId, model.MechanicId, false, false);
-                        // Müşteri borçlanıyor (Bakiyesi eksiye düşer veya borç hanesi artar)
-                        client.Balance -= record.Price;
+                     
+                        client.Balance += record.Price;
                         await _clientService.UpdateAsync();
                     }
                     // Nakit veya Banka/Kredi Kartı
@@ -69,16 +60,22 @@ namespace OtoTamir.BLL.Managers
                         var transactionRecord = new TreasuryTransaction
                         {
                             TreasuryId = (int)mechanic.TreasuryId,
+                            
                             TransactionType = TransactionType.Incoming, // Para Girişi
                             Amount = record.Price,
                             PaymentSource = model.PaymentMethod,
                             BankId = model.PaymentMethod == PaymentSource.Bank ? model.BankId : null,
                             TransactionDate = DateTime.Now,
-                            Description = $"{record.Vehicle.Plate} plakalı araç servis ödemesi."
-                        };
+                            Description = $"{record.Vehicle.Plate} plakalı araç servis ödemesi.",
+                            ClientId=record.Vehicle.ClientId,
+                            AuthorName=model.AuthorName,
+                            
+                            
+                        }; 
 
-                        // Bu servis zaten bakiyeleri güncelliyor
-                        await _treasuryTransactionService.AddTransactionAsync(transactionRecord);
+
+                        
+                        await _treasuryTransactionService.AddTransactionAsync(transactionRecord,mechanic.Id);
                     }
 
                     // Hata yoksa onayla

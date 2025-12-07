@@ -27,9 +27,9 @@ namespace OtoTamir.BLL.Concrete
             _clientDal = clientDal;
         }
 
-        public async Task AddTransactionAsync(TreasuryTransaction transaction)
+        public async Task AddTransactionAsync(TreasuryTransaction transaction, string mechanicId)
         {
-            var treasury = await _treasuryDal.GetOneAsync(transaction.TreasuryId, transaction.Treasury.MechanicId);
+            var treasury = await _treasuryDal.GetOneAsync(transaction.TreasuryId, mechanicId);
             if (treasury == null)
                 throw new Exception("Kasa bulunamadı.");
 
@@ -58,7 +58,7 @@ namespace OtoTamir.BLL.Concrete
                 case PaymentSource.ClientBalance:
                     if (!transaction.ClientId.HasValue)
                         throw new Exception("Müşteri bilgisi eksik.");
-                    var client = await _clientDal.GetOneAsync(transaction.ClientId.Value, transaction.Treasury.MechanicId, false, false);
+                    var client = await _clientDal.GetOneAsync(transaction.ClientId.Value, mechanicId, false, false);
                     if (client == null)
                         throw new Exception("Müşteri bulunamadı.");
                     client.Balance += transaction.Amount;
