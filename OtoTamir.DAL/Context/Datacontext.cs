@@ -50,23 +50,44 @@ namespace OtoTamir.DAL.Context
         public DbSet<TransactionCategory> TransactionCategories  { get; set; }
         public DbSet<TreasuryTransaction> Transactions  { get; set; }
         public DbSet<Treasury> Treasuries { get; set; }
+
         
-        public override int SaveChanges()
+        private void SetBaseEntityDates()
         {
-           
             foreach (var entry in ChangeTracker.Entries())
             {
-                if (entry.State == EntityState.Modified)
+                
+                if (entry.Entity is BaseEntity entity)
                 {
-                    
-                    entry.Property("ModifiedDate").CurrentValue = DateTime.Now;
+                    switch (entry.State)
+                    {
+                        case EntityState.Modified:
+                            entity.ModifiedDate = DateTime.Now;
+                            break;
+                        case EntityState.Added:
+                            entity.CreatedDate = DateTime.Now;
+                            entity.ModifiedDate = DateTime.Now;
+                            break;
+                    }
                 }
             }
+        }
 
+       
+        public override int SaveChanges()
+        {
+            SetBaseEntityDates();
             return base.SaveChanges();
         }
 
-
-
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            SetBaseEntityDates();
+            return base.SaveChangesAsync(cancellationToken);
+        }
     }
+
+
+
 }
+
