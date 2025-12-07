@@ -162,11 +162,11 @@ public class ServiceRecordController : Controller
         symptom.ServiceWorkflowLogs.Add(WorkflowLog);
 
 
-       
+        await _symptomService.UpdateAsync();
 
         await _serviceRecordService.UpdateStatusAsync(symptom.ServiceRecordId,user.Id);
-
-        if (symptom.ServiceRecord.Status=="Tamamlandı")
+        var freshRecord = await _serviceRecordService.GetOneAsync(symptom.ServiceRecordId, user.Id, false, false);
+        if (freshRecord.Status=="Tamamlandı")
         {
             var completionModel = new ServiceCompletionDTO
             {

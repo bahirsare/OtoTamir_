@@ -35,7 +35,8 @@ namespace OtoTamir.WEBUI.Controllers
 
             var result = await _mechanicService.CreateMechanicAsync(storeName);
             if (result.Success)
-            {
+            {   
+
                 TempData["SuccessMessage"] = $"Tamirci başarıyla oluşturuldu. Şifresi: {result.Password}";
                 return RedirectToAction("Mechanic", "Admin");
             }

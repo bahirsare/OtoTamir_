@@ -46,6 +46,11 @@ namespace OtoTamir.DAL.Concrete.EfCore
             var treasury= await GetOneAsync(treasuryId,mechanicId);
             return treasury.TotalBalance;
         }
-
+        public override async Task<int> CreateAsync(Treasury treasury)
+        {
+            treasury.CreatedDate = DateTime.Now;
+            treasury.ModifiedDate = DateTime.Now;
+            return await base.CreateAsync(treasury);
+        }
     }
 }

@@ -40,13 +40,13 @@ namespace OtoTamir.BLL.Managers
                     // 1. Servis Kaydını Bul
                     var record = await _serviceRecordService.GetOneAsync(model.ServiceRecordId, model.MechanicId, true, false);
                     if (record == null) throw new Exception("Servis kaydı bulunamadı.");
-                    if (record.Status == "Tamamlandı") throw new Exception("Bu servis zaten tamamlanmış.");
+                    //if (record.Status == "Tamamlandı") throw new Exception("Bu servis zaten tamamlanmış.");
 
-                    // 2. Servis Durumunu Güncelle (Sadece statü değişir, para işlemi yapılmaz)
-                    // Not: Mevcut UpdateStatusAsync metodunun içindeki finansal kodları temizlemen gerekecek (Adım 3'te yapacağız).
-                    record.Status = "Tamamlandı";
-                    record.CompletedDate = DateTime.Now;
-                    await _serviceRecordService.UpdateAsync();
+                    //// 2. Servis Durumunu Güncelle (Sadece statü değişir, para işlemi yapılmaz)
+                    //// Not: Mevcut UpdateStatusAsync metodunun içindeki finansal kodları temizlemen gerekecek (Adım 3'te yapacağız).
+                    //record.Status = "Tamamlandı";
+                    //record.CompletedDate = DateTime.Now;
+                    //await _serviceRecordService.UpdateAsync();
 
                     // 3. Finansal İşlemleri Yönet
                     // Veresiye (Müşteri Bakiyesinden Düşme)
@@ -61,6 +61,10 @@ namespace OtoTamir.BLL.Managers
                     else
                     {
                         var mechanic = await _mechanicService.GetOneAsync(model.MechanicId);
+                        if (mechanic.TreasuryId == null)
+                        {
+                            throw new Exception("Bu kullanıcının tanımlı bir kasası (Treasury) bulunamadı. Lütfen yönetici ile iletişime geçin.");
+                        }
 
                         var transactionRecord = new TreasuryTransaction
                         {

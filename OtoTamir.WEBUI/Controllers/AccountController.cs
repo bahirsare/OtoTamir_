@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.Scaffolding.Shared.Project;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.BLL.Concrete;
 using OtoTamir.CORE.DTOs.MechanicDTOs;
-
+using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
 using OtoTamir.WEBUI.Services;
@@ -20,12 +21,14 @@ namespace OtotamirWEBUI.Controllers
         private UserManager<Mechanic> _userManager;
         private IMechanicService _mechanicService;
         private readonly IMapper _mapper;
-        public AccountController(SignInManager<Mechanic> signInManager, UserManager<Mechanic> userManager, IMechanicService mechanicService, IMapper mapper)
+        private readonly ITreasuryService _treasuryService;
+        public AccountController(SignInManager<Mechanic> signInManager, UserManager<Mechanic> userManager, IMechanicService mechanicService, IMapper mapper, ITreasuryService treasuryService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _mechanicService = mechanicService;
             _mapper = mapper;
+            _treasuryService = treasuryService;
         }
         public IActionResult Login(string returnUrl = null)
         {
@@ -186,6 +189,38 @@ namespace OtotamirWEBUI.Controllers
             }
             TempData["ErrorMessage"] = "Email ile kayıtlı kullanıcı bulunamadı";
             return RedirectToAction("Login");
+        }
+        [Authorize] // Sadece giriş yapmış kullanıcı çalıştırabilsin
+        public async Task<IActionResult> FixMissingTreasury()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Eğer kullanıcının zaten kasası varsa işlem yapma
+            if (user.TreasuryId != null)
+            {
+                TempData["SuccessMessage"] = "Zaten bir kasanız var, işlem gerekmedi.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Kasa Yoksa Oluştur
+            var newTreasury = new Treasury
+            {
+               
+                CashBalance = 0,
+                BankBalance = 0,
+                ReceivablesBalance = 0,
+                MechanicId = user.Id,
+                
+            };
+
+            await _treasuryService.CreateAsync(newTreasury);
+
+            // Kullanıcıyı güncelle
+            user.TreasuryId = newTreasury.Id;
+            await _userManager.UpdateAsync(user);
+
+            TempData["SuccessMessage"] = "Kasanız başarıyla oluşturuldu! Artık işlem yapabilirsiniz.";
+            return RedirectToAction("Index", "Home");
         }
     }
 }
