@@ -11,6 +11,7 @@ using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Services;
 using System.Linq.Expressions;
+using OtoTamir.BLL.Managers;
 [Authorize]
 public class ServiceRecordController : Controller
 {
@@ -21,8 +22,9 @@ public class ServiceRecordController : Controller
     private readonly IMapper _mapper;
     private readonly UserManager<Mechanic> _userManager;
     private readonly IBalanceLogService _balanceLogService;
+    private readonly ServiceProcessManager _processManager;
 
-    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager,IBalanceLogService balanceLogService)
+    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager,IBalanceLogService balanceLogService, ServiceProcessManager processManager)
     {
         _vehicleService = vehicleService;
         _clientService = clientService;
@@ -30,8 +32,9 @@ public class ServiceRecordController : Controller
         _symptomService = symptomService;
         _mapper = mapper;
         _userManager = userManager;
-        _balanceLogService= balanceLogService;
-}
+        _balanceLogService = balanceLogService;
+        _processManager = processManager;
+    }
 
 
     public async Task<IActionResult> Index(int? selectedClientId)
@@ -98,7 +101,7 @@ public class ServiceRecordController : Controller
 
     }
     [HttpPost]
-    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO, BalanceManager balanceManager)
+    public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)
     {
         List<string> URL = WorkflowLogDTO.ReturnUrl.Split('/').ToList();
         if (!ModelState.IsValid)
@@ -158,33 +161,47 @@ public class ServiceRecordController : Controller
         symptom.Status = WorkflowLog.Status;
         symptom.ServiceWorkflowLogs.Add(WorkflowLog);
 
-        
 
-        
+       
+
         await _serviceRecordService.UpdateStatusAsync(symptom.ServiceRecordId,user.Id);
-        
-        TempData["SuccessMessage"] = "İşlem başarılı! Kayıt güncellendi.";
-        var record = await _serviceRecordService.GetOneAsync(symptom.ServiceRecordId, user.Id,true, false);
-        if (record.Status == "Tamamlandı")
+
+        if (symptom.ServiceRecord.Status=="Tamamlandı")
         {
-             var client = await _clientService.GetOneAsync(record.Vehicle.ClientId, user.Id, false, false);
-            var result = await balanceManager.UpdateBalanceAsync(client,record.Price);
-
-            var balanceLogResult = await _balanceLogService.CreateAsync(result.BalanceLogs[0]);
-
-
-            if (balanceLogResult > 0)
+            var completionModel = new ServiceCompletionDTO
             {
-                TempData["SuccessMessage"] = "Bakiye hareketi başarıyla kaydedildi.";
-            }
-            else
-            {
-                TempData["FailMessage"] = "Kayıt sırasında hata oluştu.";
-            }
-            await _clientService.UpdateAsync();
+                ServiceRecordId = symptom.ServiceRecordId,
+                MechanicId = user.Id,
+                PaymentMethod = WorkflowLogDTO.PaymentMethod, 
+                BankId = WorkflowLogDTO.BankId
+            };
+
+            
+            await _processManager.CompleteServiceProcessAsync(completionModel);
         }
 
+        //TempData["SuccessMessage"] = "İşlem başarılı! Kayıt güncellendi.";
+        //var record = await _serviceRecordService.GetOneAsync(symptom.ServiceRecordId, user.Id,true, false);
+        //if (record.Status == "Tamamlandı")
+        //{
+        //     var client = await _clientService.GetOneAsync(record.Vehicle.ClientId, user.Id, false, false);
+        //    var result = await balanceManager.UpdateBalanceAsync(client,record.Price);
 
+        //    var balanceLogResult = await _balanceLogService.CreateAsync(result.BalanceLogs[0]);
+
+
+        //    if (balanceLogResult > 0)
+        //    {
+        //        TempData["SuccessMessage"] = "Bakiye hareketi başarıyla kaydedildi.";
+        //    }
+        //    else
+        //    {
+        //        TempData["FailMessage"] = "Kayıt sırasında hata oluştu.";
+        //    }
+        //    await _clientService.UpdateAsync();
+        //}
+
+        TempData["SuccessMessage"] = "İşlem günlüğü başarıyla eklendi.";
         return RedirectToAction(URL[2], URL[1]);
     }
 
@@ -367,8 +384,34 @@ public class ServiceRecordController : Controller
         var mechanic = await _userManager.GetUserAsync(User);
         return View(model);
     }
-  
 
+    [HttpPost]
+    public async Task<IActionResult> CompleteService(int serviceId, PaymentSource paymentMethod, int? bankId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        // DTO'yu dolduruyoruz
+        var completionModel = new ServiceCompletionDTO
+        {
+            ServiceRecordId = serviceId,
+            MechanicId = user.Id,
+            PaymentMethod = paymentMethod,
+            BankId = bankId
+        };
+
+        try
+        {
+            // Tüm karmaşık işi Manager hallediyor
+            await _processManager.CompleteServiceProcessAsync(completionModel);
+            TempData["SuccessMessage"] = "Servis başarıyla tamamlandı, ödeme alındı.";
+        }
+        catch (Exception ex)
+        {
+            TempData["FailMessage"] = "Hata: " + ex.Message;
+        }
+
+        return RedirectToAction("Ongoing"); // Veya uygun bir yere yönlendir
+    }
 
 }
 

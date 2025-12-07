@@ -54,7 +54,7 @@ namespace OtoTamir.WEBUI
             
             builder.Services.AddScoped<ITreasuryDal, EfCoreTreasuryDal>();
             builder.Services.AddScoped<ITreasuryService, TreasuryService>();
-
+            builder.Services.AddScoped<BLL.Managers.ServiceProcessManager>();
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 //password

@@ -17,7 +17,9 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public int? AdditionalDays { get; set; }
         public string Status { get; set; }
         public string ReturnUrl { get; set; }
-
+        public bool IsCompleted { get; set; } 
+        public PaymentSource PaymentMethod { get; set; } = PaymentSource.Cash; 
+        public int? BankId { get; set; }
 
         public List<SparePart>? NeededParts { get; set; }
 
