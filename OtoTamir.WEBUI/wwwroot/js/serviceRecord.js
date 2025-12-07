@@ -47,40 +47,6 @@ function addSymptomRow(containerId) {
     </div>
     </div>
 
-    <!-- Sağ grup -->
-<div class="d-flex flex-wrap gap-2 ms-auto">
-   <div style="width: 140px;">
-    <label class="form-label fw-semibold mb-1 d-block">Tamamlandı</label>
-    <div class="form-check">
-        <input type="checkbox"
-               name="Symptoms[${index}].IsCompleted"
-               class="form-check-input symptom-complete-checkbox"
-               data-index="${index}" />
-    </div>
-</div>
-
-    <div style="width: 160px;">
-        <label class="form-label fw-semibold mb-1">Ödeme Yöntemi</label>
-        <select name="Symptoms[${index}].PaymentMethod" class="form-select form-select-sm payment-method" data-index="${index}" disabled>
-            <option value="">Seçiniz</option>
-            <option value="Nakit">Nakit</option>
-            <option value="Banka">Banka</option>
-            <option value="Bakiye">Bakiye</option>
-        </select>
-
-        <!-- Banka seçimi, aynı hücre içinde altına yerleşecek -->
-        <div class="bank-selection-group mt-2" data-index="${index}" style="display: none;">
-            <label class="form-label fw-semibold mb-1">Banka</label>
-            <select name="Symptoms[${index}].Bank" class="form-select form-select-sm">
-                <option value="">Seçiniz</option>
-                <option value="Ziraat">Ziraat</option>
-                <option value="İş Bankası">İş Bankası</option>
-                <option value="Garanti">Garanti</option>
-            </select>
-        </div>
-    </div>
-
-  
 </div>
 `;
 
@@ -96,20 +62,3 @@ function addSymptomRow(containerId) {
 
     symptomIndices[containerId]++;
 }
-document.addEventListener("change", function (e) {
-    if (e.target.classList.contains("symptom-complete-checkbox")) {
-        const index = e.target.dataset.index;
-        const paymentSelect = document.querySelector(`select.payment-method[data-index="${index}"]`);
-        paymentSelect.disabled = !e.target.checked;
-    }
-
-    if (e.target.classList.contains("payment-method")) {
-        const index = e.target.dataset.index;
-        const bankGroup = document.querySelector(`.bank-selection-group[data-index="${index}"]`);
-        if (e.target.value === "Banka") {
-            bankGroup.style.display = "block";
-        } else {
-            bankGroup.style.display = "none";
-        }
-    }
-});
