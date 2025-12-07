@@ -250,7 +250,9 @@ public class ServiceRecordController : Controller
         TempData["SuccessMessage"] = "Servis kaydı ve semptomlar başarıyla oluşturuldu!";
         return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
     }
-
+    //viewbag içinde bankalar yazılacak
+    // banka ekleme ve görüntüleme ekranı lazım kasa için genel bir sayfa olabilir
+    // müşteri balance geçmişine güncelleme gerekiyor nakit ve banka ödemerlini de yazması lazım oraya
 
     [HttpGet]
     public async Task<IActionResult> Ongoing(ListServiceRecordsDTO model)
