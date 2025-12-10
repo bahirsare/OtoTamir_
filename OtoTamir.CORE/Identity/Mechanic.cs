@@ -14,7 +14,7 @@ namespace OtoTamir.CORE.Identity
         public string ImageUrl { get; set; }
         public bool IsProfileCompleted { get; set; }
         public Treasury Treasury { get; set; }
-        public int? TreasuryId { get; set; }
+        public int TreasuryId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public DateTime ModifiedDate { get; set; }

@@ -1,0 +1,99 @@
+﻿@model OtoTamir.CORE.DTOs.TreasuryDTOs.AddBankCardDTO
+
+<div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content shadow rounded">
+        <form asp-controller="Treasury" asp-action="AddCard" method="post">
+
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-credit-card-2-front me-2"></i>Yeni Kredi Kartı / POS Tanımla
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger m-3 d-none"></div>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label asp-for="CardName" class="form-label fw-semibold">Kart / POS Adı</label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-light"><i class="bi bi-card-heading"></i></span>
+                            <input asp-for="CardName" class="form-control" required placeholder="Örn: Bonus Business" />
+                        </div>
+                        <span asp-validation-for="CardName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="BankId" class="form-label fw-semibold">Bağlı Olduğu Banka</label>
+                        <select asp-for="BankId" class="form-select shadow-sm" required>
+                            <option value="">Seçiniz...</option>
+                            @if (Model.AvailableBanks != null)
+                            {
+                                foreach (var bank in Model.AvailableBanks)
+                                {
+                                    <option value="@bank.Id">@bank.BankName (@bank.Iban)</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="BankId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Last4Digit" class="form-label fw-semibold">Son 4 Hane</label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-light">****</span>
+                            <input asp-for="Last4Digit" class="form-control" placeholder="1234" maxlength="4" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Limit" class="form-label fw-semibold">Kart Limiti (₺)</label>
+                        <input asp-for="Limit" type="number" class="form-control shadow-sm" step=".01" placeholder="0.00" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Debt" class="form-label fw-semibold">Güncel Borç (₺)</label>
+                        <input asp-for="Debt" type="number" class="form-control shadow-sm" step=".01" placeholder="0.00" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="BillingDate" class="form-label fw-semibold">Hesap Kesim Günü</label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-light"><i class="bi bi-calendar-event"></i></span>
+                            <select asp-for="BillingDate" class="form-select">
+                                <option value="">Seçiniz</option>
+                                @for (int i = 1; i <= 31; i++)
+                                {
+                                    <option value="@i">Her ayın @i. günü</option>
+                                }
+                            </select>
+                        </div>
+                        <small class="text-muted">Ayın kaçında hesap kesiliyor?</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DueDate" class="form-label fw-semibold">Son Ödeme Günü</label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-light"><i class="bi bi-calendar-check"></i></span>
+                            <select asp-for="DueDate" class="form-select">
+                                <option value="">Seçiniz</option>
+                                @for (int i = 1; i <= 31; i++)
+                                {
+                                    <option value="@i">Her ayın @i. günü</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="bi bi-x-circle"></i> Vazgeç</button>
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>

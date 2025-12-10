@@ -19,6 +19,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
         {
             bank.CreatedDate = DateTime.Now;
             bank.ModifiedDate = DateTime.Now;
+            bank.BankName= bank.BankName.ToUpper();
             return await base.CreateAsync(bank);
         }
         public async Task<Bank> GetOneAsync(
@@ -31,12 +32,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
         }
         public async Task<List<Bank>> GetAllAsync(
         string mechanicId,
-        int treasuryId,
+        
         Expression<Func<Bank, bool>> filter = null
         )
         {
             var query = _context.Banks
-                .Where(b =>b.TreasuryId==treasuryId&& b.Treasury.MechanicId == mechanicId);
+                .Where(b => b.Treasury.MechanicId == mechanicId);
 
 
 

@@ -10,7 +10,7 @@
         public Treasury Treasury { get; set; }
         public int TreasuryId { get; set; }
         public List<BankCard> Cards { get; set; }
-        Bank()
+        public Bank()
         {
             Cards = new List<BankCard>();
         }
@@ -22,8 +22,8 @@
         public Bank Bank { get; set; }
         public string CardName { get; set; }
         public string Last4Digit { get; set; }
-        public DateTime BillingDate { get; set; }
-        public DateTime DueDate { get; set; }
+        public int BillingDate { get; set; }
+        public int DueDate { get; set; }
         public decimal Limit { get; set; }
         public decimal Debt { get; set; }
     }

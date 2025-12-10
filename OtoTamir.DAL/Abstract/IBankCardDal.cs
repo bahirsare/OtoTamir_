@@ -16,7 +16,6 @@ namespace OtoTamir.DAL.Abstract
            string mechanicId);
         Task<List<BankCard>> GetAllAsync(
             string mechanicId,
-            int treasuryId,
             Expression<Func<BankCard, bool>> filter = null
         );
 

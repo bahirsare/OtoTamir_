@@ -1,12 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -26,17 +21,17 @@ namespace OtoTamir.BLL.Concrete
 
         public async Task<int> CreateAsync(BankCard entity)
         {
-           return await _bankCardDal.CreateAsync(entity);
+            return await _bankCardDal.CreateAsync(entity);
         }
 
         public int Delete(int id)
         {
-           return _bankCardDal.Delete(id);
+            return _bankCardDal.Delete(id);
         }
 
-        public async Task<List<BankCard>> GetAllAsync(string mechanicId, int treasuryId, Expression<Func<BankCard, bool>> filter = null)
+        public async Task<List<BankCard>> GetAllAsync(string mechanicId, Expression<Func<BankCard, bool>> filter = null)
         {
-          return await _bankCardDal.GetAllAsync(mechanicId, treasuryId, filter);
+            return await _bankCardDal.GetAllAsync(mechanicId, filter);
         }
 
         public async Task<BankCard> GetOneAsync(int id, string mechanicId)
@@ -46,7 +41,7 @@ namespace OtoTamir.BLL.Concrete
 
         public async Task<int> UpdateAsync()
         {
-           return await _bankCardDal.UpdateAsync();
+            return await _bankCardDal.UpdateAsync();
         }
     }
 }

@@ -35,12 +35,11 @@ namespace OtoTamir.DAL.Concrete.EfCore
         }
         public async Task<List<BankCard>> GetAllAsync(
         string mechanicId,
-        int treasuryId,
         Expression<Func<BankCard, bool>> filter = null
         )
         {
             var query = _context.BankCards
-                .Where(bc => bc.Bank.TreasuryId == treasuryId && bc.Bank.Treasury.MechanicId == mechanicId);
+                .Where(bc => bc.Bank.Treasury.MechanicId == mechanicId);
 
 
 

@@ -9,13 +9,12 @@ namespace OtoTamir.WEBUI.ViewComponents._ServiceRecord.ListServiceRecord
     public class _ListServiceRecordbyVehicleIdViewComponentPartial : ViewComponent
     {
         private readonly IVehicleService _vehicleService;
-        private readonly IServiceRecordService _serviceRecordService;
         private readonly UserManager<Mechanic> _userManager;
 
-        public _ListServiceRecordbyVehicleIdViewComponentPartial(IVehicleService vehicleService, IServiceRecordService serviceRecordService, UserManager<Mechanic> userManager)
+        public _ListServiceRecordbyVehicleIdViewComponentPartial(IVehicleService vehicleService, UserManager<Mechanic> userManager)
         {
             _vehicleService = vehicleService;
-            _serviceRecordService = serviceRecordService;
+           
             _userManager = userManager;
         }
 

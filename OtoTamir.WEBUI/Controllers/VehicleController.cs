@@ -50,7 +50,7 @@ namespace OtoTamir.WEBUI.Controllers
             if (!ModelState.IsValid)
             {
 
-                TempData["Message"] = "Araç Eklenemedi. Lütfen bilgileri eksiksiz doldurun.";
+                TempData["FailMessage"] = "Araç Eklenemedi. Lütfen bilgileri eksiksiz doldurun.";
                 if (URL[2]=="ClientDetails")
                     return RedirectToAction(URL[2], URL[1], new { clientId = 3 });
                 return RedirectToAction(URL[2], URL[1]);
@@ -69,11 +69,11 @@ namespace OtoTamir.WEBUI.Controllers
 
                 if (result > 0)
                 {
-                    TempData["Message"] = "Araç başarıyla eklendi.";
+                    TempData["SuccessMessage"] = "Araç başarıyla eklendi.";
                 }
                 else
                 {
-                    TempData["Message"] = "Araç eklenirken bir hata oluştu.";
+                    TempData["FailMessage"] = "Araç eklenirken bir hata oluştu.";
                 }
             }
                 if (URL[2] == "ClientDetails")
