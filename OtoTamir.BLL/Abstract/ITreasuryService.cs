@@ -1,4 +1,5 @@
-﻿using OtoTamir.CORE.Entities;
+﻿using OtoTamir.CORE.DTOs.TreasuryDTOs;
+using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Repositories;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,6 @@ namespace OtoTamir.BLL.Abstract
         Task<Treasury> GetOneAsync(
         int id,
         string mechanicId);
+        Task<TreasuryDashboardDTO> GetDashboardDataAsync(string mechanicId, int treasuryId);
     }
 }

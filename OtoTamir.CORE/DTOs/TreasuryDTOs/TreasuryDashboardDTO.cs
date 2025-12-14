@@ -1,8 +1,8 @@
 ﻿using OtoTamir.CORE.Entities;
 
-namespace OtoTamir.WEBUI.Models
+namespace OtoTamir.CORE.DTOs.TreasuryDTOs
 {
-    public class TreasuryDashboardViewModel
+    public class TreasuryDashboardDTO
     {
         
         public Treasury Treasury { get; set; }
@@ -16,7 +16,7 @@ namespace OtoTamir.WEBUI.Models
         public List<string> ChartLabels { get; set; } = new List<string>(); 
         public List<decimal> IncomeData { get; set; } = new List<decimal>();
         public List<decimal> ExpenseData { get; set; } = new List<decimal>();
-        public TreasuryDashboardViewModel()
+        public TreasuryDashboardDTO()
         {
             Banks = new List<Bank>();
             BankCards = new List<BankCard>();

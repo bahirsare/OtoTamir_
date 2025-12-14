@@ -41,35 +41,46 @@ namespace OtoTamir.WEBUI.Controllers
         }
 
         [HttpGet]
+        //public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
+        //{
+        //    var user = await _userManager.GetUserAsync(User);
+        //    if (user == null) return RedirectToAction("Login", "Account");
+
+        //    // Kasa Kontrolü (Daha önce yazdığımız FixMissingTreasury mantığı burada da işe yarar)
+        //    if (user.TreasuryId == null)
+        //    {
+        //        TempData["FailMessage"] = "Kasa bulunamadı. Lütfen önce kasanızı oluşturun.";
+        //        return RedirectToAction("FixMissingTreasury", "Account");
+        //    }
+        //    var start = startDate ?? DateTime.Now.AddDays(-30);
+        //    var end = endDate ?? DateTime.Now.AddDays(1);
+        //    var treasury = await _treasuryService.GetOneAsync((int)user.TreasuryId, user.Id);
+
+        //    var model = new TreasuryDashboardViewModel
+        //    {
+        //        Treasury = treasury,
+        //        // Listeleri dolduruyoruz
+        //        Banks = await _bankService.GetAllAsync(user.Id),
+        //        BankCards = await _bankCardService.GetAllAsync(user.Id),
+
+
+        //        // Son işlemleri tarihe göre sıralı getir
+        //        Transactions = (await _transactionService.GetByDateRangeAsync(treasury.Id, user.Id, start, end))
+        //                        .OrderByDescending(t => t.TransactionDate)
+        //                        .Take(50)
+        //                        .ToList()
+        //    };
+
+        //    return View(model);
+        //}
         public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
-
-            // Kasa Kontrolü (Daha önce yazdığımız FixMissingTreasury mantığı burada da işe yarar)
-            if (user.TreasuryId == null)
-            {
-                TempData["FailMessage"] = "Kasa bulunamadı. Lütfen önce kasanızı oluşturun.";
-                return RedirectToAction("FixMissingTreasury", "Account");
-            }
             var start = startDate ?? DateTime.Now.AddDays(-30);
             var end = endDate ?? DateTime.Now.AddDays(1);
             var treasury = await _treasuryService.GetOneAsync((int)user.TreasuryId, user.Id);
-
-            var model = new TreasuryDashboardViewModel
-            {
-                Treasury = treasury,
-                // Listeleri dolduruyoruz
-                Banks = await _bankService.GetAllAsync(user.Id),
-                BankCards = await _bankCardService.GetAllAsync(user.Id),
-
-
-                // Son işlemleri tarihe göre sıralı getir
-                Transactions = (await _transactionService.GetByDateRangeAsync(treasury.Id, user.Id, start, end))
-                                .OrderByDescending(t => t.TransactionDate)
-                                .Take(50)
-                                .ToList()
-            };
+            // Tek satırda tüm veriyi alıyoruz!
+            var model = await _treasuryService.GetDashboardDataAsync(user.Id,user.TreasuryId);
 
             return View(model);
         }
