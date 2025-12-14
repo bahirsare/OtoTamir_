@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OtoTamir.CORE.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -23,8 +24,8 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public string ReturnAction { get; set; }
         public int? ReturnId { get; set; }
         public bool IsCompleted { get; set; }
-        public string? PaymentMethod { get; set; }
-        public string? Bank { get; set; }
+        public int? PaymentMethod { get; set; }
+        public int? BankId { get; set; }
 
 
         public CreateSymptomGroupDTO()

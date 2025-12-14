@@ -53,16 +53,16 @@
                                 data-index="@Model.VehicleId"
                                 disabled>
                             <option value="">Seçiniz</option>
-                            <option value="Nakit">Nakit</option>
-                            <option value="Banka">Banka</option>
-                            <option value="Bakiye">Bakiye</option>
+                            <option value="0">Nakit</option>
+                            <option value="1">Banka</option>
+                            <option value="2">Bakiye</option>
                         </select>
 
                         <div class="bank-selection-group mt-2"
                              data-index="@Model.VehicleId"
                              style="display: none;">
                             <label class="form-label fw-semibold mb-1">Banka</label>
-                            <select asp-for="Bank" class="form-select form-select-sm">
+                            <select asp-for="BankId" class="form-select form-select-sm">
                                 <option value="">Seçiniz</option>
                                 @if (ViewBag.Banks != null)
                                 {
@@ -77,26 +77,63 @@
                 </div>
 </form>
 <script>
-    // Sayfa yüklendiğinde ilk semptom satırı ekleniyor
+    // Sayfa iskeleti yüklendiğinde çalış (jQuery beklemez)
     document.addEventListener("DOMContentLoaded", function () {
-        addSymptomRow('symptomContainer-@Model.VehicleId');
-    });
-        document.addEventListener("change", function (e) {
-        if (e.target.classList.contains("symptom-complete-checkbox")) {
-            const index = e.target.dataset.index;
-            const paymentSelect = document.querySelector(`select.payment-method[data-index="${index}"]`);
-            paymentSelect.disabled = !e.target.checked;
+
+        // İlk semptom satırını ekle
+        if (typeof addSymptomRow === 'function') {
+            try { addSymptomRow('symptomContainer-@Model.VehicleId'); } catch(e){}
         }
 
-        if (e.target.classList.contains("payment-method")) {
-            const index = e.target.dataset.index;
-            const bankGroup = document.querySelector(`.bank-selection-group[data-index="${index}"]`);
-            if (e.target.value === "Banka") {
-                bankGroup.style.display = "block";
-            } else {
-                bankGroup.style.display = "none";
+        // Tüm değişiklikleri dinleyen ana bekçi
+        document.body.addEventListener("change", function (e) {
+
+            // 1. TAMAMLANDI KUTUSU KONTROLÜ
+            if (e.target.classList.contains("symptom-complete-checkbox")) {
+                var index = e.target.getAttribute("data-index");
+                var isChecked = e.target.checked;
+
+                var paymentSelect = document.querySelector('.payment-method[data-index="' + index + '"]');
+
+                if (paymentSelect) {
+                    paymentSelect.disabled = !isChecked;
+
+                    if (!isChecked) {
+                        paymentSelect.value = "";
+                        // Manuel tetikleme (Event dispatch)
+                        var event = new Event('change', { bubbles: true });
+                        paymentSelect.dispatchEvent(event);
+                    }
+                }
             }
-        }
+
+            // 2. ÖDEME YÖNTEMİ KONTROLÜ
+            if (e.target.classList.contains("payment-method")) {
+                var index = e.target.getAttribute("data-index");
+                var val = e.target.value;
+
+                var bankGroup = document.querySelector('.bank-selection-group[data-index="' + index + '"]');
+
+                if (bankGroup) {
+                    if (val === "1") {
+                        // AÇILMA KOMUTU (Kesin Çözüm)
+                        // Bootstrap'in gizleme sınıfını siliyoruz
+                        bankGroup.classList.remove("d-none");
+
+                        // Tarayıcının itiraz edemeyeceği şekilde zorla açıyoruz
+                        bankGroup.style.cssText = "display: block !important; opacity: 1 !important; visibility: visible !important;";
+                    } else {
+                        // KAPANMA KOMUTU
+                        bankGroup.style.cssText = "display: none !important;";
+                        bankGroup.classList.add("d-none");
+
+                        // İçini temizle
+                        var innerSelect = bankGroup.querySelector("select");
+                        if(innerSelect) innerSelect.value = "";
+                    }
+                }
+            }
+        });
     });
 </script>
 

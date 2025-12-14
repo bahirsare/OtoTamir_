@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OtoTamir.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class Billing_date_fix : Migration
+    public partial class duedayfix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,21 +19,27 @@ namespace OtoTamir.DAL.Migrations
                 name: "IX_AspNetUsers_TreasuryId",
                 table: "AspNetUsers");
 
-            migrationBuilder.AlterColumn<int>(
-                name: "DueDate",
-                table: "BankCards",
-                type: "int",
-                nullable: false,
-                oldClrType: typeof(DateTime),
-                oldType: "datetime2");
-
-            migrationBuilder.AlterColumn<int>(
+            migrationBuilder.DropColumn(
                 name: "BillingDate",
+                table: "BankCards");
+
+            migrationBuilder.DropColumn(
+                name: "DueDate",
+                table: "BankCards");
+
+            migrationBuilder.AddColumn<int>(
+                name: "BillingDay",
                 table: "BankCards",
                 type: "int",
                 nullable: false,
-                oldClrType: typeof(DateTime),
-                oldType: "datetime2");
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
+                name: "DueDay",
+                table: "BankCards",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
 
             migrationBuilder.AlterColumn<int>(
                 name: "TreasuryId",
@@ -71,21 +77,27 @@ namespace OtoTamir.DAL.Migrations
                 name: "IX_AspNetUsers_TreasuryId",
                 table: "AspNetUsers");
 
-            migrationBuilder.AlterColumn<DateTime>(
-                name: "DueDate",
-                table: "BankCards",
-                type: "datetime2",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int");
+            migrationBuilder.DropColumn(
+                name: "BillingDay",
+                table: "BankCards");
 
-            migrationBuilder.AlterColumn<DateTime>(
+            migrationBuilder.DropColumn(
+                name: "DueDay",
+                table: "BankCards");
+
+            migrationBuilder.AddColumn<DateTime>(
                 name: "BillingDate",
                 table: "BankCards",
                 type: "datetime2",
                 nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "DueDate",
+                table: "BankCards",
+                type: "datetime2",
+                nullable: false,
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AlterColumn<int>(
                 name: "TreasuryId",

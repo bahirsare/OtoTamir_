@@ -22,8 +22,8 @@
         public Bank Bank { get; set; }
         public string CardName { get; set; }
         public string Last4Digit { get; set; }
-        public int BillingDate { get; set; }
-        public int DueDate { get; set; }
+        public int BillingDay { get; set; }
+        public int DueDay { get; set; }
         public decimal Limit { get; set; }
         public decimal Debt { get; set; }
     }

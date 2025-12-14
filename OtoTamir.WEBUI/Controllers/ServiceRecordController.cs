@@ -215,8 +215,9 @@ public class ServiceRecordController : Controller
             Price = totalCost,
             Status = "Devam Ediyor",
             AuthorName = model.AuthorName
+            
         };
-        
+
         var result = await _serviceRecordService.CreateAsync(serviceRecord);
         if (result == 0)
         {
@@ -231,6 +232,7 @@ public class ServiceRecordController : Controller
             if (model.IsCompleted)
             {
                 symptom.Status = "Tamamlandı";
+
             }
             else
             {
@@ -245,11 +247,36 @@ public class ServiceRecordController : Controller
             }
             await _serviceRecordService.UpdateStatusAsync(serviceRecord.Id, user.Id);
         }
+        if (model.IsCompleted)
+        {
 
-       
-        TempData["SuccessMessage"] = "Servis kaydı ve semptomlar başarıyla oluşturuldu!";
-        return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
-    }
+            var completeDto = new ServiceCompletionDTO
+            {
+                ServiceRecordId = serviceRecord.Id, // Yeni oluşan ID
+                PaymentMethod = (PaymentSource)model.PaymentMethod, // View'dan gelen ödeme türü (Nakit/Banka/Veresiye)
+                BankId = model.BankId, // Eğer banka seçildiyse ID'si
+                MechanicId=user.Id,
+                AuthorName = model.AuthorName
+            };
+
+            try
+            {
+
+                await _processManager.CompleteServiceProcessAsync(completeDto);
+
+                TempData["SuccessMessage"] = "Servis açıldı, tamamlandı ve ödeme işlendi!";
+            }
+            catch (Exception ex)
+            {
+                // Ödeme sırasında hata olursa servisi silmeyelim ama uyarı verelim
+                TempData["WarningMessage"] = "Servis oluştu ancak ödeme işlenirken hata oldu: " + ex.Message;
+            }
+        }
+
+            TempData["SuccessMessage"] = "Servis kaydı ve semptomlar başarıyla oluşturuldu!";
+            return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
+
+        } 
     //viewbag içinde bankalar yazılacak
     // banka ekleme ve görüntüleme ekranı lazım kasa için genel bir sayfa olabilir
     // müşteri balance geçmişine güncelleme gerekiyor nakit ve banka ödemerlini de yazması lazım oraya

@@ -47,7 +47,7 @@ namespace OtoTamir.BLL.Concrete
                 case PaymentSource.Bank:
                     if (!transaction.BankId.HasValue)
                         throw new Exception("Banka bilgisi eksik.");
-                    var bank = await _bankDal.GetOneAsync(transaction.BankId.Value, transaction.Treasury.MechanicId);
+                    var bank = await _bankDal.GetOneAsync(transaction.BankId.Value, mechanicId);
                     if (bank == null)
                         throw new Exception("Banka bulunamadı.");
                     bank.Balance += transaction.Amount;

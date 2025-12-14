@@ -12,8 +12,8 @@ using OtoTamir.DAL.Context;
 namespace OtoTamir.DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251210225833_Billing_date_fix")]
-    partial class Billing_date_fix
+    [Migration("20251214122126_duedayfix")]
+    partial class duedayfix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -250,7 +250,7 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<int>("BankId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BillingDate")
+                    b.Property<int>("BillingDay")
                         .HasColumnType("int");
 
                     b.Property<string>("CardName")
@@ -266,7 +266,7 @@ namespace OtoTamir.DAL.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DueDate")
+                    b.Property<int>("DueDay")
                         .HasColumnType("int");
 
                     b.Property<string>("Last4Digit")
