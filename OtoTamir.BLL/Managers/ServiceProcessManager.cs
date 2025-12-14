@@ -32,60 +32,55 @@ namespace OtoTamir.BLL.Managers
 
         public async Task CompleteServiceProcessAsync(ServiceCompletionDTO model)
         {
-          
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                   
+                    // 1. Gerekli verileri çekelim
                     var record = await _serviceRecordService.GetOneAsync(model.ServiceRecordId, model.MechanicId, true, false);
                     if (record == null) throw new Exception("Servis kaydı bulunamadı.");
-                    
+
+                    var mechanic = await _mechanicService.GetOneAsync(model.MechanicId);
+                    if (mechanic.TreasuryId == null)
+                    {
+                        throw new Exception("Bu kullanıcının tanımlı bir kasası (Treasury) bulunamadı. Lütfen yönetici ile iletişime geçin.");
+                    }
+
+                    // 2. Eğer Ödeme Türü "Veresiye/Bakiye" ise -> Müşterinin Borcunu Arttır
                     if (model.PaymentMethod == PaymentSource.ClientBalance)
                     {
                         var client = await _clientService.GetOneAsync(record.Vehicle.ClientId, model.MechanicId, false, false);
-                     
                         client.Balance += record.Price;
                         await _clientService.UpdateAsync();
                     }
-                    // Nakit veya Banka/Kredi Kartı
-                    else
+
+                    // 3. İŞLEM KAYDI OLUŞTURMA (ARTIK HER DURUMDA ÇALIŞACAK)
+                    // Nakit de olsa, Banka da olsa, Veresiye de olsa bu kayıt oluşsun ki geçmişte görelim.
+                    var transactionRecord = new TreasuryTransaction
                     {
-                        var mechanic = await _mechanicService.GetOneAsync(model.MechanicId);
-                        if (mechanic.TreasuryId == null)
-                        {
-                            throw new Exception("Bu kullanıcının tanımlı bir kasası (Treasury) bulunamadı. Lütfen yönetici ile iletişime geçin.");
-                        }
+                        TreasuryId = (int)mechanic.TreasuryId,
+                        TransactionType = TransactionType.Incoming, // Satış/Gelir işlemi
+                        Amount = record.Price,
+                        PaymentSource = model.PaymentMethod, // Nakit, Banka veya Bakiye olarak kaydolacak
+                        BankId = model.PaymentMethod == PaymentSource.Bank ? model.BankId : null,
+                        TransactionDate = DateTime.Now,
+                        Description = $"{record.Vehicle.Plate} plakalı araç servis ödemesi.",
+                        ClientId = record.Vehicle.ClientId,
+                        AuthorName = model.AuthorName
+                    };
 
-                        var transactionRecord = new TreasuryTransaction
-                        {
-                            TreasuryId = (int)mechanic.TreasuryId,
-                            
-                            TransactionType = TransactionType.Incoming, // Para Girişi
-                            Amount = record.Price,
-                            PaymentSource = model.PaymentMethod,
-                            BankId = model.PaymentMethod == PaymentSource.Bank ? model.BankId : null,
-                            TransactionDate = DateTime.Now,
-                            Description = $"{record.Vehicle.Plate} plakalı araç servis ödemesi.",
-                            ClientId=record.Vehicle.ClientId,
-                            AuthorName=model.AuthorName,
-                            
-                            
-                        }; 
+                    // 4. Kaydı veritabanına işle
+                    // ÖNEMLİ NOT: AddTransactionAsync metodun, "ClientBalance" geldiğinde 
+                    // kasadaki nakit parayı (Amount) arttırmayacak şekilde ayarlanmış olmalı!
+                    await _treasuryTransactionService.AddTransactionAsync(transactionRecord, mechanic.Id);
 
-
-                        
-                        await _treasuryTransactionService.AddTransactionAsync(transactionRecord,mechanic.Id);
-                    }
-
-                    // Hata yoksa onayla
+                    // Her şey yolundaysa onayla
                     await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {
-                    // Hata varsa geri al
                     await transaction.RollbackAsync();
-                    throw; // Hatayı yukarı fırlat ki kullanıcıya mesaj gösterebilelim
+                    throw;
                 }
             }
         }

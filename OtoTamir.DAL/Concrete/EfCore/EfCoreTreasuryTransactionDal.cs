@@ -67,5 +67,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             .Where(t => t.TreasuryId == treasuryId && t.Treasury.MechanicId == mechanicId && t.TransactionDate >= start && t.TransactionDate <= end)
             .ToListAsync();
         }
+
+        
     }
 }

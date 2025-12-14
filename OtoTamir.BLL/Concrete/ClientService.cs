@@ -52,5 +52,8 @@ namespace OtoTamir.BLL.Concrete
         {
             return await _clientDal.UpdateAsync();
         }
+        public Task<decimal> GetTotalReceivablesAsync(string mechanidId) { 
+            return _clientDal.GetTotalReceivablesAsync(mechanidId);
+        }
     }
 }

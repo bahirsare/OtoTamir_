@@ -29,7 +29,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
         int id,
         string mechanicId)
         {
-            var query = _context.BankCards.Where(bc => bc.Id == id && bc.Bank.Treasury.MechanicId == mechanicId);
+            var query = _context.BankCards.Where(bc => bc.Id == id && bc.Bank.Treasury.MechanicId == mechanicId).Include(bc => bc.Bank);
 
             return await query.FirstOrDefaultAsync();
         }
@@ -48,7 +48,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 query = query.Where(filter);
             }
 
-            return await query.ToListAsync();
+            return await query.Include(bc => bc.Bank).ToListAsync();
         }
         
     }

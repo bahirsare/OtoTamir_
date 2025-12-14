@@ -1,0 +1,71 @@
+﻿@model List<OtoTamir.CORE.Entities.TreasuryTransaction>
+
+@{
+    ViewData["Title"] = ViewBag.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-history mr-1"></i> @ViewBag.Title
+        </h3>
+        <br />
+        <small class="text-muted">@ViewBag.SubTitle</small>
+
+        <div class="card-tools">
+            <a href="/Treasury/Index" class="btn btn-sm btn-secondary">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Açıklama</th>
+                    <th>İşlem Tipi</th>
+                    <th>Tutar</th>
+                    <th>Yapan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model.OrderByDescending(x => x.TransactionDate))
+                    {
+                        <tr>
+                            <td>@item.TransactionDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@item.Description</td>
+                            <td>
+                                @if (item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming)
+                                {
+                                    <span class="badge bg-success">Giriş / Ödeme Alma</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Çıkış / Harcama</span>
+                                }
+                            </td>
+                            <td class="font-weight-bold @(item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming ? "text-success" : "text-danger")">
+                                @(item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming ? "+" : "-")
+                                @item.Amount.ToString("C2")
+                            </td>
+                            <td>@item.AuthorName</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> Bu hesaba ait henüz bir işlem bulunmuyor.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

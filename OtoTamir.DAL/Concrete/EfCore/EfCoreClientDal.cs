@@ -87,4 +87,10 @@ public class EfCoreClientDal : EfCoreGenericRepositoryDal<Client, DataContext>, 
 
         return true;
     }
+    public async Task<decimal> GetTotalReceivablesAsync(string mechanidId)
+    {
+       return await _context.Clients
+            .Where(c => c.MechanicId == mechanidId && c.Balance>0 )
+            .SumAsync(c => c.Balance);
+    }
 }

@@ -1,0 +1,91 @@
+﻿
+@model CardDetailsDTO
+@{
+    ViewData["Title"] = Model.CardName + " Ekstresi";
+
+    // Doluluk oranını hesapla (Yüzde kaç?)
+    var percentage = Model.Limit > 0 ? (int)((Model.CurrentDebt / Model.Limit) * 100) : 0;
+    string progressColor = percentage > 80 ? "bg-danger" : (percentage > 50 ? "bg-warning" : "bg-success");
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title text-primary font-weight-bold">
+                    <i class="fas fa-credit-card mr-1"></i>Kart Adı: @Model.CardName
+                    <i class="fas fa-credit-card mr-1"></i>Banka Adı: @Model.BankName
+                    <span class="badge badge-info ml-2 text-dark" style="font-size: 0.9rem;">Kart Numarası: **** @Model.Last4Digit</span>
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-1">
+                    <span>Güncel Borç: <b>@Model.CurrentDebt.ToString("C2")</b></span>
+                    <span>Limit: <b>@Model.Limit.ToString("C2")</b></span>
+                </div>
+               
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar @progressColor" role="progressbar"
+                         style="width: @percentage%;"
+                         aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                        %@percentage Dolu
+                    </div>
+                </div>
+
+                <p class="text-muted">
+                    Kullanılabilir Limit: <b class="text-success">@Model.AvailableLimit.ToString("C2")</b>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>@Model.DaysLeftToCutOff Gün</h3>
+                <p>Hesap Kesimine Kalan Süre</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="small-box-footer" style="text-align: left; padding-left: 10px;">
+                <div><i class="fas fa-cut"></i> Kesim:  @Model.CutOffDay.ToString("dd MMMM yyyy")</div>
+
+                <div class="font-weight-bold text-bold">
+                    <i class="fas fa-clock"></i> Son Ödeme: @Model.NextPaymentDate.ToString("dd MMMM yyyy")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Kart Hareketleri</h3>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Açıklama</th>
+                    <th>Tutar</th>
+                    <th>Yapan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Transactions)
+                {
+                    <tr>
+                        <td>@item.TransactionDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@item.Description</td>
+                        <td class="text-danger font-weight-bold">
+                            - @item.Amount.ToString("C2")
+                        </td>
+                        <td>@item.AuthorName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

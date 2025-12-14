@@ -29,45 +29,64 @@ namespace OtoTamir.BLL.Concrete
 
         public async Task AddTransactionAsync(TreasuryTransaction transaction, string mechanicId)
         {
+            // 1. Kasayı Bul
             var treasury = await _treasuryDal.GetOneAsync(transaction.TreasuryId, mechanicId);
             if (treasury == null)
                 throw new Exception("Kasa bulunamadı.");
 
-            // Miktar ayarlaması (Outgoing ise negatif, Incoming ise pozitif)
+            // 2. Miktar Yönünü Ayarla (Gider ise eksiye çevir)
+            // Eğer kullanıcı pozitif girdiyse ama işlem tipi "Gider" ise negatife çeviriyoruz.
             if (transaction.TransactionType == TransactionType.Outgoing && transaction.Amount > 0)
                 transaction.Amount *= -1;
 
-            // PaymentSource'a göre ilgili bakiyeyi güncelle
+            // 3. Ödeme Kaynağına Göre İlgili Tabloyu Güncelle
             switch (transaction.PaymentSource)
             {
                 case PaymentSource.Cash:
+                    // SADECE Nakit işlem kasadaki parayı (Amount) etkiler.
                     treasury.CashBalance += transaction.Amount;
+
+                    // Kasadaki değişimi kaydet
+                    await _treasuryDal.UpdateAsync();
                     break;
 
                 case PaymentSource.Bank:
                     if (!transaction.BankId.HasValue)
                         throw new Exception("Banka bilgisi eksik.");
+
                     var bank = await _bankDal.GetOneAsync(transaction.BankId.Value, mechanicId);
                     if (bank == null)
                         throw new Exception("Banka bulunamadı.");
+
+                    // Banka bakiyesini güncelle
                     bank.Balance += transaction.Amount;
+
+                    // Bankadaki değişimi kaydet
                     await _bankDal.UpdateAsync();
-                    treasury.BankBalance += transaction.Amount;
+
+                    // DİKKAT: Banka işlemi Kasa tablosundaki (treasury.Amount) parayı değiştirmez.
+                    // Para kasaya girmedi, bankaya girdi.
                     break;
 
                 case PaymentSource.ClientBalance:
                     if (!transaction.ClientId.HasValue)
                         throw new Exception("Müşteri bilgisi eksik.");
+
+                    // Müşteriyi bul
                     var client = await _clientDal.GetOneAsync(transaction.ClientId.Value, mechanicId, false, false);
                     if (client == null)
                         throw new Exception("Müşteri bulunamadı.");
+
+                    // Müşteri borcunu güncelle
                     client.Balance += transaction.Amount;
+                    treasury.ReceivablesBalance = await _clientDal.GetTotalReceivablesAsync(mechanicId);
+                    // Müşterideki değişimi kaydet
                     await _clientDal.UpdateAsync();
-                    treasury.ReceivablesBalance += transaction.Amount;
                     break;
             }
 
-            await _treasuryDal.UpdateAsync();
+            // 4. İşlemin Tarihçesini (Logunu) Kaydet
+            // Bu tablo (TreasuryTransactions) sadece "Ne zaman ne oldu?" sorusunun cevabıdır.
             await _transactionDal.CreateAsync(transaction);
         }
         public async Task AddCardTransactionAsync(TreasuryTransaction transaction)

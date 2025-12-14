@@ -30,6 +30,8 @@ namespace OtoTamir.CORE.Mapping
             CreateMap<ServiceWorkflowLogDTO, RepairComment>().ReverseMap();
             CreateMap<AddBankCardDTO, BankCard>().ReverseMap();
             CreateMap<AddBankDTO, Bank>().ReverseMap();
+            CreateMap<BankDetailsDTO,Bank>().ReverseMap();
+            CreateMap<CardDetailsDTO,BankCard>().ReverseMap();
         }
     }
 }
