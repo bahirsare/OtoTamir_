@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OtoTamir.CORE.DTOs.TreasuryDTOs;
 
-namespace OtoTamir.WEBUI.ViewComponents._Treasury
+namespace OtoTamir.WEBUI.ViewComponents._Treasury.AddBank
 {
     public class _AddBankViewComponentPartial:ViewComponent
     {

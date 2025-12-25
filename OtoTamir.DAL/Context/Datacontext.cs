@@ -13,10 +13,7 @@ namespace OtoTamir.DAL.Context
 {
     public class DataContext : IdentityDbContext<Mechanic>
     {
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer("Server=DESKTOP-OM2N2UM; Database=OtoTamirDB; Integrated Security=true; TrustServerCertificate=True;");
-        //}
+        
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
         }
@@ -44,7 +41,7 @@ namespace OtoTamir.DAL.Context
         public DbSet<PurchaseDetail> PurchaseDetails { get; set; }
         public DbSet<RepairComment> RepairComments { get; set; }
         public DbSet<SparePart> SpareParts { get; set; }
-        public DbSet<BalanceLog> BalanceLogs { get; set; }
+        
         public DbSet<Bank> Banks { get; set; }
         public DbSet<BankCard> BankCards { get; set; }
         public DbSet<TransactionCategory> TransactionCategories  { get; set; }

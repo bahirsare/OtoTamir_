@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.BLL.Managers;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
@@ -14,17 +15,16 @@ namespace OtoTamir.WEBUI.Controllers
     {
         private readonly IClientService _clientService;
         private readonly UserManager<Mechanic> _userManager;
-        private readonly IBalanceLogService _balanceLogService;
         private readonly IMapper _mapper;
-        
+        private readonly ServiceProcessManager _serviceProcessManager;
 
-        public ClientController(IClientService clientService, UserManager<Mechanic> userManager, IBalanceLogService balanceLogService, IMapper mapper)
+
+        public ClientController(IClientService clientService, UserManager<Mechanic> userManager, IMapper mapper, ServiceProcessManager serviceProcessManager)
         {
             _clientService = clientService;
             _userManager = userManager;
-            _balanceLogService = balanceLogService;
             _mapper = mapper;
-           
+            _serviceProcessManager = serviceProcessManager;
         }
         public async Task<IActionResult> Clients(string sortOrder, string searchString)
         {
@@ -191,79 +191,46 @@ namespace OtoTamir.WEBUI.Controllers
             return RedirectToAction("Clients", "Client");
 
         }
-        public async Task<IActionResult> BalanceLogs(int? clientId)
+        [HttpGet]
+        public async Task<IActionResult> FinancialHistory(int clientId)
         {
+            
             var user = await _userManager.GetUserAsync(User);
 
-            if (user == null)
-            {
-                TempData["Message"] = "Tamirci bulunamadı!";
-                return RedirectToAction("Login", "Account");
-            }
-            if (clientId == null)
-            {
-                return View();
-            }
-            var client = await _clientService.GetOneAsync((int)clientId, user.Id, includeVehicles: false, includeServiceRecords: false);
-            var balanceLogs = await _balanceLogService.GetAllAsync(clientId: (int)clientId, mechanicId: user.Id);
-            var model = new BalanceLogDTO
-            {
-                Client = client,
-                BalanceLogs = balanceLogs
-            };
+           
+            
 
-            return View(model);
-        }
-        [HttpPost]
-        public async Task<IActionResult> AddPayment(int ClientId, DateTime PaymentDate, decimal Amount)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                TempData["FailMessage"] = "Müşteri bulunamadı.";
-                return RedirectToAction("BalanceLogs", ClientId);
-            }
+            var statement = await _clientService.GetClientStatementAsync(clientId, user.Id, user.TreasuryId);
 
-            var client = await _clientService.GetOneAsync(id: ClientId, mechanicId: user.Id, false, false);
-            if (client == null)
+            if (statement == null)
             {
-                TempData["FailMessage"] = "Müşteri bulunamadı.";
                 return RedirectToAction("Clients");
             }
 
-            decimal oldBalance = client.Balance;
-            decimal newBalance = oldBalance - Amount;
-
-
-            var log = new BalanceLog
-            {
-                ClientId = ClientId,
-                PaymentDate = PaymentDate,
-                Amount = Amount,
-                OldBalance = oldBalance,
-                NewBalance = newBalance
-            };
-
-
-            client.Balance = newBalance;
-
-
-            var balanceLogResult = await _balanceLogService.CreateAsync(log);
-            
-
-            if (balanceLogResult > 0)
-            {
-                TempData["SuccessMessage"] = "Bakiye hareketi başarıyla kaydedildi.";
-            }
-            else
-            {
-                TempData["FailMessage"] = "Kayıt sırasında hata oluştu.";
-            }
-
-            return RedirectToAction("BalanceLogs", new { clientId = ClientId });
+            return View(statement);
         }
+        [HttpPost]
+        [HttpPost]
+        public async Task<IActionResult> MakePayment(int clientId, decimal amount, string description, string paymentSource, string returnUrl, string authorName)
+        {
+            var user = await _userManager.GetUserAsync(User);
 
+            try
+            {
+                var sourceEnum = (PaymentSource)Enum.Parse(typeof(PaymentSource), paymentSource);
 
-        
+                // authorName parametresini de gönderiyoruz
+                await _serviceProcessManager.ReceivePaymentAsync(clientId, amount, description, sourceEnum, user.Id, authorName);
+
+                TempData["SuccessMessage"] = "Ödeme başarıyla alındı.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Hata: " + ex.Message;
+            }
+
+            if (!string.IsNullOrEmpty(returnUrl)) return Redirect(returnUrl);
+            return RedirectToAction("FinancialHistory", new { id = clientId });
+        }
     }
 }

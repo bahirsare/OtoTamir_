@@ -7,21 +7,16 @@ using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.DTOs.VehicleDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OtoTamir.CORE.Mapping
 {
-    public class MappingProfile:Profile
+    public class MappingProfile : Profile
 
     {
         public MappingProfile()
         {
-            CreateMap<CreateClientDTO,Client>().ReverseMap();
-            CreateMap<EditClientDTO,Client>().ReverseMap();
+            CreateMap<CreateClientDTO, Client>().ReverseMap();
+            CreateMap<EditClientDTO, Client>().ReverseMap();
             CreateMap<CreateVehicleDTO, Vehicle>().ReverseMap();
             CreateMap<EditVehicleDTO, Vehicle>().ReverseMap();
             CreateMap<EditProfileDTO, Mechanic>().ReverseMap();
@@ -30,8 +25,21 @@ namespace OtoTamir.CORE.Mapping
             CreateMap<ServiceWorkflowLogDTO, RepairComment>().ReverseMap();
             CreateMap<AddBankCardDTO, BankCard>().ReverseMap();
             CreateMap<AddBankDTO, Bank>().ReverseMap();
-            CreateMap<BankDetailsDTO,Bank>().ReverseMap();
-            CreateMap<CardDetailsDTO,BankCard>().ReverseMap();
+            CreateMap<BankDetailsDTO, Bank>().ReverseMap();
+            CreateMap<CardDetailsDTO, BankCard>().ReverseMap();
+            CreateMap<ClientStatementDTO, Client>().ReverseMap();
+            CreateMap<ServiceRecord, StatementItem>()
+             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.CompletedDate ?? src.CreatedDate))
+             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => $" {src.Name} - {src.Description} (Plaka: {src.Vehicle.Plate})"))
+             .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Price))
+             .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(s => "DEBT"));
+            CreateMap<TreasuryTransaction, StatementItem>()
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.TransactionDate))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => $" {src.Description} ({src.PaymentSource})"))
+                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+                .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(s => "PAYMENT"));
         }
     }
 }

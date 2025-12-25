@@ -84,5 +84,49 @@ namespace OtoTamir.BLL.Managers
                 }
             }
         }
+        public async Task ReceivePaymentAsync(int clientId, decimal amount, string description, PaymentSource paymentSource, string mechanicId, string authorName)
+        {
+            // Veri tutarlılığı için Transaction başlatıyoruz
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 1. Ustayı ve Kasasını Bul
+                    var user = await _mechanicService.GetOneAsync(mechanicId);
+                    if (user.TreasuryId == null)
+                        throw new Exception("Kasa bulunamadı!");
+
+                    // 2. Transaction (Kasa Hareketi) Oluştur
+                    var treasuryTransaction = new TreasuryTransaction
+                    {
+                        TreasuryId = (int)user.TreasuryId,
+                        ClientId = clientId,
+                        Amount = amount,
+                        Description = string.IsNullOrEmpty(description) ? "Cari Hesap Ödemesi" : description,
+                        TransactionDate = DateTime.Now,
+                        TransactionType = TransactionType.Incoming, // Para Girişi
+                        PaymentSource = paymentSource,
+                        AuthorName = authorName
+                    };
+
+                    // Servis üzerinden ekle (Bu servis kendi içinde bakiyeyi güncelliyor mu kontrol etmeliyiz, 
+                    // eğer güncellemiyorsa aşağıda biz güncelleriz.)
+                    await _treasuryTransactionService.CreateAsync(treasuryTransaction);
+
+                    // 3. Müşteri Bakiyesini Düş (Ödeme alındığı için borç azalır)
+                    // UpdateBalanceAsync metoduna EKSİ (-) gönderiyoruz çünkü o += yapıyor.
+                    await _clientService.UpdateBalanceAsync(mechanicId, clientId, -amount);
+
+                    // Her şey başarılıysa onayla
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    // Hata olursa her şeyi geri al
+                    await transaction.RollbackAsync();
+                    throw; // Hatayı yukarı fırlat ki Controller yakalasın
+                }
+            }
+        }
     }
 }

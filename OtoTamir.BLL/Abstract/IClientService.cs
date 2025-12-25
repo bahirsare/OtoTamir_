@@ -1,4 +1,5 @@
-﻿using OtoTamir.CORE.Entities;
+﻿using OtoTamir.CORE.DTOs.ClientDTOs;
+using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Repositories;
 using System.Linq.Expressions;
 
@@ -17,4 +18,7 @@ namespace OtoTamir.BLL.Abstract
         bool includeServiceRecords = false);
     
      Task<decimal> GetTotalReceivablesAsync(string mechanidId);
+        Task<ClientStatementDTO> GetClientStatementAsync(int clientId, string mechanicId, int treasuryId);
+
+        Task<bool> UpdateBalanceAsync(string mechanicId, int clientId, decimal amount);
     } }

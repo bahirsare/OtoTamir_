@@ -1,4 +1,6 @@
-﻿using OtoTamir.BLL.Abstract;
+﻿using AutoMapper;
+using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
@@ -8,10 +10,14 @@ namespace OtoTamir.BLL.Concrete
     public class ClientService : IClientService
     {
         private readonly IClientDal _clientDal;
+        private readonly IMapper _mapper;
+        private readonly ITreasuryTransactionDal _transactionDal;
 
-        public ClientService(IClientDal clientDal)
+        public ClientService(IClientDal clientDal, ITreasuryTransactionDal transactionDal,IMapper mapper)
         {
             _clientDal = clientDal;
+            _transactionDal = transactionDal;
+            _mapper = mapper;
         }
 
         public async Task<bool> AnyAsync(Expression<Func<Client, bool>> filter)
@@ -26,17 +32,17 @@ namespace OtoTamir.BLL.Concrete
 
         public int Delete(int id)
         {
-            return  _clientDal.Delete(id);
+            return _clientDal.Delete(id);
         }
 
-       
 
-        public async Task<List<Client>> GetAllAsync(string mechanicId, 
-            bool includeVehicles, 
+
+        public async Task<List<Client>> GetAllAsync(string mechanicId,
+            bool includeVehicles,
             bool includeServiceRecords,
             Expression<Func<Client, bool>> filter = null)
         {
-            return await _clientDal.GetAllAsync(mechanicId,includeVehicles,includeServiceRecords,filter);
+            return await _clientDal.GetAllAsync(mechanicId, includeVehicles, includeServiceRecords, filter);
         }
 
         public async Task<Client> GetOneAsync(
@@ -45,15 +51,56 @@ namespace OtoTamir.BLL.Concrete
         bool includeVehicles,
         bool includeServiceRecords)
         {
-            return await _clientDal.GetOneAsync(id,mechanicId,includeVehicles,includeServiceRecords);
+            return await _clientDal.GetOneAsync(id, mechanicId, includeVehicles, includeServiceRecords);
         }
 
         public async Task<int> UpdateAsync()
         {
             return await _clientDal.UpdateAsync();
         }
-        public Task<decimal> GetTotalReceivablesAsync(string mechanidId) { 
-            return _clientDal.GetTotalReceivablesAsync(mechanidId);
+        public async Task<decimal> GetTotalReceivablesAsync(string mechanidId)
+        {
+            return await _clientDal.GetTotalReceivablesAsync(mechanidId);
+        }
+        public async Task<ClientStatementDTO> GetClientStatementAsync(int clientId, string mechanicId, int treasuryId)
+        {
+            // 1. Verileri Çek
+            var client = await _clientDal.GetOneAsync(clientId, mechanicId, true, true);
+            if (client == null) return null;
+
+            // 2. Temel bilgileri ve MEVCUT BAKİYEYİ Map'le
+            var model = _mapper.Map<ClientStatementDTO>(client);
+
+            // 3. Geçmiş Hareketleri Listele (Sadece tablo doldurmak için)
+            var statementItems = new List<StatementItem>();
+
+            if (client.Vehicles != null)
+            {
+                var services = client.Vehicles.SelectMany(v => v.ServiceRecords).ToList();
+                statementItems.AddRange(_mapper.Map<List<StatementItem>>(services));
+            }
+
+            var payments = await _transactionDal.GetAllAsync(
+                mechanicId,
+                treasuryId,
+                filter: x => x.ClientId == clientId && x.TransactionType == TransactionType.Incoming
+            );
+            statementItems.AddRange(_mapper.Map<List<StatementItem>>(payments));
+
+            // 4. Listeyi Sırala
+            model.Transactions = statementItems.OrderByDescending(x => x.Date).ToList();
+
+            // 5. Alt bilgi için toplamlar (Opsiyonel ama faydalı)
+            model.TotalDebt = model.Transactions.Where(x => x.Type == "DEBT").Sum(x => x.Amount);
+            model.TotalPaid = model.Transactions.Where(x => x.Type == "PAYMENT").Sum(x => x.Amount);
+
+            // DİKKAT: CurrentBalance'ı burada hesaplamıyoruz, veritabanından gelen model.CurrentBalance kullanılıyor.
+
+            return model;
+        }
+
+        public async Task<bool> UpdateBalanceAsync(string mechanicId, int clientId, decimal amount) { 
+            return await _clientDal.UpdateBalanceAsync(mechanicId, clientId, amount);
         }
     }
 }

@@ -34,6 +34,7 @@ namespace OtoTamir.DAL.Abstract
         bool includeVehicles,
         bool includeServiceRecords);
         Task<decimal> GetTotalReceivablesAsync(string mechanidId);
-    }
 
+        Task<bool> UpdateBalanceAsync(string mechanicId, int clientId, decimal amount);
+    }
 }

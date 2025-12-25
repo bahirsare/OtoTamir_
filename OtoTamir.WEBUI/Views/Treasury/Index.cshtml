@@ -3,7 +3,7 @@
     ViewData["Title"] = "Kasa ve Banka Yönetimi";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    // Filtreleme için varsayılan tarihleri alıyoruz (Controller'dan ViewBag ile gelmezse bugünü baz al)
+    
     var startVal = Context.Request.Query["startDate"].ToString();
     var endVal = Context.Request.Query["endDate"].ToString();
 }
@@ -241,79 +241,3 @@
 <div class="modal fade" id="modalAddCard" tabindex="-1" aria-hidden="true">
     @await Component.InvokeAsync("_AddBankCardViewComponentPartial")
 </div>
-@section Scripts {
-    <script src="~/AdminLTE-master/plugins/chart.js/Chart.min.js"></script>
-
-    <script>
-        $(function () {
-            // Backend'den gelen verileri JS değişkenlerine al
-            // Html.Raw ve Json.Serialize kullanarak C# Listesini JS Array'ine çeviriyoruz
-            var labels = @Html.Raw(Json.Serialize(Model.ChartLabels));
-            var incomeData = @Html.Raw(Json.Serialize(Model.IncomeData));
-            var expenseData = @Html.Raw(Json.Serialize(Model.ExpenseData));
-
-            var areaChartCanvas = $('#revenueChart').get(0).getContext('2d');
-
-            var areaChartData = {
-                labels  : labels,
-                datasets: [
-                    {
-                        label               : 'Gelirler (Tahsilat)',
-                        backgroundColor     : 'rgba(40, 167, 69, 0.9)', // Yeşil
-                        borderColor         : 'rgba(40, 167, 69, 0.8)',
-                        pointRadius          : false,
-                        pointColor          : '#28a745',
-                        pointStrokeColor    : 'rgba(40, 167, 69, 1)',
-                        pointHighlightFill  : '#fff',
-                        pointHighlightStroke: 'rgba(40, 167, 69, 1)',
-                        data                : incomeData
-                    },
-                    {
-                        label               : 'Giderler (Harcama)',
-                        backgroundColor     : 'rgba(220, 53, 69, 0.9)', // Kırmızı
-                        borderColor         : 'rgba(220, 53, 69, 0.8)',
-                        pointRadius         : false,
-                        pointColor          : 'rgba(220, 53, 69, 1)',
-                        pointStrokeColor    : '#c1c7d1',
-                        pointHighlightFill  : '#fff',
-                        pointHighlightStroke: 'rgba(220, 220, 220, 1)',
-                        data                : expenseData
-                    }
-                ]
-            }
-
-            var areaChartOptions = {
-                maintainAspectRatio : false,
-                responsive : true,
-                legend: {
-                    display: true
-                },
-                scales: {
-                    xAxes: [{
-                        gridLines : {
-                            display : false,
-                        }
-                    }],
-                    yAxes: [{
-                        gridLines : {
-                            display : true,
-                        },
-                        ticks: {
-                            beginAtZero: true,
-                            callback: function(value, index, values) {
-                                return value.toLocaleString("tr-TR") + ' ₺'; // TL Simgesi ekle
-                            }
-                        }
-                    }]
-                }
-            }
-
-            // Grafiği Çiz
-            new Chart(areaChartCanvas, {
-                type: 'bar', // Çizgi grafik istersen 'line' yapabilirsin
-                data: areaChartData,
-                options: areaChartOptions
-            });
-        });
-    </script>
-}

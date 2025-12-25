@@ -21,6 +21,6 @@ namespace OtoTamir.BLL.Abstract
         Task<Treasury> GetOneAsync(
         int id,
         string mechanicId);
-        Task<TreasuryDashboardDTO> GetDashboardDataAsync(string mechanicId, int treasuryId);
+        
     }
 }

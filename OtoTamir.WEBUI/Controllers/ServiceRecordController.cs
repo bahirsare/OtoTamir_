@@ -21,10 +21,10 @@ public class ServiceRecordController : Controller
     private readonly ISymptomService _symptomService;
     private readonly IMapper _mapper;
     private readonly UserManager<Mechanic> _userManager;
-    private readonly IBalanceLogService _balanceLogService;
+   
     private readonly ServiceProcessManager _processManager;
 
-    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager,IBalanceLogService balanceLogService, ServiceProcessManager processManager)
+    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager, ServiceProcessManager processManager)
     {
         _vehicleService = vehicleService;
         _clientService = clientService;
@@ -32,7 +32,6 @@ public class ServiceRecordController : Controller
         _symptomService = symptomService;
         _mapper = mapper;
         _userManager = userManager;
-        _balanceLogService = balanceLogService;
         _processManager = processManager;
     }
 
@@ -252,9 +251,9 @@ public class ServiceRecordController : Controller
 
             var completeDto = new ServiceCompletionDTO
             {
-                ServiceRecordId = serviceRecord.Id, // Yeni oluşan ID
-                PaymentMethod = (PaymentSource)model.PaymentMethod, // View'dan gelen ödeme türü (Nakit/Banka/Veresiye)
-                BankId = model.BankId, // Eğer banka seçildiyse ID'si
+                ServiceRecordId = serviceRecord.Id, 
+                PaymentMethod = (PaymentSource)model.PaymentMethod, 
+                BankId = model.BankId, 
                 MechanicId=user.Id,
                 AuthorName = model.AuthorName
             };
@@ -268,7 +267,6 @@ public class ServiceRecordController : Controller
             }
             catch (Exception ex)
             {
-                // Ödeme sırasında hata olursa servisi silmeyelim ama uyarı verelim
                 TempData["WarningMessage"] = "Servis oluştu ancak ödeme işlenirken hata oldu: " + ex.Message;
             }
         }
@@ -277,9 +275,7 @@ public class ServiceRecordController : Controller
             return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
 
         } 
-    //viewbag içinde bankalar yazılacak
-    // banka ekleme ve görüntüleme ekranı lazım kasa için genel bir sayfa olabilir
-    // müşteri balance geçmişine güncelleme gerekiyor nakit ve banka ödemerlini de yazması lazım oraya
+    
 
     [HttpGet]
     public async Task<IActionResult> Ongoing(ListServiceRecordsDTO model)
@@ -401,7 +397,7 @@ public class ServiceRecordController : Controller
     {
         var user = await _userManager.GetUserAsync(User);
 
-        // DTO'yu dolduruyoruz
+       
         var completionModel = new ServiceCompletionDTO
         {
             ServiceRecordId = serviceId,
@@ -412,7 +408,6 @@ public class ServiceRecordController : Controller
 
         try
         {
-            // Tüm karmaşık işi Manager hallediyor
             await _processManager.CompleteServiceProcessAsync(completionModel);
             TempData["SuccessMessage"] = "Servis başarıyla tamamlandı, ödeme alındı.";
         }

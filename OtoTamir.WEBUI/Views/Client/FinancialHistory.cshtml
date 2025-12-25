@@ -1,0 +1,219 @@
+﻿@model OtoTamir.CORE.DTOs.ClientDTOs.ClientStatementDTO
+@{
+    ViewData["Title"] = "Hesap Ekstresi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header d-print-none">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Müşteri Hesap Ekstresi</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Client" asp-action="Clients">Müşteriler</a></li>
+                    <li class="breadcrumb-item active">Hesap Geçmişi</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+
+                <div id="printableArea">
+
+                    <div class="row mb-4 d-none d-print-flex">
+                        <div class="col-12 text-center">
+                            <h2>OTO TAMİR SERVİS FORMU</h2>
+                            <p>Tarih: @DateTime.Now.ToString("dd.MM.yyyy")</p>
+                            <hr />
+                        </div>
+                    </div>
+
+                    <div class="callout @(Model.Balance > 0 ? "callout-danger" : "callout-success") bg-white shadow-sm mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8 col-8">
+                                <h4 class="text-primary m-0">
+                                    <i class="fas fa-user-circle mr-2"></i> @Model.Name
+                                </h4>
+                                <p class="text-muted mb-0 mt-2">
+                                    <i class="fas fa-phone mr-1"></i> @Model.PhoneNumber
+                                </p>
+                            </div>
+                            <div class="col-md-4 col-4 text-right">
+                                <small class="text-uppercase text-muted font-weight-bold">GÜNCEL BAKİYE</small>
+                                <h2 class="font-weight-bold m-0 @(Model.Balance > 0 ? "text-danger" : "text-success")">
+                                    @if (Model.Balance > 0)
+                                    {
+                                        <span>-@Model.Balance.ToString("N2") ₺</span>
+                                        <small class="d-block text-danger d-print-none" style="font-size: 12px; font-weight: normal;">(Borçlu)</small>
+                                    }
+                                    else if (Model.Balance < 0)
+                                    {
+                                        <span>+@Math.Abs(Model.Balance).ToString("N2") ₺</span>
+                                        <small class="d-block text-success d-print-none" style="font-size: 12px; font-weight: normal;">(Alacaklı)</small>
+                                    }
+                                    else
+                                    {
+                                        <span>0.00 ₺</span>
+                                    }
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-outline card-primary border-0">
+                        <div class="card-header border-0 d-print-none">
+                            <h3 class="card-title">
+                                <i class="fas fa-list-ul mr-1"></i> İşlem Geçmişi
+                            </h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-success btn-sm mr-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#paymentModal">
+                                    <i class="fas fa-hand-holding-usd"></i> Ödeme Al
+                                </button>
+
+                                <button type="button" class="btn btn-default btn-sm" onclick="window.print()">
+                                    <i class="fas fa-print"></i> Yazdır
+                                </button>
+                            </div>
+
+                            <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-hidden="true">
+                                @await Component.InvokeAsync("_AddPaymentViewComponentPartial", new { clientId = Model.Id, currentBalance = Model.Balance })
+                            </div>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th style="width: 20%">Tarih</th>
+                                        <th style="width: 40%">Açıklama</th>
+                                        <th class="text-right text-danger">Borç (Servis)</th>
+                                        <th class="text-right text-success">Alacak (Ödeme)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Transactions)
+                                    {
+                                        <tr>
+                                            <td>@item.Date.ToString("dd.MM.yyyy") <br class="d-print-none" /><small class="text-muted d-print-none">@item.Date.ToString("HH:mm")</small></td>
+                                            <td>
+                                                @if (item.Type == "DEBT")
+                                                {
+                                                    <span class="badge badge-warning border mr-2 d-print-none text-dark">Servis</span>
+                                                    <span class="text-dark font-weight-bold">@item.Description</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-success mr-2 d-print-none">Tahsilat</span>
+                                                    <span class="text-dark font-weight-bold">@item.Description</span>
+                                                }
+                                            </td>
+                                            <td class="text-right">
+                                                @if (item.Type == "DEBT")
+                                                {
+                                                    <span class="text-danger font-weight-bold">@item.Amount.ToString("N2") ₺</span>
+                                                }
+                                                else
+                                                {
+
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td class="text-right">
+                                                @if (item.Type == "PAYMENT")
+                                                {
+                                                    <span class="text-success font-weight-bold">@item.Amount.ToString("N2") ₺</span>
+                                                }
+                                                else
+                                                {
+
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="border-top">
+                                    <tr style="font-size: 1.1em;">
+                                        <td colspan="2" class="text-right font-weight-bold">GENEL TOPLAM:</td>
+                                        <td class="text-right text-danger font-weight-bold">@Model.TotalDebt.ToString("C2")</td>
+                                        <td class="text-right text-success font-weight-bold">@Model.TotalPaid.ToString("C2")</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mt-5 d-none d-print-flex">
+                        <div class="col-6 text-center">
+                            <p>Teslim Eden<br />(İmza)</p>
+                        </div>
+                        <div class="col-6 text-center">
+                            <p>Teslim Alan<br />(İmza)</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<style media="print">
+    /* Sayfadaki her şeyi gizle */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Sadece printableArea ve içindekileri göster */
+    #printableArea, #printableArea * {
+        visibility: visible;
+    }
+
+    /* printableArea'yı sayfanın en tepesine sabitle */
+    #printableArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* AdminLTE Layout düzeltmeleri */
+    .content-wrapper, .main-footer {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Linklerin yanındaki URL'leri gizle */
+    a[href]:after {
+        content: none !important;
+    }
+
+    /* Bootstrap Badge'leri sadeleştir */
+    .badge {
+        border: 1px solid #000;
+        color: #000 !important;
+        background: transparent !important;
+    }
+
+    /* Print sınıfı için özel görünürlük */
+    .d-print-flex {
+        display: flex !important;
+    }
+</style>

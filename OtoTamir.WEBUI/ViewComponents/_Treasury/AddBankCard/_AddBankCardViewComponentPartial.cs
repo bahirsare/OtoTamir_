@@ -6,7 +6,7 @@ using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
 using System.Security.Claims;
 
-namespace OtoTamir.WEBUI.ViewComponents._Treasury
+namespace OtoTamir.WEBUI.ViewComponents._Treasury.AddBankCard
 {
     public class _AddBankCardViewComponentPartial : ViewComponent
     {

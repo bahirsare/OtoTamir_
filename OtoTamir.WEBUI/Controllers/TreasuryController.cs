@@ -40,7 +40,7 @@ namespace OtoTamir.WEBUI.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+       // [HttpGet]
         //public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
         //{
         //    var user = await _userManager.GetUserAsync(User);
@@ -79,10 +79,9 @@ namespace OtoTamir.WEBUI.Controllers
             var start = startDate ?? DateTime.Now.AddDays(-30);
             var end = endDate ?? DateTime.Now.AddDays(1);
             var treasury = await _treasuryService.GetOneAsync((int)user.TreasuryId, user.Id);
-            // Tek satırda tüm veriyi alıyoruz!
-            var model = await _treasuryService.GetDashboardDataAsync(user.Id,user.TreasuryId);
+           
 
-            return View(model);
+            return View();
         }
 
         [HttpPost]
@@ -90,7 +89,7 @@ namespace OtoTamir.WEBUI.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            // Modelden Entity'ye manuel map veya AutoMapper
+            
             var bank = _mapper.Map<Bank>(model);
             bank.TreasuryId = user.TreasuryId;
 
@@ -129,7 +128,7 @@ namespace OtoTamir.WEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteBank(int id)
         {
-            // Silme işlemi VehicleController'daki gibi ID üzerinden
+          
             var result = _bankService.Delete(id);
 
             if (result > 0)
@@ -158,17 +157,17 @@ namespace OtoTamir.WEBUI.Controllers
             }
             return RedirectToAction("Index");
         }
-        // 1. BANKA DETAYLARI
+       
         public async Task<IActionResult> BankTransactions(int id)
         {
             var user = await _userManager.GetUserAsync(User);
             var bank = await _bankService.GetOneAsync(id, user.Id);
             if (bank == null) return RedirectToAction("Index");
 
-            // Tüm işlemleri çek
+            
             var transactions = await _transactionService.GetAllAsync(user.Id, (int)user.TreasuryId, x => x.BankId == id);
 
-            // Son 30 günün tarihini belirle
+            
             var lastMonth = DateTime.Now.AddDays(-30);
 
             var model = _mapper.Map<BankDetailsDTO>(bank);
@@ -193,21 +192,21 @@ namespace OtoTamir.WEBUI.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            // Kartı ve bağlı olduğu bankayı çekiyoruz
+            
             var card = await _bankCardService.GetOneAsync(id, user.Id);
 
             if (card == null) return RedirectToAction("Index");
 
-            // İşlem geçmişini çekiyoruz
+           
             var transactions = await _transactionService.GetAllAsync(user.Id, (int)user.TreasuryId, x => x.BankCardId == id);
 
-            // --- TARİH HESAPLAMA BAŞLANGIÇ ---
+           
             var today = DateTime.Today;
 
-            // 1. Hesap Kesim Tarihi
+            
             int billingDay = card.BillingDay < 1 ? 1 : card.BillingDay;
 
-            // Ayın kaç çektiğini kontrol et (Şubat 28 mi, Mart 31 mi?)
+            
             int daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
             int safeBillingDay = Math.Min(billingDay, daysInMonth);
 
