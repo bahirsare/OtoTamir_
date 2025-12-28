@@ -12,7 +12,7 @@ namespace OtoTamir.CORE.DTOs.TreasuryDTOs
         public List<BankCard> BankCards { get; set; }
         public List<TreasuryTransaction> Transactions { get; set; }
 
-
+        public List<PosTerminalSummaryDTO> PosTerminals { get; set; }
         public List<string> ChartLabels { get; set; } = new List<string>(); 
         public List<decimal> IncomeData { get; set; } = new List<decimal>();
         public List<decimal> ExpenseData { get; set; } = new List<decimal>();
@@ -21,6 +21,7 @@ namespace OtoTamir.CORE.DTOs.TreasuryDTOs
             Banks = new List<Bank>();
             BankCards = new List<BankCard>();
             Transactions = new List<TreasuryTransaction>();
+            PosTerminals = new List<PosTerminalSummaryDTO>();
             
         }
     }

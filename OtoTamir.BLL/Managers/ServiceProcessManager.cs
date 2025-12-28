@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.BLL.Concrete;
 using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Context;
@@ -14,20 +15,29 @@ namespace OtoTamir.BLL.Managers
         private readonly ITreasuryTransactionService _treasuryTransactionService;
         private readonly IClientService _clientService;
         private readonly IMechanicService _mechanicService;
-        private readonly DataContext _context; // Transaction için gerekli
+        private readonly IPosTerminalService _posTerminalService;
+        private readonly IBankService _bankService;
+        private readonly ITreasuryService _treasuryService;
+        private readonly DataContext _context; 
 
         public ServiceProcessManager(
             IServiceRecordService serviceRecordService,
             ITreasuryTransactionService treasuryTransactionService,
             IClientService clientService,
             IMechanicService mechanicService,
-            DataContext context)
+            DataContext context,
+            IPosTerminalService posTerminalService,
+            IBankService bankService,
+            ITreasuryService treasuryService)
         {
             _serviceRecordService = serviceRecordService;
             _treasuryTransactionService = treasuryTransactionService;
             _clientService = clientService;
             _mechanicService = mechanicService;
             _context = context;
+            _posTerminalService = posTerminalService;
+            _bankService = bankService;
+            _treasuryService = treasuryService;
         }
 
         public async Task CompleteServiceProcessAsync(ServiceCompletionDTO model)
@@ -84,47 +94,125 @@ namespace OtoTamir.BLL.Managers
                 }
             }
         }
-        public async Task ReceivePaymentAsync(int clientId, decimal amount, string description, PaymentSource paymentSource, string mechanicId, string authorName)
+
+        public async Task ReceivePaymentAsync(
+    int clientId,
+    decimal amount,
+    string description,
+    PaymentSource paymentSource,
+    string mechanicId,
+    string authorName,
+    int? posTerminalId = null,
+    int? targetBankId = null 
+)
         {
-            // Veri tutarlılığı için Transaction başlatıyoruz
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    // 1. Ustayı ve Kasasını Bul
                     var user = await _mechanicService.GetOneAsync(mechanicId);
-                    if (user.TreasuryId == null)
-                        throw new Exception("Kasa bulunamadı!");
+                    if (user.TreasuryId == null) throw new Exception("Kasa bulunamadı!");
 
-                    // 2. Transaction (Kasa Hareketi) Oluştur
-                    var treasuryTransaction = new TreasuryTransaction
+                   
+                    decimal commissionAmount = 0;
+                    DateTime maturityDate = DateTime.Now;
+                    int? finalBankId = null;
+                    string extraDescription = "";
+
+                   
+                    if (paymentSource == PaymentSource.CreditCard)
+                    {
+                        if (posTerminalId == null) throw new Exception("Lütfen bir POS cihazı seçiniz!");
+
+                        var pos = await _posTerminalService.GetOneAsync((int)posTerminalId, mechanicId);
+                        if (pos == null) throw new Exception("Seçilen POS cihazı bulunamadı veya size ait değil.");
+
+                       
+                        maturityDate = DateTime.Now.AddDays(pos.MaturityDays);
+                        if (pos.CommissionRate > 0)
+                        {
+                            commissionAmount = amount * (pos.CommissionRate / 100);
+                        }
+
+                        finalBankId = pos.BankId; 
+                        extraDescription = $" (POS: {pos.Name})";
+                    }
+
+                   
+                    else if (paymentSource == PaymentSource.Bank)
+                    {
+                        if (targetBankId == null) throw new Exception("Lütfen paranın yatacağı bankayı seçiniz!");
+
+                        var bank = await _bankService.GetOneAsync((int)targetBankId, mechanicId);
+
+                        if (bank == null)
+                            throw new Exception("Seçilen banka hesabı bulunamadı veya size ait değil! İşlem iptal edildi.");
+
+                        finalBankId = targetBankId;
+                        maturityDate = DateTime.Now; 
+                    }
+
+                   
+                    
+
+                   
+                    var incomingTrx = new TreasuryTransaction
                     {
                         TreasuryId = (int)user.TreasuryId,
                         ClientId = clientId,
                         Amount = amount,
-                        Description = string.IsNullOrEmpty(description) ? "Cari Hesap Ödemesi" : description,
+                        Description = description + extraDescription,
                         TransactionDate = DateTime.Now,
-                        TransactionType = TransactionType.Incoming, // Para Girişi
+                        MaturityDate = maturityDate,
+                        TransactionType = TransactionType.Incoming,
                         PaymentSource = paymentSource,
+                        PosTerminalId = posTerminalId,
+                        BankId = finalBankId, 
                         AuthorName = authorName
                     };
 
-                    // Servis üzerinden ekle (Bu servis kendi içinde bakiyeyi güncelliyor mu kontrol etmeliyiz, 
-                    // eğer güncellemiyorsa aşağıda biz güncelleriz.)
-                    await _treasuryTransactionService.CreateAsync(treasuryTransaction);
+                    await _treasuryTransactionService.CreateAsync(incomingTrx);
 
-                    // 3. Müşteri Bakiyesini Düş (Ödeme alındığı için borç azalır)
-                    // UpdateBalanceAsync metoduna EKSİ (-) gönderiyoruz çünkü o += yapıyor.
+                    if (paymentSource == PaymentSource.Cash)
+                    {
+                        // Parametre olarak mechanicId'yi de ekledik
+                        await _treasuryService.UpdateCashBalanceAsync((int)user.TreasuryId, mechanicId, amount);
+                    }
+
+                    // B) HAVALE İSE -> BANKA BAKİYESİNİ GÜNCELLE
+                    else if (paymentSource == PaymentSource.Bank && finalBankId != null)
+                    {
+                        // Parametre olarak mechanicId'yi de ekledik
+                        await _bankService.UpdateBalanceAsync((int)finalBankId, mechanicId, amount);
+                    }
+                    if (commissionAmount > 0)
+                    {
+                        var expenseTrx = new TreasuryTransaction
+                        {
+                            TreasuryId = (int)user.TreasuryId,
+                            ClientId = null,
+                            Amount = commissionAmount,
+                            Description = $"POS Komisyon Kesintisi {extraDescription}",
+                            TransactionDate = maturityDate,
+                            MaturityDate = maturityDate, 
+                            TransactionType = TransactionType.Outgoing,
+                            PaymentSource = PaymentSource.Bank, 
+                            BankId = finalBankId,
+                            PosTerminalId = posTerminalId,
+                            AuthorName = "Sistem"
+                        };
+                        await _treasuryTransactionService.CreateAsync(expenseTrx);
+                    }
+
+                  
                     await _clientService.UpdateBalanceAsync(mechanicId, clientId, -amount);
 
-                    // Her şey başarılıysa onayla
                     await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {
-                    // Hata olursa her şeyi geri al
                     await transaction.RollbackAsync();
-                    throw; // Hatayı yukarı fırlat ki Controller yakalasın
+                    throw;
                 }
             }
         }

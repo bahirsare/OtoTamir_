@@ -68,7 +68,7 @@ namespace OtoTamir.BLL.Concrete
             var mechanic = await _mechanicDal.GetAllAsync(false,false,null,m => m.StoreName == storeName);
             var treasury = new Treasury
             {
-                BankBalance = 0,
+                
                 CashBalance = 0,
                 ReceivablesBalance = 0,
                 CreatedDate = DateTime.Now,

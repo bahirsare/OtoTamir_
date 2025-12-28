@@ -22,5 +22,6 @@ namespace OtoTamir.DAL.Abstract
         Task<Treasury> GetOneAsync(
         int id,
         string mechanicId);
+        Task UpdateCashBalanceAsync(int treasuryId, string mechanicId, decimal amount);
     }
 }

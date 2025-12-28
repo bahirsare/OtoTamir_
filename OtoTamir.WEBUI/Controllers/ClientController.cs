@@ -211,7 +211,17 @@ namespace OtoTamir.WEBUI.Controllers
         }
         [HttpPost]
         [HttpPost]
-        public async Task<IActionResult> MakePayment(int clientId, decimal amount, string description, string paymentSource, string returnUrl, string authorName)
+        [HttpPost]
+        public async Task<IActionResult> MakePayment(
+    int clientId,
+    decimal amount,
+    string description,
+    string paymentSource,
+    string returnUrl,
+    string authorName,
+    int? posTerminalId, 
+    int? targetBankId  
+)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -219,10 +229,13 @@ namespace OtoTamir.WEBUI.Controllers
             {
                 var sourceEnum = (PaymentSource)Enum.Parse(typeof(PaymentSource), paymentSource);
 
-                // authorName parametresini de gönderiyoruz
-                await _serviceProcessManager.ReceivePaymentAsync(clientId, amount, description, sourceEnum, user.Id, authorName);
+                
 
-                TempData["SuccessMessage"] = "Ödeme başarıyla alındı.";
+                await _serviceProcessManager.ReceivePaymentAsync(
+                    clientId, amount, description, sourceEnum, user.Id, authorName, posTerminalId,targetBankId
+                );
+
+                TempData["SuccessMessage"] = "Ödeme alındı.";
             }
             catch (Exception ex)
             {

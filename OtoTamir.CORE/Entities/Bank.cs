@@ -10,9 +10,12 @@
         public Treasury Treasury { get; set; }
         public int TreasuryId { get; set; }
         public List<BankCard> Cards { get; set; }
+        public List<PosTerminal> PosTerminals { get; set; }
+
         public Bank()
         {
             Cards = new List<BankCard>();
+            PosTerminals = new List<PosTerminal>();
         }
     }
     public class BankCard : BaseEntity
@@ -26,5 +29,14 @@
         public int DueDay { get; set; }
         public decimal Limit { get; set; }
         public decimal Debt { get; set; }
+    }
+    public class PosTerminal : BaseEntity
+    {
+        public string Name { get; set; } 
+
+        public int BankId { get; set; }
+        public Bank Bank { get; set; }        
+        public decimal CommissionRate { get; set; } 
+        public int MaturityDays { get; set; }     
     }
 }

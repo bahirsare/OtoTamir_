@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.BLL.Concrete;
@@ -7,6 +8,8 @@ using OtoTamir.CORE.Mapping;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Concrete.EfCore;
 using OtoTamir.DAL.Context;
+using System.Globalization;
+
 
 namespace OtoTamir.WEBUI
 {
@@ -53,7 +56,12 @@ namespace OtoTamir.WEBUI
             
             builder.Services.AddScoped<ITreasuryDal, EfCoreTreasuryDal>();
             builder.Services.AddScoped<ITreasuryService, TreasuryService>();
+
+            builder.Services.AddScoped<IPosTerminalDal,EfCorePosTerminalDal>();
+            builder.Services.AddScoped<IPosTerminalService,PosTerminalService>();
+
             builder.Services.AddScoped<BLL.Managers.ServiceProcessManager>();
+
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 //password
@@ -83,8 +91,31 @@ namespace OtoTamir.WEBUI
             });
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+            builder.Services.AddControllersWithViews(options =>
+            {
+                // Akýllý dönüþtürücüyü en baþa ekle
+                options.ModelBinderProviders.Insert(0, new OtoTamir.WEBUI.Services.SmartDecimalModelBinderProvider());
+            });
             var app = builder.Build();
 
+            var defaultDateCulture = "tr-TR";
+            var ci = new CultureInfo(defaultDateCulture);
+
+            // Sayý formatýný zorla Türkçe yap (Virgül kuruþ, Nokta binlik)
+            ci.NumberFormat.NumberDecimalSeparator = ",";
+            ci.NumberFormat.CurrencyDecimalSeparator = ",";
+
+            // Uygulama genelinde Türkçe ayarlarýný tanýmla
+            var supportedCultures = new[] { ci };
+            var localizationOptions = new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture(ci),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures
+            };
+
+            app.UseRequestLocalization(localizationOptions);
+            // --- BURADA BÝTÝR ---
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.BLL.Managers;
 using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
@@ -19,6 +20,7 @@ namespace OtoTamir.WEBUI.Controllers
         private readonly IClientService _clientService;
         private readonly IBankService _bankService;
         private readonly IBankCardService _bankCardService;
+        private readonly IPosTerminalService _posTerminalService;
         private readonly UserManager<Mechanic> _userManager;
         private readonly IMapper _mapper;
 
@@ -26,9 +28,10 @@ namespace OtoTamir.WEBUI.Controllers
         public TreasuryController(
             ITreasuryService treasuryService,
             ITreasuryTransactionService transactionService,
-             IClientService clientService,
+            IClientService clientService,
             IBankService bankService,
             IBankCardService bankCardService,
+            IPosTerminalService posTerminalService,
             UserManager<Mechanic> userManager, IMapper mapper)
         {
             _treasuryService = treasuryService;
@@ -36,52 +39,23 @@ namespace OtoTamir.WEBUI.Controllers
             _clientService = clientService;
             _bankService = bankService;
             _bankCardService = bankCardService;
+            _posTerminalService = posTerminalService;
             _userManager = userManager;
             _mapper = mapper;
         }
 
-       // [HttpGet]
-        //public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
-        //{
-        //    var user = await _userManager.GetUserAsync(User);
-        //    if (user == null) return RedirectToAction("Login", "Account");
-
-        //    // Kasa Kontrolü (Daha önce yazdığımız FixMissingTreasury mantığı burada da işe yarar)
-        //    if (user.TreasuryId == null)
-        //    {
-        //        TempData["FailMessage"] = "Kasa bulunamadı. Lütfen önce kasanızı oluşturun.";
-        //        return RedirectToAction("FixMissingTreasury", "Account");
-        //    }
-        //    var start = startDate ?? DateTime.Now.AddDays(-30);
-        //    var end = endDate ?? DateTime.Now.AddDays(1);
-        //    var treasury = await _treasuryService.GetOneAsync((int)user.TreasuryId, user.Id);
-
-        //    var model = new TreasuryDashboardViewModel
-        //    {
-        //        Treasury = treasury,
-        //        // Listeleri dolduruyoruz
-        //        Banks = await _bankService.GetAllAsync(user.Id),
-        //        BankCards = await _bankCardService.GetAllAsync(user.Id),
-
-
-        //        // Son işlemleri tarihe göre sıralı getir
-        //        Transactions = (await _transactionService.GetByDateRangeAsync(treasury.Id, user.Id, start, end))
-        //                        .OrderByDescending(t => t.TransactionDate)
-        //                        .Take(50)
-        //                        .ToList()
-        //    };
-
-        //    return View(model);
-        //}
+       
         public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
         {
             var user = await _userManager.GetUserAsync(User);
             var start = startDate ?? DateTime.Now.AddDays(-30);
             var end = endDate ?? DateTime.Now.AddDays(1);
             var treasury = await _treasuryService.GetOneAsync((int)user.TreasuryId, user.Id);
-           
 
-            return View();
+            var model = await _treasuryService.GetDashboardDataAsync(user.Id, user.TreasuryId);
+
+            return View(model);
+                
         }
 
         [HttpPost]
@@ -256,6 +230,53 @@ namespace OtoTamir.WEBUI.Controllers
             }
 
             return View("CardDetails", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddPosTerminal(AddPosTerminalDTO model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+
+            var pos = _mapper.Map<PosTerminal>(model);
+
+            var result = await _posTerminalService.CreateAsync(pos);
+
+            if (result > 0)
+                TempData["SuccessMessage"] = "POS cihazı başarıyla tanımlandı.";
+            else
+                TempData["FailMessage"] = "Hata oluştu.";
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePosTerminal(int id)
+        {
+            
+            var result = _posTerminalService.Delete(id);
+
+            if (result > 0) TempData["SuccessMessage"] = "POS silindi.";
+            else TempData["FailMessage"] = "Silinemedi.";
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdatePosTerminal(EditPosTerminalDTO model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Mevcut kaydı bul
+            var pos = await _posTerminalService.GetOneAsync(model.Id, user.Id);
+            if (pos == null) return RedirectToAction("Index");
+
+            // Güncelle
+            _mapper.Map(model, pos);
+
+            await _posTerminalService.UpdateAsync();
+
+            TempData["SuccessMessage"] = "POS bilgileri güncellendi.";
+            return RedirectToAction("Index");
         }
     }
 }

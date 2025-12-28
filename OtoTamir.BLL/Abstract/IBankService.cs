@@ -13,5 +13,6 @@ namespace OtoTamir.BLL.Abstract
         string mechanicId,
         Expression<Func<Bank, bool>> filter = null
         );
+        Task UpdateBalanceAsync(int bankId, string mechanicId, decimal amount);
     }
 }

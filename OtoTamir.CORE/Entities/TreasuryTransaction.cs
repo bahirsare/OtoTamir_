@@ -11,40 +11,37 @@ namespace OtoTamir.CORE.Entities
         public int Id { get; set; }
         public DateTime TransactionDate { get; set; } = DateTime.Now;
         public string AuthorName { get; set; }
-
-        public string Description { get; set; }
-
-       
+        public string Description { get; set; }                     
+        public DateTime? MaturityDate { get; set; }
         public TransactionType TransactionType { get; set; }
         public PaymentSource PaymentSource { get; set; }
         public decimal Amount { get; set; }
 
-        // Treasury ile ilişki
         public int TreasuryId { get; set; }
         public Treasury Treasury { get; set; }
 
-        // Banka ile ilişki (zorunlu değil)
         public int? BankId { get; set; }
         public Bank Bank { get; set; }
 
-        // Kart ile ilişki (zorunlu değil)
         public int? BankCardId { get; set; }
         public BankCard BankCard { get; set; }
 
-        // İşlem müşteriyle ilgiliyse
         public int? ClientId { get; set; }
         public Client Client { get; set; }
+        public int? PosTerminalId { get; set; }
+        public PosTerminal PosTerminal { get; set; }
 
-       
-        
-        
+
+
+
     }
 
     public enum PaymentSource
     {
         Cash,
         Bank,
-        ClientBalance
+        ClientBalance,      
+        CreditCard
     }
 
     public enum TransactionType

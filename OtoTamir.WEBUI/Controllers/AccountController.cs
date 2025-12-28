@@ -190,24 +190,23 @@ namespace OtotamirWEBUI.Controllers
             TempData["ErrorMessage"] = "Email ile kayıtlı kullanıcı bulunamadı";
             return RedirectToAction("Login");
         }
-        [Authorize] // Sadece giriş yapmış kullanıcı çalıştırabilsin
+        [Authorize] 
         public async Task<IActionResult> FixMissingTreasury()
         {
             var user = await _userManager.GetUserAsync(User);
 
-            // Eğer kullanıcının zaten kasası varsa işlem yapma
             if (user.TreasuryId != null)
             {
                 TempData["SuccessMessage"] = "Zaten bir kasanız var, işlem gerekmedi.";
                 return RedirectToAction("Index", "Home");
             }
 
-            // Kasa Yoksa Oluştur
+            
             var newTreasury = new Treasury
             {
                
                 CashBalance = 0,
-                BankBalance = 0,
+                
                 ReceivablesBalance = 0,
                 MechanicId = user.Id,
                 

@@ -1,4 +1,5 @@
-﻿@model OtoTamir.WEBUI.Models.PaymentModalViewModel
+﻿
+@model PaymentModalViewModel
 
 <div class="modal-dialog">
     <div class="modal-content">
@@ -9,7 +10,7 @@
             </button>
         </div>
 
-        <form asp-controller="Client" asp-action="MakePayment" method="post">
+        <form asp-controller="Client" asp-action="MakePayment" method="post" id="paymentForm">
             <div class="modal-body">
                 <input type="hidden" name="clientId" value="@Model.ClientId" />
                 <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
@@ -25,26 +26,61 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">₺</span>
                         </div>
-                        <input type="number" name="amount" class="form-control form-control-lg"
-                               placeholder="0.00" step="0.01" required min="0.01"
-                               value="@(Model.CurrentBalance > 0 ? Model.CurrentBalance.ToString("G").Replace(',', '.') : "")">
+                        <input type="text"
+                               inputmode="decimal"
+                               name="amount"
+                               class="form-control"
+                               placeholder="0,00"
+                               required
+                               value="@(Model.CurrentBalance > 0 ? Model.CurrentBalance.ToString("F2") : "")">
                     </div>
                     @if (Model.CurrentBalance > 0)
                     {
-                        <small class="text-muted">Güncel borç: <strong>@Model.CurrentBalance.ToString("N2") ₺</strong></small>
+                        <small class="text-muted">Müşterinin güncel borcu: <strong>@Model.CurrentBalance.ToString("N2") ₺</strong></small>
                     }
                 </div>
 
                 <div class="form-group">
                     <label>Ödeme Yöntemi</label>
-                    <select name="paymentSource" class="form-control" required>
+                    <select name="paymentSource" id="paymentSourceSelect" class="form-control" onchange="togglePaymentFields()">
                         <option value="Cash">Nakit</option>
-                        <option value="CreditCard">Kredi Kartı</option>
-                        <option value="BankTransfer">Havale / EFT</option>
+                        <option value="CreditCard">Kredi Kartı / POS</option>
+                        <option value="Bank">Havale / EFT</option>
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group bg-light p-2 border rounded" id="posSelectGroup" style="display:none;">
+                    <label class="text-primary"><i class="fas fa-credit-card mr-1"></i>POS Cihazı Seçimi</label>
+                    <select name="posTerminalId" id="posSelect" class="form-control">
+                        <option value="">Seçiniz...</option>
+                        @if (ViewBag.PosTerminals != null)
+                        {
+                            foreach (var pos in ViewBag.PosTerminals)
+                            {
+                                <option value="@pos.Id" data-commission="@pos.CommissionRate" data-maturity="@pos.MaturityDays">
+                                    @pos.Name (Kom: %@pos.CommissionRate.ToString("0.##") - Vade: @pos.MaturityDays Gün)
+                                </option>
+                            }
+                        }
+                    </select>
+                    <small class="text-muted">Vade ve komisyon otomatik hesaplanacaktır.</small>
+                </div>
+
+                <div class="form-group bg-light p-2 border rounded" id="bankSelectGroup" style="display:none;">
+                    <label class="text-primary"><i class="fas fa-university mr-1"></i>Hangi Banka Hesabına?</label>
+                    <select name="targetBankId" id="bankSelect" class="form-control">
+                        <option value="">Seçiniz...</option>
+                        @if (ViewBag.Banks != null)
+                        {
+                            foreach (var bank in ViewBag.Banks)
+                            {
+                                <option value="@bank.Id">@bank.BankName - @bank.Iban</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group mt-3">
                     <label>Açıklama</label>
                     <textarea name="description" class="form-control" rows="2" placeholder="Örn: Kapora, Taksit ödemesi..."></textarea>
                 </div>
@@ -52,9 +88,33 @@
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
                 <button type="submit" class="btn btn-success font-weight-bold">
-                    <i class="fas fa-check mr-1"></i> Onayla
+                    <i class="fas fa-check mr-1"></i> Ödemeyi Onayla
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    function togglePaymentFields() {
+        var source = document.getElementById("paymentSourceSelect").value;
+        var posDiv = document.getElementById("posSelectGroup");
+        var bankDiv = document.getElementById("bankSelectGroup");
+        var posSelect = document.getElementById("posSelect");
+        var bankSelect = document.getElementById("bankSelect");
+
+        posDiv.style.display = "none";
+        bankDiv.style.display = "none";
+        posSelect.required = false;
+        bankSelect.required = false;
+
+        if (source === "CreditCard") {
+            posDiv.style.display = "block";
+            posSelect.required = true;
+        }
+        else if (source === "Bank") {
+            bankDiv.style.display = "block";
+            bankSelect.required = true; 
+        }
+    }
+</script>

@@ -93,7 +93,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
             {
                 mechanic.Treasury = new Treasury
                 {
-                    BankBalance = 0,
+                   
                     CashBalance = 0,
                     ReceivablesBalance = 0,
                     CreatedDate = DateTime.Now,

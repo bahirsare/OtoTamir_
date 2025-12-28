@@ -47,6 +47,11 @@ namespace OtoTamir.BLL.Concrete
         {
             return await _bankDal.UpdateAsync();
         }
+        public async Task UpdateBalanceAsync(int bankId, string mechanicId, decimal amount)
+        {
+            
+            await _bankDal.UpdateBalanceAsync(bankId, mechanicId, amount);
+        }
     }
 }
 

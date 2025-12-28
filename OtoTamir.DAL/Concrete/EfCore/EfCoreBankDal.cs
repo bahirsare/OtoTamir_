@@ -48,6 +48,16 @@ namespace OtoTamir.DAL.Concrete.EfCore
 
             return await query.ToListAsync();
         }
+        public async Task UpdateBalanceAsync(int bankId, string mechanicId, decimal amount)
+        {
+            
+            var bank = await GetOneAsync(bankId, mechanicId);
 
+            if (bank != null)
+            {
+                bank.Balance += amount;
+                _context.Entry(bank).State = EntityState.Modified;
+            }
+        }
     }
 }

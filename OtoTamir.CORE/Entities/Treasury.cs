@@ -10,7 +10,7 @@ namespace OtoTamir.CORE.Entities
         public Mechanic Mechanic { get; set; }
 
         public decimal CashBalance { get; set; }
-        public decimal BankBalance { get; set; }
+        public decimal BankBalance => BankAccounts != null ? BankAccounts.Sum(b => b.Balance) : 0;
         public decimal ReceivablesBalance { get; set; }
         public decimal TotalBalance => CashBalance + BankAccounts.Sum(b => b.Balance);
         public decimal NetWorth => TotalBalance + ReceivablesBalance;

@@ -47,6 +47,7 @@ namespace OtoTamir.DAL.Context
         public DbSet<TransactionCategory> TransactionCategories  { get; set; }
         public DbSet<TreasuryTransaction> Transactions  { get; set; }
         public DbSet<Treasury> Treasuries { get; set; }
+        public DbSet<PosTerminal> PosTerminals { get; set; }
 
         
         private void SetBaseEntityDates()

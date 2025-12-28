@@ -19,7 +19,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
         int id,
         string mechanicId)
         {
-            var query = _context.Treasuries.Where(t => t.Id == id && t.MechanicId == mechanicId);
+            var query = _context.Treasuries.Include(t => t.BankAccounts).Where(t => t.Id == id && t.MechanicId == mechanicId);
 
             return await query.FirstOrDefaultAsync();
         }
@@ -29,7 +29,7 @@ namespace OtoTamir.DAL.Concrete.EfCore
         Expression<Func<Treasury, bool>> filter = null
         )
         {
-            var query = _context.Treasuries
+            var query = _context.Treasuries.Include(t => t.BankAccounts)
                 .Where(t => t.Id == treasuryId && t.MechanicId == mechanicId);
 
 
@@ -51,6 +51,17 @@ namespace OtoTamir.DAL.Concrete.EfCore
             treasury.CreatedDate = DateTime.Now;
             treasury.ModifiedDate = DateTime.Now;
             return await base.CreateAsync(treasury);
+        }
+        public async Task UpdateCashBalanceAsync(int treasuryId, string mechanicId, decimal amount)
+        {
+            
+            var treasury = await GetOneAsync(treasuryId,mechanicId);
+
+            if (treasury != null)
+            {
+                treasury.CashBalance += amount;
+                _context.Entry(treasury).State = EntityState.Modified;
+            }
         }
     }
 }

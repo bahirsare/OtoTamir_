@@ -40,6 +40,10 @@ namespace OtoTamir.CORE.Mapping
                 .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
                 .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(s => "PAYMENT"));
+            CreateMap<AddPosTerminalDTO, PosTerminal>().ReverseMap();
+            CreateMap<EditPosTerminalDTO, PosTerminal>().ReverseMap();
+            CreateMap<PosTerminal, PosTerminalSummaryDTO>()
+    .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank.BankName));
         }
     }
 }
