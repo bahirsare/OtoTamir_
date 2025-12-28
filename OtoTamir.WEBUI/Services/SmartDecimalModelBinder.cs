@@ -15,11 +15,9 @@ namespace OtoTamir.WEBUI.Services
 
             if (string.IsNullOrEmpty(valueAsString)) return Task.CompletedTask;
 
-            // HİLE BURASI: Virgülü noktaya çeviriyoruz.
-            // Böylece kullanıcı ne yazarsa yazsın format "123.45" şekline dönüyor.
+            
             valueAsString = valueAsString.Replace(",", ".");
 
-            // Sonra "Invariant" (Nokta ondalıklı) kültür ile parse ediyoruz.
             if (decimal.TryParse(valueAsString, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
             {
                 bindingContext.Result = ModelBindingResult.Success(result);

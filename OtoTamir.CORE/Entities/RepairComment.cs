@@ -15,7 +15,7 @@ namespace OtoTamir.CORE.Entities
         public int SymptomId{ get; set; }
         public Symptom Symptom { get; set; }
         public decimal AdditionalCost { get; set; }
-        public string Status{ get; set; }
+        public SymptomStatus Status{ get; set; }
        
         public int AdditionalDays { get; set; }
 

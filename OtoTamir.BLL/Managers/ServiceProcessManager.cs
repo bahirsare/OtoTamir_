@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.BLL.Concrete;
 using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
@@ -18,6 +19,7 @@ namespace OtoTamir.BLL.Managers
         private readonly IPosTerminalService _posTerminalService;
         private readonly IBankService _bankService;
         private readonly ITreasuryService _treasuryService;
+        private readonly IMapper _mapper;
         private readonly DataContext _context; 
 
         public ServiceProcessManager(
@@ -28,7 +30,8 @@ namespace OtoTamir.BLL.Managers
             DataContext context,
             IPosTerminalService posTerminalService,
             IBankService bankService,
-            ITreasuryService treasuryService)
+            ITreasuryService treasuryService,
+            IMapper mapper)
         {
             _serviceRecordService = serviceRecordService;
             _treasuryTransactionService = treasuryTransactionService;
@@ -38,6 +41,7 @@ namespace OtoTamir.BLL.Managers
             _posTerminalService = posTerminalService;
             _bankService = bankService;
             _treasuryService = treasuryService;
+            _mapper = mapper;
         }
 
         public async Task CompleteServiceProcessAsync(ServiceCompletionDTO model)
@@ -46,45 +50,72 @@ namespace OtoTamir.BLL.Managers
             {
                 try
                 {
-                    // 1. Gerekli verileri çekelim
+                
                     var record = await _serviceRecordService.GetOneAsync(model.ServiceRecordId, model.MechanicId, true, false);
                     if (record == null) throw new Exception("Servis kaydı bulunamadı.");
 
                     var mechanic = await _mechanicService.GetOneAsync(model.MechanicId);
-                    if (mechanic.TreasuryId == null)
+                    if (mechanic.TreasuryId == null) throw new Exception("Kasa bulunamadı.");
+
+                    record.Status = ServiceStatus.Completed;
+                    record.CompletedDate = DateTime.Now;
+
+                  
+                    //await _clientService.UpdateBalanceAsync(model.MechanicId, record.Vehicle.ClientId, record.Price);
+
+                    var debtTrx = _mapper.Map<TreasuryTransaction>(model);
+
+                   
+                    debtTrx.TreasuryId = (int)mechanic.TreasuryId;
+                    debtTrx.ClientId = record.Vehicle.ClientId;
+                    debtTrx.TransactionType = TransactionType.Incoming;
+                    debtTrx.Amount = record.Price;
+                    debtTrx.PaymentSource = PaymentSource.ClientBalance; 
+                    debtTrx.Description = $"{record.Vehicle.Plate} Plakalı Araç Servis Bedeli";
+                    
+                    debtTrx.BankId = null;
+                    debtTrx.PosTerminalId = null;
+                    await _treasuryTransactionService.AddTransactionAsync(debtTrx, mechanic.Id);
+
+                   
+
+                    if (model.PaymentMethod != PaymentSource.ClientBalance)
                     {
-                        throw new Exception("Bu kullanıcının tanımlı bir kasası (Treasury) bulunamadı. Lütfen yönetici ile iletişime geçin.");
+                        if (model.PaymentMethod == PaymentSource.CreditCard)
+                        {
+                            if (model.PosTerminalId == null)
+                            {
+                                throw new Exception("Kredi kartı ile ödeme seçildiğinde POS cihazı seçmek zorunludur!");
+                            }
+                        }
+                        await _clientService.UpdateBalanceAsync(model.MechanicId, record.Vehicle.ClientId, -record.Price);
+
+
+                        var payTrx = _mapper.Map<TreasuryTransaction>(model);
+
+                        payTrx.TreasuryId = (int)mechanic.TreasuryId;
+                        payTrx.ClientId = record.Vehicle.ClientId;
+                        payTrx.TransactionType = TransactionType.Incoming;
+                        payTrx.Amount = record.Price;
+                        payTrx.TransactionDate = DateTime.Now.AddSeconds(1);
+                        payTrx.Description = $"{record.Vehicle.Plate} Servis Ödemesi ({model.PaymentMethod})";
+
+                        await _treasuryTransactionService.AddTransactionAsync(payTrx, mechanic.Id);
+
+                        
+                        if (model.PaymentMethod == PaymentSource.Cash)
+                        {
+                            await _treasuryService.UpdateCashBalanceAsync((int)mechanic.TreasuryId, model.MechanicId, record.Price);
+                        }
+                        else if (model.PaymentMethod == PaymentSource.Bank && model.BankId != null)
+                        {
+                            await _bankService.UpdateBalanceAsync((int)model.BankId, model.MechanicId, record.Price);
+                        }
+
                     }
 
-                    // 2. Eğer Ödeme Türü "Veresiye/Bakiye" ise -> Müşterinin Borcunu Arttır
-                    if (model.PaymentMethod == PaymentSource.ClientBalance)
-                    {
-                        var client = await _clientService.GetOneAsync(record.Vehicle.ClientId, model.MechanicId, false, false);
-                        client.Balance += record.Price;
-                        await _clientService.UpdateAsync();
-                    }
-
-                    // 3. İŞLEM KAYDI OLUŞTURMA (ARTIK HER DURUMDA ÇALIŞACAK)
-                    // Nakit de olsa, Banka da olsa, Veresiye de olsa bu kayıt oluşsun ki geçmişte görelim.
-                    var transactionRecord = new TreasuryTransaction
-                    {
-                        TreasuryId = (int)mechanic.TreasuryId,
-                        TransactionType = TransactionType.Incoming, // Satış/Gelir işlemi
-                        Amount = record.Price,
-                        PaymentSource = model.PaymentMethod, // Nakit, Banka veya Bakiye olarak kaydolacak
-                        BankId = model.PaymentMethod == PaymentSource.Bank ? model.BankId : null,
-                        TransactionDate = DateTime.Now,
-                        Description = $"{record.Vehicle.Plate} plakalı araç servis ödemesi.",
-                        ClientId = record.Vehicle.ClientId,
-                        AuthorName = model.AuthorName
-                    };
-
-                    // 4. Kaydı veritabanına işle
-                    // ÖNEMLİ NOT: AddTransactionAsync metodun, "ClientBalance" geldiğinde 
-                    // kasadaki nakit parayı (Amount) arttırmayacak şekilde ayarlanmış olmalı!
-                    await _treasuryTransactionService.AddTransactionAsync(transactionRecord, mechanic.Id);
-
-                    // Her şey yolundaysa onayla
+                   
+                    await _serviceRecordService.UpdateAsync();
                     await transaction.CommitAsync();
                 }
                 catch (Exception)
@@ -175,14 +206,13 @@ namespace OtoTamir.BLL.Managers
 
                     if (paymentSource == PaymentSource.Cash)
                     {
-                        // Parametre olarak mechanicId'yi de ekledik
                         await _treasuryService.UpdateCashBalanceAsync((int)user.TreasuryId, mechanicId, amount);
                     }
 
-                    // B) HAVALE İSE -> BANKA BAKİYESİNİ GÜNCELLE
+                   
                     else if (paymentSource == PaymentSource.Bank && finalBankId != null)
                     {
-                        // Parametre olarak mechanicId'yi de ekledik
+                        
                         await _bankService.UpdateBalanceAsync((int)finalBankId, mechanicId, amount);
                     }
                     if (commissionAmount > 0)

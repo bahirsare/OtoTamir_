@@ -48,9 +48,8 @@
                 {
                     <p class="text-muted">Henüz işlem eklenmemiş.</p>
                 }
-                @if (symptom.Status == "Devam Ediyor")
+                @if (symptom.Status == SymptomStatus.Pending)
                 {
-                    <!-- Yeni log ekleme formu (HER semptom için ayrı) -->
                     <div class="mt-4 border-top pt-3">
                         <form asp-action="AddServiceWorkflowLogs" asp-controller="ServiceRecord" method="post">
                         <input type="hidden" name="SymptomId" value="@symptom.Id" />
@@ -59,16 +58,13 @@
                             <input name="Title" class="form-control" value="@($"{DateTime.Now:dd.MM.yyyy} Tarihli İşlem Güncellemesi")" readonly />
 
                         </div>
-                        <div class="mb-2">
-                            <label class="form-label">İşlem Durumu</label>
-                            <select name="Status" class="form-select" required>
-                                <option value="">Seçiniz...</option>
-                                <option value="Devam Ediyor">Devam Ediyor</option>
-                                <option value="Tamamlandı">Tamamlandı</option>
-                                <option value="İptal Edildi">İptal Edildi</option>
-                              
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>Durum</label>
+                                <select asp-for="Status"
+                                        class="form-control"
+                                        asp-items="Html.GetEnumSelectList<SymptomStatus>()">
+                                </select>
+                            </div>
 
                         <div class="mb-2">
                             <label class="form-label">İçerik</label>
@@ -120,23 +116,41 @@
 <form asp-action="UpdateServiceStatus" method="post">
     <input type="hidden" name="ServiceRecordId" value="@Model.Id" />
 
-    <div class="modal-body pt-0">
-        <div class="mb-4">
-            <h6 class="text-danger">Servis Durumu</h6>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="Status" id="ongoing" value="Devam Ediyor" @(Model.Status == "Devam Ediyor" ? "checked" : "") />
-                <label class="form-check-label" for="ongoing">Devam Ediyor</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="Status" id="completed" value="Tamamlandı" @(Model.Status == "Tamamlandı" ? "checked" : "") />
-                <label class="form-check-label" for="completed">Tamamlandı</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="Status" id="cancelled" value="İptal Edildi" @(Model.Status == "İptal Edildi" ? "checked" : "") />
-                <label class="form-check-label" for="cancelled">İptal Edildi</label>
+    <<form asp-action="UpdateServiceStatus" method="post">
+        <input type="hidden" name="ServiceRecordId" value="@Model.Id" />
+
+        <div class="modal-body pt-0">
+            <div class="mb-4">
+                <h6 class="text-danger">Servis Durumu</h6>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="Status" id="ongoing"
+                           value="@ServiceStatus.InProgress"
+                           @(Model.Status == ServiceStatus.InProgress ? "checked" : "") />
+                    <label class="form-check-label" for="ongoing">Devam Ediyor</label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="Status" id="completed"
+                           value="@ServiceStatus.Completed"
+                           @(Model.Status == ServiceStatus.Completed ? "checked" : "") />
+                    <label class="form-check-label" for="completed">Tamamlandı</label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="Status" id="cancelled"
+                           value="@ServiceStatus.Cancelled"
+                           @(Model.Status == ServiceStatus.Cancelled ? "checked" : "") />
+                    <label class="form-check-label" for="cancelled">İptal Edildi</label>
+                </div>
             </div>
         </div>
-    </div>
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+        </div>
+    </form>
 
     <div class="modal-footer">
         <button type="submit" class="btn btn-primary">Kaydet</button>

@@ -1,4 +1,5 @@
-﻿@model Vehicle
+﻿
+@model Vehicle
 
 @{
     ViewData["Title"] = "Araç Detayları";
@@ -169,18 +170,10 @@
                                     <td>@record.Description</td>
                                     <td>@record.Price.ToString("C")</td>
                                     <td>
-                                        @if (record.Status == "Tamamlandı")
-                                        {
-                                            <span class="badge bg-success">Tamamlandı</span>
-                                        }
-                                        else if (record.Status == "İptal Edildi")
-                                        {
-                                            <span class="badge bg-danger">İptal</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-warning text-dark">Devam Ediyor</span>
-                                        }
+                                        @* Tek satırda hem rengi hem yazıyı hallediyoruz *@
+                                        <span class="badge @record.Status.ToBadgeClass()">
+                                            @record.Status.ToTurkish()
+                                        </span>
                                     </td>
                                     <td>@record.AuthorName</td>
                                     <td>
@@ -188,7 +181,7 @@
                                             <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-@record.Id">Detay</button>
                                             <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id">Düzenle</button>
 
-                                            @if (record.Status == "Devam Ediyor")
+                                            @if (record.Status == ServiceStatus.InProgress)
                                             {
                                                
                                                 <button type="button"

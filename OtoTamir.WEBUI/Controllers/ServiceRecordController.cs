@@ -121,7 +121,7 @@ public class ServiceRecordController : Controller
             TempData["FailMessage"] = "Semptom bulunamadı.";
             return RedirectToAction(URL[2], URL[1]);
         }
-        if( symptom.Status!="Devam Ediyor")
+        if( symptom.Status!=SymptomStatus.Pending)
         {
             TempData["FailMessage"] = "Tamamlanmış ya da İptal edilmiş işlemlere güncelleme yapılamaz.";
             return RedirectToAction(URL[2], URL[1]);
@@ -165,7 +165,7 @@ public class ServiceRecordController : Controller
 
         await _serviceRecordService.UpdateStatusAsync(symptom.ServiceRecordId,user.Id);
         var freshRecord = await _serviceRecordService.GetOneAsync(symptom.ServiceRecordId, user.Id, false, false);
-        if (freshRecord.Status=="Tamamlandı")
+        if (freshRecord.Status==ServiceStatus.Completed)
         {
             var completionModel = new ServiceCompletionDTO
             {
@@ -212,7 +212,7 @@ public class ServiceRecordController : Controller
             Name = $"{DateTime.Now:yyyy-MM-dd HH:mm} Tarihli Servis Kaydı",
             Description = string.Join(" , ", model.Symptoms.Select(s => s.Name + ": " + s.Description)),
             Price = totalCost,
-            Status = "Devam Ediyor",
+            Status = ServiceStatus.InProgress,
             AuthorName = model.AuthorName
             
         };
@@ -230,12 +230,12 @@ public class ServiceRecordController : Controller
             symptom.ServiceRecordId = serviceRecord.Id;
             if (model.IsCompleted)
             {
-                symptom.Status = "Tamamlandı";
+                symptom.Status = SymptomStatus.Fixed;
 
             }
             else
             {
-                symptom.Status = "Devam Ediyor";
+                symptom.Status = SymptomStatus.Pending;
             }
 
             var symptomResult = await _symptomService.CreateAsync(symptom);
@@ -284,11 +284,16 @@ public class ServiceRecordController : Controller
 
         Expression<Func<ServiceRecord, bool>> filter = sr => true;
 
-        if (string.IsNullOrEmpty(model.CurrentStatus))
-            model.CurrentStatus = "Devam Ediyor";
+        if (Request.Query.Count == 0 && !model.CurrentStatus.HasValue)
+        {
+            model.CurrentStatus = ServiceStatus.InProgress;
+        }
 
-        if (!string.IsNullOrWhiteSpace(model.CurrentStatus) && model.CurrentStatus != "Tümü")
-            filter = filter.AndAlso(sr => sr.Status == model.CurrentStatus);
+        if (model.CurrentStatus.HasValue)
+        {
+            
+            filter = filter.AndAlso(sr => sr.Status == model.CurrentStatus.Value);
+        }
 
         if (model.StartDate.HasValue)
             filter = filter.AndAlso(sr => sr.CreatedDate >= model.StartDate.Value);
@@ -357,19 +362,19 @@ public class ServiceRecordController : Controller
             TempData["FailMessage"] = "Servis kaydı bulunamadı!";
             return RedirectToAction("Index");
         }
-        else if (record.Status == "Tamamlandı")
+        else if (record.Status == ServiceStatus.Completed)
         {
             TempData["FailMessage"] = "Tamamlanan kayıt iptal edilemez!";
             return RedirectToAction("Ongoing");
         }
-        else if (record.Status == "İptal Edildi")
+        else if (record.Status == ServiceStatus.Cancelled)
         {
             TempData["FailMessage"] = "Servis zaten iptal edilmiş!";
             return RedirectToAction("Ongoing");
 
         }
 
-        record.Status = "İptal Edildi";
+        record.Status = ServiceStatus.Cancelled;
         record.CompletedDate = DateTime.Now;
         record.ModifiedDate = DateTime.Now;
 
@@ -386,7 +391,7 @@ public class ServiceRecordController : Controller
 
    
     [HttpPost]
-    public async Task<IActionResult> AddSymptomLog(RepairComment model)// comment ekleme metodu yazılacak
+    public async Task<IActionResult> AddSymptomLog(RepairComment model)
     {
         var mechanic = await _userManager.GetUserAsync(User);
         return View(model);

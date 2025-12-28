@@ -1,4 +1,5 @@
-﻿@model ServiceRecord
+﻿
+@model ServiceRecord
 
 <!-- Modal İçeriği -->
 <div class="modal-header">
@@ -23,7 +24,7 @@
         <dt class="col-sm-4 fw-semibold">Durum:</dt>
         <dd class="col-sm-8">@Model.Status</dd>
 
-        @if (Model.Status == "Tamamlandı")
+        @if (Model.Status == ServiceStatus.Completed)
         {
             <dt class="col-sm-4 fw-semibold">Tamamlanma Tarihi:</dt>
             <dd class="col-sm-8">@(Model.CompletedDate?.ToString("dd.MM.yyyy") ?? "Tarih girilmemiş")</dd>
@@ -69,18 +70,16 @@
                         <ul class="list-unstyled">
                             @foreach (var log in symptom.ServiceWorkflowLogs)
                             {
-                                <li>
-                                    🛠️ <strong>@log.CreatedDate.ToString("dd.MM.yyyy"):</strong> @log.Content
-                                    @{
-                                        string iconClass = log.Status switch
-                                        {
-                                            "Devam Ediyor" => "bi bi-hourglass-split text-warning",
-                                            "Tamamlandı" => "bi bi-check-circle-fill text-success",
-                                            "İptal Edildi" => "bi bi-x-circle-fill text-danger",
-                                            _ => "bi bi-info-circle"
-                                        };
-                                    }
-                                    <strong>İşlem Durumu:</strong> <i class="@iconClass me-1"></i> @log.Status
+                                <li class="mb-2">
+                                    <strong class="text-muted mr-1">@log.CreatedDate.ToString("dd.MM.yyyy"):</strong>
+
+                                    <span class="mr-2">@log.Content</span>
+
+                                    <span class="badge badge-light border">
+                                        <i class="@log.Status.ToIconClass() mr-1"></i>
+
+                                        @log.Status.ToTurkish()
+                                    </span>
                                 </li>
                             }
                         </ul>

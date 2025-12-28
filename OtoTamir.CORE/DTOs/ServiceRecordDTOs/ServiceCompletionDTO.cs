@@ -10,7 +10,7 @@ namespace OtoTamir.CORE.DTOs.ServiceRecordDTOs
         public string AuthorName { get; set; }
         public PaymentSource PaymentMethod { get; set; }
 
-
         public int? BankId { get; set; }
+        public int? PosTerminalId { get; set; }
     }
 }

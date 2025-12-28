@@ -13,7 +13,7 @@ namespace OtoTamir.CORE.Entities
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
-        public string Status { get; set; }
+        public ServiceStatus Status { get; set; } = ServiceStatus.InProgress; 
         public int VehicleId { get; set; } 
         public Vehicle Vehicle { get; set; }
         public List<Symptom> SymptomList { get; set; }
@@ -26,5 +26,12 @@ namespace OtoTamir.CORE.Entities
 
         
     }
+    public enum ServiceStatus
+    {
+        InProgress = 1,    
+        Completed = 2,      
+        Cancelled = 3       
+    }
+    
 
 }

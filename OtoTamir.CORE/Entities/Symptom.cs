@@ -10,7 +10,7 @@ namespace OtoTamir.CORE.Entities
         
 
         public int EstimatedDaysToFix { get; set; }
-        public string Status { get; set; }
+        public SymptomStatus Status { get; set; } = SymptomStatus.Pending;
         public List<RepairComment> ServiceWorkflowLogs { get; set; }
 
         public List<SparePart> PossibleSpareParts { get; set; }
@@ -22,5 +22,10 @@ namespace OtoTamir.CORE.Entities
             PossibleSpareParts = new List<SparePart>();
         }
     }
-
+    public enum SymptomStatus
+    {
+        Pending = 1,      // Bekliyor (Henüz bakılmadı)
+        Fixed = 2,        // Giderildi (Tamir edildi)
+        NotFixed = 3      // Giderilmedi (Müşteri istemedi / Parça yoktu vs.)
+    }
 }

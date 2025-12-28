@@ -1,4 +1,5 @@
-﻿@model Vehicle
+﻿@using OtoTamir.WEBUI.Services
+@model Vehicle
 
 <table class="table table-sm table-striped">
     <thead>
@@ -22,21 +23,12 @@
                 <td>@record.Price</td>
                 <td>@record.ModifiedDate</td>
                 <td>
-                    @switch (record.Status)
-                    {
-                        case "Tamamlandı":
-                            <span class="badge bg-success">@record.Status</span>
-                            break;
-                        case "Devam Ediyor":
-                            <span class="badge bg-warning text-dark">@record.Status</span>
-                            break;
-                        case "İptal Edildi":
-                            <span class="badge bg-danger">@record.Status</span>
-                            break;
-                        default:
-                            <span class="badge bg-secondary">@record.Status</span>
-                            break;
-                    }
+                <td>
+                    @* Tek satırda hem rengi hem yazıyı hallediyoruz *@
+                    <span class="badge @record.Status.ToBadgeClass()">
+                        @record.Status.ToTurkish()
+                    </span>
+                </td>
                 </td>
                 <td>@record.AuthorName</td>
             </tr>

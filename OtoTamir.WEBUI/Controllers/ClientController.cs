@@ -213,14 +213,14 @@ namespace OtoTamir.WEBUI.Controllers
         [HttpPost]
         [HttpPost]
         public async Task<IActionResult> MakePayment(
-    int clientId,
-    decimal amount,
-    string description,
-    string paymentSource,
-    string returnUrl,
-    string authorName,
-    int? posTerminalId, 
-    int? targetBankId  
+        int clientId,
+        decimal amount,
+        string description,
+        string paymentSource,
+        string returnUrl,
+        string authorName,
+        int? posTerminalId, 
+        int? targetBankId  
 )
         {
             var user = await _userManager.GetUserAsync(User);

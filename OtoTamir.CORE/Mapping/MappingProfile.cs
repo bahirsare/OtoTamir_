@@ -44,6 +44,10 @@ namespace OtoTamir.CORE.Mapping
             CreateMap<EditPosTerminalDTO, PosTerminal>().ReverseMap();
             CreateMap<PosTerminal, PosTerminalSummaryDTO>()
     .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank.BankName));
+            CreateMap<ServiceCompletionDTO, TreasuryTransaction>()
+            .ForMember(dest => dest.PaymentSource, opt => opt.MapFrom(src => src.PaymentMethod))
+            .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(s => DateTime.Now))
+            .ReverseMap();
         }
     }
 }

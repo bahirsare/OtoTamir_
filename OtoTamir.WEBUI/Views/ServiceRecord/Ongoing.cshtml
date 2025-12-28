@@ -46,12 +46,13 @@
                 </div>
                 <div class="col-md-2">
                     <label>İşlem Durumu</label>
-                    <select name="CurrentStatus" class="form-select">
-                        <option value="Tümü" selected="@(Model.CurrentStatus == "Tümü")">Tümü</option>
-                        <option value="Devam Ediyor" selected="@(Model.CurrentStatus == "Devam Ediyor")">Devam Ediyor</option>
-                        <option value="Tamamlandı" selected="@(Model.CurrentStatus == "Tamamlandı")">Tamamlandı</option>
-                        <option value="İptal Edildi" selected="@(Model.CurrentStatus == "İptal Edildi")">İptal Edildi</option>
-                    </select>
+                   
+                        
+                            <select asp-for="CurrentStatus"
+                                    class="form-control"
+                                    asp-items="Html.GetEnumSelectList<ServiceStatus>()">
+                            </select>
+                        
                 </div>
                 <div class="col-md-2">
                     <label>Başlangıç</label>
@@ -209,7 +210,7 @@
                             <td>
                                 <div class="btn-group">
                                     <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-@record.Id">Detay</button>
-                                    @if (record.Status == "Devam Ediyor")
+                                    @if (record.Status == ServiceStatus.InProgress)
                                     {
                                         <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id">Düzenle</button>
 

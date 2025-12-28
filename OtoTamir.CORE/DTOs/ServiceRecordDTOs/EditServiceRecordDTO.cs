@@ -15,7 +15,7 @@ namespace OtoTamir.CORE.DTOs.ServiceRecordDTOs
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
-        public string Status { get; set; }
+        public ServiceStatus Status { get; set; }
         public Vehicle Vehicle { get; set; }
         public string AuthorName { get; set; }
         public decimal AdditionalPriceNote { get; set; }

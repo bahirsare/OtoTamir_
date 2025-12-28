@@ -101,7 +101,7 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         return await query.ToListAsync();
     }
 
-    public async Task<int> CountByStatusAsync(string mechanicId, string status)
+    public async Task<int> CountByStatusAsync(string mechanicId, ServiceStatus status)
     {
         return await _context.ServiceRecords
             .CountAsync(sr => sr.Status == status &&
@@ -115,22 +115,22 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         if (record == null)
             throw new Exception("ServiceRecord not found");
 
-        bool anyOngoing = record.SymptomList.Any(s => s.Status == "Devam Ediyor");
-        bool anyCompleted = record.SymptomList.Any(s => s.Status == "Tamamlandı");
+        bool anyOngoing = record.SymptomList.Any(s => s.Status == SymptomStatus.Pending);
+        bool anyCompleted = record.SymptomList.Any(s => s.Status == SymptomStatus.Fixed);
 
         if (anyOngoing)
         {
-            record.Status = "Devam Ediyor";
+            record.Status = ServiceStatus.InProgress;
         }
         else if (anyCompleted)
         {
-            record.Status = "Tamamlandı";
+            record.Status = ServiceStatus.Completed;
             record.CompletedDate = DateTime.Now;
             
         }
         else
         {
-            record.Status = "İptal Edildi";
+            record.Status = ServiceStatus.Cancelled;
             record.CompletedDate = DateTime.Now;
         }
         

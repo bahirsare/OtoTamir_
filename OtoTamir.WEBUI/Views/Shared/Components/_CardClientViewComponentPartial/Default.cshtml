@@ -22,9 +22,10 @@
                                 <i class="bi bi-info-lg"></i> Ödeme Geçmişi
                             </button>
                             <div class="modal fade" id="balanceLogModal" tabindex="-1" aria-labelledby="balanceLogModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      
-    </div>
+                               
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    @await Component.InvokeAsync("_ClientLastTransactionsViewComponentPartial", new { clientId = Model.Id })
+                        </div>
 </div>
                         </dd>
 
@@ -83,10 +84,11 @@
             <div class="card-body">
                 <p><strong>Toplam Araç Sayısı:</strong> @Model.Vehicles.Count()</p>
                 <p><strong>Toplam Servis Kayıtları:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count())</p>
-                <p><strong>Devam Eden İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status == "Devam Ediyor"))</p>
-                <p><strong>Tamamlanan İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status == "Tamamlandı"))</p>
+                <p><strong>Devam Eden İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status ==ServiceStatus.InProgress))</p>
+                <p><strong>Tamamlanan İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status == ServiceStatus.Completed))</p>
             </div>
         </div>
     </div>
 </div>
+
 
