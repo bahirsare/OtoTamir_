@@ -28,89 +28,95 @@
                                     <th class="text-right pr-4">Tutar</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    // Renk ve İkon Mantığı
-                                    var isIncoming = item.TransactionType == TransactionType.Incoming;
-                                    var rowClass = isIncoming ? "border-left-success" : "border-left-danger"; // Özel CSS gerekebilir veya inline stil
-                                    var textClass = isIncoming ? "text-success" : "text-danger";
-                                    var icon = isIncoming ? "fa-arrow-down" : "fa-arrow-up";
-                                    var badgeClass = isIncoming ? "badge-light-success" : "badge-light-danger"; // Custom badge
+                           
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                               
+                                bool isServiceDebt = item.PaymentSource == PaymentSource.ClientBalance;
 
-                                    // Ödeme Yöntemi İkonu
-                                    string methodIcon = item.PaymentSource switch
-                                    {
-                                        PaymentSource.Cash => "fa-money-bill-wave text-success",
-                                        PaymentSource.CreditCard => "fa-credit-card text-info",
-                                        PaymentSource.Bank => "fa-university text-warning",
-                                        _ => "fa-circle text-secondary"
-                                    };
+                                <tr class="bg-white">
+                                    <td class="pl-4">
+                                        <div class="d-flex flex-column">
+                                            <span class="font-weight-bold text-dark">@item.TransactionDate.ToString("dd.MM.yyyy")</span>
+                                            <small class="text-muted">@item.TransactionDate.ToString("HH:mm")</small>
+                                        </div>
+                                    </td>
 
-                                    <tr class="bg-white">
-                                        <td class="pl-4">
-                                            <div class="d-flex flex-column">
-                                                <span class="font-weight-bold text-dark">@item.TransactionDate.ToString("dd.MM.yyyy")</span>
-                                                <small class="text-muted">@item.TransactionDate.ToString("HH:mm")</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            @if (isIncoming)
-                                            {
-                                            <span class="badge badge-success px-2 py-1 text-dark font-weight-bold" ><i class="fas fa-plus-circle mr-1"></i> Tahsilat</span>
-                                            }
-                                            else
-                                            {
-                                            <span class="badge badge-danger px-2 py-1 text-dark font-weight-bold"><i class="fas fa-minus-circle mr-1"></i> Borç/Gider</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <i class="fas @methodIcon mr-2" style="width:20px; text-align:center;"></i>
-                                            <span class="text-muted small"
-                                            >
-                                                @if (item.PaymentSource == PaymentSource.Cash)
-                                                {
-                                                    <text>Nakit</text>
-                                                }
-                                                else if (item.PaymentSource == PaymentSource.CreditCard)
-                                                {
-
-                                                    <text>Kredi Kartı</text>
-                                                }
-                                                else if (item.PaymentSource == PaymentSource.Bank)
-                                                {
-
-                                                    <text>Havale/EFT</text>
-                                                }
-                                                else
-                                                {
-
-                                                    <text>Diğer</text>
-                                                }
+                                    <td>
+                                        @if (isServiceDebt)
+                                        {
+                                           
+                                            <span class="badge badge-warning px-2 py-1 text-dark border">
+                                                <i class="fas fa-file-invoice mr-1"></i> Servis Borcu
                                             </span>
-                                        </td>
-                                        <td>
-                                            <span class="d-inline-block text-truncate" style="max-width: 200px;" title="@item.Description">
-                                                @item.Description
+                                        }
+                                        else
+                                        {
+                                           
+                                            <span class="badge badge-success px-2 py-1 text-white border">
+                                                <i class="fas fa-check-circle mr-1"></i> Ödeme Yapıldı
                                             </span>
-                                        </td>
-                                        <td class="text-right pr-4">
-                                            <h6 class="mb-0 font-weight-bold @textClass">
-                                                @if (isIncoming)
-                                                {
-                                                    <text>+</text>
-                                                }
-                                                else
-                                                {
+                                        }
+                                    </td>
 
-                                                    <text>-</text>
-                                                }
-                                                @item.Amount.ToString("N2") ₺
+                                    <td>
+                                        @if (isServiceDebt)
+                                        {
+                                            <span class="text-muted small"><i class="fas fa-user-tag mr-1"></i> Cari Hesap</span>
+                                        }
+                                        else
+                                        {
+                                            // İkon Seçimi
+                                            string methodIcon = item.PaymentSource switch
+                                            {
+                                                PaymentSource.Cash => "fa-money-bill-wave text-success",
+                                                PaymentSource.CreditCard => "fa-credit-card text-info",
+                                                PaymentSource.Bank => "fa-university text-primary",
+                                                _ => "fa-circle text-secondary"
+                                            };
+
+                                            // Metin Seçimi
+                                            string methodName = item.PaymentSource switch
+                                            {
+                                                PaymentSource.Cash => "Nakit",
+                                                PaymentSource.CreditCard => "Kredi Kartı",
+                                                PaymentSource.Bank => "Havale/EFT",
+                                                _ => "Diğer"
+                                            };
+
+                                            <i class="fas @methodIcon mr-1"></i>
+                                            <span class="text-dark small font-weight-bold">@methodName</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <span class="d-inline-block text-truncate small text-muted" style="max-width: 250px;" title="@item.Description">
+                                            @item.Description
+                                        </span>
+                                    </td>
+
+                                    <td class="text-right pr-4">
+                                        @if (isServiceDebt)
+                                        {
+                                            // BORÇ: Eksi (-) ve Kırmızı
+                                            <h6 class="mb-0 font-weight-bold text-danger">
+                                                - @item.Amount.ToString("N2") ₺
                                             </h6>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
+                                            <small class="text-danger font-italic">Borç Yansıdı</small>
+                                        }
+                                        else
+                                        {
+                                            // ÖDEME: Artı (+) ve Yeşil
+                                            <h6 class="mb-0 font-weight-bold text-success">
+                                                + @item.Amount.ToString("N2") ₺
+                                            </h6>
+                                            <small class="text-success font-italic">Tahsil Edildi</small>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
                         </table>
                     </div>
                 }

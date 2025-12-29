@@ -22,7 +22,22 @@ namespace OtoTamir.CORE.Mapping
             CreateMap<EditProfileDTO, Mechanic>().ReverseMap();
             CreateMap<SymptomDTO, Symptom>().ReverseMap();
             CreateMap<EditServiceRecordDTO, ServiceRecord>().ReverseMap();
-            CreateMap<ServiceWorkflowLogDTO, RepairComment>().ReverseMap();
+            CreateMap<ServiceWorkflowLogDTO, RepairComment>()
+            .ForMember(dest => dest.Title, opt => opt.MapFrom((src, dest) =>
+             {
+                 if (!string.IsNullOrEmpty(src.Title)) return src.Title;
+
+                 return src.Status switch
+                 {
+                     SymptomStatus.Fixed => "İşlem Tamamlandı ✅",
+
+                     SymptomStatus.NotFixed => "İşlem İptal/Yapılmadı ❌",
+                     _ => "İşlem Güncellemesi 🛠️"
+                 };
+             }))
+            .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(s => DateTime.Now))
+            .ForMember(dest => dest.ModifiedDate, opt => opt.MapFrom(s => DateTime.Now))
+            .ReverseMap();
             CreateMap<AddBankCardDTO, BankCard>().ReverseMap();
             CreateMap<AddBankDTO, Bank>().ReverseMap();
             CreateMap<BankDetailsDTO, Bank>().ReverseMap();
@@ -42,12 +57,14 @@ namespace OtoTamir.CORE.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(s => "PAYMENT"));
             CreateMap<AddPosTerminalDTO, PosTerminal>().ReverseMap();
             CreateMap<EditPosTerminalDTO, PosTerminal>().ReverseMap();
-            CreateMap<PosTerminal, PosTerminalSummaryDTO>()
-    .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank.BankName));
+            CreateMap<PosTerminal,PosTerminalSummaryDTO >()
+    .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank.BankName)).ReverseMap();
             CreateMap<ServiceCompletionDTO, TreasuryTransaction>()
             .ForMember(dest => dest.PaymentSource, opt => opt.MapFrom(src => src.PaymentMethod))
             .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(s => DateTime.Now))
             .ReverseMap();
+            CreateMap<ServiceWorkflowLogDTO, ServiceCompletionDTO>().ReverseMap();
+
         }
     }
 }

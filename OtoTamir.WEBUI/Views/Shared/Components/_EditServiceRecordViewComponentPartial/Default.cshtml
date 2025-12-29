@@ -1,159 +1,137 @@
-﻿@model EditServiceRecordDTO
+﻿@model ServiceWorkflowLogDTO
 
-<!-- Modal Header -->
-<div class="modal-header">
-    <h5 class="modal-title">Servis Kaydı Düzenle</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal-header bg-warning text-dark">
+    <h5 class="modal-title">
+        <i class="bi bi-tools me-2"></i> İşlem Güncelle / Tamamla
+        <span class="badge bg-dark ms-2">@ViewBag.VehiclePlate</span>
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
 </div>
 
-<!-- Modal Body -->
-<div class="modal-body p-4">
-    <div class="mb-4">
-        <h6 class="text-primary">Servis Bilgileri</h6>
-        <div class="border rounded p-3 bg-light">
-            <p><strong>Müşteri:</strong> @Model.Vehicle.Client.Name</p>
-            <p><strong>Araç:</strong> @Model.Vehicle.Plate - @Model.Vehicle.Brand @Model.Vehicle.Model</p>
-            <p><strong>Kayıt Başlığı:</strong> @Model.Name</p>
-            <p><strong>Açıklama:</strong> @Model.Description</p>
-            <p><strong>Toplam Tahmini Fiyat:</strong> ₺@Model.Price</p>
-        </div>
-    </div>
-
-    <hr />
-
-    <div class="mb-4">
-        <h6 class="text-success">Semptomlar</h6>
-
-        @foreach (var symptom in Model.SymptomList)
-        {
-            <div class="border p-3 rounded mb-4 bg-white shadow-sm">
-                <h6 class="fw-bold">@symptom.Name</h6>
-                <p><strong>Açıklama:</strong> @symptom.Description</p>
-                <p><strong>Tahmini Ücret:</strong> ₺@symptom.EstimatedCost</p>
-                <p><strong>Tahmini Süre:</strong> @symptom.EstimatedDaysToFix gün</p>
-
-                <hr />
-                <h6>İşlem Günlüğü</h6>
-                @if (symptom.ServiceWorkflowLogs != null && symptom.ServiceWorkflowLogs.Any())
-                {
-                    foreach (var log in symptom.ServiceWorkflowLogs)
-                    {
-                        <div class="border-start ps-3 mb-2">
-                            <p class="mb-1"><strong>@log.Title</strong> - <small class="text-muted">@log.AuthorName</small></p>
-                            <p class="text-muted">@log.Content - <small class="text-muted">@log.Status</small></p>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted">Henüz işlem eklenmemiş.</p>
-                }
-                @if (symptom.Status == SymptomStatus.Pending)
-                {
-                    <div class="mt-4 border-top pt-3">
-                        <form asp-action="AddServiceWorkflowLogs" asp-controller="ServiceRecord" method="post">
-                        <input type="hidden" name="SymptomId" value="@symptom.Id" />
-                        <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
-                        <div class="mb-2">
-                            <input name="Title" class="form-control" value="@($"{DateTime.Now:dd.MM.yyyy} Tarihli İşlem Güncellemesi")" readonly />
-
-                        </div>
-                            <div class="form-group">
-                                <label>Durum</label>
-                                <select asp-for="Status"
-                                        class="form-control"
-                                        asp-items="Html.GetEnumSelectList<SymptomStatus>()">
-                                </select>
-                            </div>
-
-                        <div class="mb-2">
-                            <label class="form-label">İçerik</label>
-                            <textarea name="Content" class="form-control" rows="3" required></textarea>
-                        </div>
-
-                        <div class="mb-2">
-                            <label class="form-label">Yazan Kişi (Çalışan Adı)</label>
-                            <input name="AuthorName" class="form-control" required />
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Ek Tahmini Gün</label>
-                                <input name="AdditionalDays" type="number" class="form-control" min="0" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Ek Tahmini Ücret (₺)</label>
-                                <input name="AdditionalCost" type="number" class="form-control" step="0.01" min="0" />
-                            </div>
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="form-label">Lazım Olabilecek Yedek Parçalar</label>
-                            <div id="sparePartsContainer-@symptom.Id">
-                                <div class="input-group mb-2">
-                                    <input name="SparePartNames" class="form-control" placeholder="Parça Adı" />
-                                    <input name="SparePartDescriptions" class="form-control" placeholder="Açıklama (isteğe bağlı)" />
-                                    <button type="button" class="btn btn-outline-danger remove-part-btn">-</button>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-outline-primary btn-sm add-part-btn" data-symptom-id="@symptom.Id">+ Parça Ekle</button>
-                        </div>
-
-                        <div class="text-end mt-3">
-                            <button type="submit" class="btn btn-outline-success btn-sm">Log Ekle</button>
-                        </div>
-                    </form>
-                </div>}
-
+<form asp-controller="ServiceRecord" asp-action="AddServiceWorkflowLogs" method="post">
+    <div class="modal-body">
+        <input type="hidden" asp-for="SymptomId" />
+        <input type="hidden" asp-for="ReturnUrl" />
+        <input type="hidden" name="AuthorName" value="@User.Identity.Name" /> <div class="row g-3 mb-3">
+            <div class="col-md-12">
+                <label asp-for="Status" class="form-label fw-bold">Semptom Durumu</label>
+                <select asp-for="Status" class="form-select symptom-status-selector"
+                        asp-items="Html.GetEnumSelectList<SymptomStatus>()">
+                </select>
+                <small class="text-muted">"Giderildi" seçerseniz işlem tamamlanmış sayılır ve ödeme ekranı açılır.</small>
             </div>
-        }
-    </div>
 
-    <hr />
-</div>
+            <div class="col-md-12">
+                <label asp-for="Content" class="form-label">Yapılan İşlem / Açıklama</label>
+                <textarea asp-for="Content" class="form-control" rows="2" placeholder="Örn: Balatalar değişti, test sürüşü yapıldı..."></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+        </div>
 
-
-<form asp-action="UpdateServiceStatus" method="post">
-    <input type="hidden" name="ServiceRecordId" value="@Model.Id" />
-
-    <<form asp-action="UpdateServiceStatus" method="post">
-        <input type="hidden" name="ServiceRecordId" value="@Model.Id" />
-
-        <div class="modal-body pt-0">
-            <div class="mb-4">
-                <h6 class="text-danger">Servis Durumu</h6>
-
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="Status" id="ongoing"
-                           value="@ServiceStatus.InProgress"
-                           @(Model.Status == ServiceStatus.InProgress ? "checked" : "") />
-                    <label class="form-check-label" for="ongoing">Devam Ediyor</label>
+        <div class="p-3 border rounded bg-light mb-3">
+            <h6 class="text-primary mb-3"><i class="bi bi-clock-history me-1"></i> Ek Süre & Maliyet (Opsiyonel)</h6>
+            <div class="row g-2">
+                <div class="col-6">
+                    <label asp-for="AdditionalDays" class="form-label small">Ek Gün</label>
+                    <input asp-for="AdditionalDays" type="number" class="form-control form-control-sm" placeholder="0" />
                 </div>
-
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="Status" id="completed"
-                           value="@ServiceStatus.Completed"
-                           @(Model.Status == ServiceStatus.Completed ? "checked" : "") />
-                    <label class="form-check-label" for="completed">Tamamlandı</label>
-                </div>
-
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="Status" id="cancelled"
-                           value="@ServiceStatus.Cancelled"
-                           @(Model.Status == ServiceStatus.Cancelled ? "checked" : "") />
-                    <label class="form-check-label" for="cancelled">İptal Edildi</label>
+                <div class="col-6">
+                    <label asp-for="AdditionalCost" class="form-label small">Ek Ücret (TL)</label>
+                    <input asp-for="AdditionalCost" type="number" class="form-control form-control-sm" placeholder="0.00" />
                 </div>
             </div>
         </div>
 
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Kaydet</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-        </div>
-    </form>
+        <div id="paymentSection" class="mt-3 p-3 border rounded bg-success-subtle d-none">
+            <h6 class="text-success border-bottom border-success pb-2 mb-3">
+                <i class="bi bi-wallet2 me-1"></i> Tahsilat Bilgileri
+            </h6>
 
-    <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Kaydet</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Ödeme Yöntemi</label>
+                    <select asp-for="PaymentMethod" class="form-select payment-method-selector">
+                        <option value="@PaymentSource.ClientBalance">Cari Hesaba Yaz (Borç)</option>
+                        <option value="@PaymentSource.Cash">Nakit Tahsilat</option>
+                        <option value="@PaymentSource.CreditCard">Kredi Kartı</option>
+                        <option value="@PaymentSource.Bank">Banka Havalesi</option>
+                    </select>
+                </div>
+
+                <div class="col-md-12 d-none bank-select-group">
+                    <label class="form-label">Banka Hesabı</label>
+                    <select asp-for="BankId" class="form-select">
+                        <option value="">Seçiniz...</option>
+                        @if (ViewBag.Banks != null)
+                        {
+                            foreach (var bank in ViewBag.Banks)
+                            {
+                                <option value="@bank.Id">@bank.BankName (@bank.Iban)</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-12 d-none pos-select-group">
+                    <label class="form-label">POS Cihazı</label>
+                    <select name="PosTerminalId" class="form-select">
+                        <option value="">Seçiniz...</option>
+                        @if (ViewBag.PosTerminals != null)
+                        {
+                            foreach (var pos in ViewBag.PosTerminals)
+                            {
+                                <option value="@pos.Id">@pos.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button type="submit" class="btn btn-warning shadow-sm">
+            <i class="bi bi-save me-1"></i> Kaydet ve Güncelle
+        </button>
     </div>
 </form>
+
+<script>
+    // 1. Semptom Giderildi (Fixed) seçilirse Ödemeyi Aç
+    // SymptomStatus Enum: Pending=1, Fixed=2, NotFixed=3 (Kendi Enum sıranı kontrol et!)
+    var statusSelect = document.querySelector('.symptom-status-selector');
+    var paymentDiv = document.getElementById('paymentSection');
+
+    if(statusSelect) {
+        statusSelect.addEventListener('change', function() {
+            // Eğer "Fixed" (2) seçilirse göster
+            if (this.value === '2') {
+                paymentDiv.classList.remove('d-none');
+            } else {
+                paymentDiv.classList.add('d-none');
+            }
+        });
+    }
+
+    // 2. Ödeme Yöntemi Değişimi (Banka/POS Gösterimi)
+    var methodSelect = document.querySelector('.payment-method-selector');
+    var bankGroup = document.querySelector('.bank-select-group');
+    var posGroup = document.querySelector('.pos-select-group');
+
+    if(methodSelect) {
+        methodSelect.addEventListener('change', function() {
+            bankGroup.classList.add('d-none');
+            posGroup.classList.add('d-none');
+
+            // CreditCard (2 veya string), Bank (3 veya string) - Enum değerine göre
+            // EnumExtensions vs kullanmıyorsan value int gelir (0,1,2,3)
+            if (this.value === 'CreditCard' || this.value === '2') {
+                posGroup.classList.remove('d-none');
+            }
+            else if (this.value === 'Bank' || this.value === '3') {
+                bankGroup.classList.remove('d-none');
+            }
+        });
+    }
+</script>

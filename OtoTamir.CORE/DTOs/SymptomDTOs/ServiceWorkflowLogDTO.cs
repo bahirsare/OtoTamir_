@@ -9,7 +9,7 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
 {
     public class ServiceWorkflowLogDTO
     { 
-        public string Title { get; set; }
+        public string? Title { get; set; }
         public string Content { get; set; }
         public string AuthorName { get; set; }
         public int SymptomId { get; set; }
@@ -20,6 +20,9 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public bool IsCompleted { get; set; } 
         public PaymentSource PaymentMethod { get; set; } = PaymentSource.Cash; 
         public int? BankId { get; set; }
+        public int? PosTerminalId { get; set; } // Önerim
+        
+        
 
         public List<SparePart>? NeededParts { get; set; }
 

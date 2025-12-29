@@ -103,6 +103,21 @@ public class ServiceRecordController : Controller
     public async Task<IActionResult> AddServiceWorkflowLogs(ServiceWorkflowLogDTO WorkflowLogDTO)
     {
         List<string> URL = WorkflowLogDTO.ReturnUrl.Split('/').ToList();
+        if (string.IsNullOrEmpty(WorkflowLogDTO.Title))
+        {
+            if (WorkflowLogDTO.Status == SymptomStatus.Fixed) 
+            {
+                WorkflowLogDTO.Title = "İşlem Tamamlandı ✅";
+            }
+            else if (WorkflowLogDTO.Status == SymptomStatus.NotFixed)
+            {
+                WorkflowLogDTO.Title = "İşlem İptal/Yapılmadı ❌";
+            }
+            else
+            {
+                WorkflowLogDTO.Title = "İşlem Güncellemesi 🛠️";
+            }
+        }
         if (!ModelState.IsValid)
         {
             TempData["FailMessage"] = "Lütfen kaydı eksiksiz doldurun.";
@@ -155,8 +170,7 @@ public class ServiceRecordController : Controller
 
 
         var WorkflowLog = _mapper.Map<RepairComment>(WorkflowLogDTO);
-        WorkflowLog.ModifiedDate = DateTime.Now;
-        WorkflowLog.CreatedDate = DateTime.Now;
+        
         symptom.Status = WorkflowLog.Status;
         symptom.ServiceWorkflowLogs.Add(WorkflowLog);
 
@@ -167,16 +181,13 @@ public class ServiceRecordController : Controller
         var freshRecord = await _serviceRecordService.GetOneAsync(symptom.ServiceRecordId, user.Id, false, false);
         if (freshRecord.Status==ServiceStatus.Completed)
         {
-            var completionModel = new ServiceCompletionDTO
-            {
-                ServiceRecordId = symptom.ServiceRecordId,
-                MechanicId = user.Id,
-                PaymentMethod = WorkflowLogDTO.PaymentMethod, 
-                BankId = WorkflowLogDTO.BankId,
-                AuthorName= WorkflowLogDTO.AuthorName
-            };
+            var completionModel = _mapper.Map<ServiceCompletionDTO>(WorkflowLogDTO);
 
             
+            completionModel.ServiceRecordId = symptom.ServiceRecordId;
+            completionModel.MechanicId = user.Id;
+
+
             await _processManager.CompleteServiceProcessAsync(completionModel);
         }
 
