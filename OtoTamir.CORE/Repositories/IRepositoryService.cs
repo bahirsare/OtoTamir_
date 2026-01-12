@@ -29,7 +29,7 @@ namespace OtoTamir.CORE.Repositories
         /// </summary>
         /// <param name="id">The ID of the entity to delete.</param>
         /// <returns>The number of state entries written to the database.</returns>
-        int Delete(int id);
+        Task<int>  DeleteAsync(int id);
 
         /// <summary>
         /// Asynchronously checks if any entity exists in the database matching the given filter.

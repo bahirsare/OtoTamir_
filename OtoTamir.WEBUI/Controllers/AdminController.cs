@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.WEBUI.Services;
 
+
 namespace OtoTamir.WEBUI.Controllers
 {
     //[Authorize]
     public class AdminController : Controller
     {
         private readonly IMechanicService _mechanicService;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IMechanicService mechanicService)
+        public AdminController(IMechanicService mechanicService, ILogger<AdminController> logger)
         {
             _mechanicService = mechanicService;
+            _logger = logger;
         }
         
         public IActionResult Index()
@@ -35,12 +38,12 @@ namespace OtoTamir.WEBUI.Controllers
 
             var result = await _mechanicService.CreateMechanicAsync(storeName);
             if (result.Success)
-            {   
-
+            {
+                _logger.LogInformation("Yeni tamirci/dükkan oluşturuldu: {StoreName}. Şifre oluşturuldu.", storeName);
                 TempData["SuccessMessage"] = $"Tamirci başarıyla oluşturuldu. Şifresi: {result.Password}";
                 return RedirectToAction("Mechanic", "Admin");
             }
-
+            _logger.LogWarning("Tamirci oluşturma başarısız: {StoreName}. Hata: {Errors}", storeName, string.Join(", ", result.Errors));
             TempData["ErrorMessage"] = "Tamirci oluşturulurken bir hata oluştu. " + string.Join(", ", result.Errors);
             return RedirectToAction("Mechanic", "Admin");
         }
@@ -81,11 +84,14 @@ namespace OtoTamir.WEBUI.Controllers
            
             if (result > 0)
             {
+                _logger.LogWarning("Tamirci SİLİNDİ! Silinen ID: {Id}, Mağaza Adı: {StoreName} | Silen Admin: {AdminUser}",
+            id, mechanic.StoreName, User.Identity?.Name ?? "Bilinmiyor");
                 TempData["SuccessMessage"] = "Tamirci başarıyla silindi.";
                 ImageOperations.DeleteImage(mechanic.ImageUrl);
             }
             else
             {
+                _logger.LogError("Tamirci silinirken sistemsel hata oluştu. ID: {Id}", id);
                 TempData["ErrorMessage"] = "Bir hata oluştu, tamirci silinemedi!";
             }
             return RedirectToAction("Mechanic", "Admin");

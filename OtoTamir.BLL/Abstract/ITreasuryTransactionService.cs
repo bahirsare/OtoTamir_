@@ -19,5 +19,6 @@ namespace OtoTamir.BLL.Abstract
         Task<List<TreasuryTransaction>> GetByDateRangeAsync(int treasuryId, string mechanicId, DateTime start, DateTime end);
         Task AddCardTransactionAsync(TreasuryTransaction transaction);
         Task AddTransactionAsync(TreasuryTransaction transaction,string mechanicId);
+        Task ProcessExpenseAsync(OtoTamir.CORE.DTOs.TreasuryDTOs.AddExpenseDTO model, string mechanicId, int treasuryId);
     }
 }

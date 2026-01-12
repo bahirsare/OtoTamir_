@@ -11,6 +11,7 @@ using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
 using OtoTamir.WEBUI.Services;
 using OtoTamir.WEBUI.Services.MailHelper;
+using Microsoft.Extensions.Logging;
 
 namespace OtotamirWEBUI.Controllers
 {
@@ -21,14 +22,19 @@ namespace OtotamirWEBUI.Controllers
         private UserManager<Mechanic> _userManager;
         private IMechanicService _mechanicService;
         private readonly IMapper _mapper;
+        private readonly IMailHelper _mailHelper;
         private readonly ITreasuryService _treasuryService;
-        public AccountController(SignInManager<Mechanic> signInManager, UserManager<Mechanic> userManager, IMechanicService mechanicService, IMapper mapper, ITreasuryService treasuryService)
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(SignInManager<Mechanic> signInManager, UserManager<Mechanic> userManager, IMechanicService mechanicService, IMapper mapper, ITreasuryService treasuryService, ILogger<AccountController> logger, IMailHelper mailHelper)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _mechanicService = mechanicService;
             _mapper = mapper;
             _treasuryService = treasuryService;
+            _logger = logger;
+            _mailHelper = mailHelper;
         }
         public IActionResult Login(string returnUrl = null)
         {
@@ -50,23 +56,26 @@ namespace OtotamirWEBUI.Controllers
 
                         if (result.Succeeded)
                         {
+                            _logger.LogInformation("Kullanıcı giriş yaptı: {UserName} IP: {IpAddress}", model.UserName, HttpContext.Connection.RemoteIpAddress);
                             if (!user.IsProfileCompleted)
                             {
                                 return RedirectToAction("Profile", "Account");
                             }
                             return RedirectToAction("Index", "Home");
                         }
-
+                        _logger.LogWarning("Başarısız giriş denemesi: {UserName} - Sonuç: {Result}", model.UserName, result.ToString());
                         TempData["ErrorMessage"] = ("Giriş Bilgilerinizi Kontrol Ediniz");
                     }
 
                     else
                     {
+                        _logger.LogWarning("İnaktif kullanıcı adı ile giriş denemesi: {UserName}", model.UserName);
                         TempData["ErrorMessage"] = "Üyeliğiniz askıya alınmıştır. Lütfen yetkili ile iletişime geçiniz.";
                     }
                     return View(model);
                 }
             }
+            _logger.LogWarning("Kayıtlı olmayan kullanıcı adı ile giriş denemesi: {UserName}", model.UserName);
             TempData["Message"] = "Lütfen bilgilerinizi eksiksiz doldurunuz!";
             return View(model);
         }
@@ -182,7 +191,7 @@ namespace OtotamirWEBUI.Controllers
                 
                 var body = $"Sayın <strong>{user.UserName};<br><br> Yeni şifreniz: <strong>{password} olarak belirlenmiştir.";
 
-                MailHelper.SendMail(body, user.Email, "Şifre Yenileme");
+                _mailHelper.SendMail($"Yeni şifreniz: {password}", user.Email, "Şifre Sıfırlama");
 
                 TempData["SuccessMessage"] = "Email adresinize gönderilen şifre yenileme linkine tıklayınız";
                 return RedirectToAction("Login");

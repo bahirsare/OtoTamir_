@@ -16,10 +16,10 @@ namespace OtoTamir.WEBUI.Controllers
         private readonly IClientService _clientService;
         private readonly UserManager<Mechanic> _userManager;
         private readonly IMapper _mapper;
-        private readonly ServiceProcessManager _serviceProcessManager;
+        private readonly IServiceProcessManager _serviceProcessManager;
 
 
-        public ClientController(IClientService clientService, UserManager<Mechanic> userManager, IMapper mapper, ServiceProcessManager serviceProcessManager)
+        public ClientController(IClientService clientService, UserManager<Mechanic> userManager, IMapper mapper, IServiceProcessManager serviceProcessManager)
         {
             _clientService = clientService;
             _userManager = userManager;
@@ -151,7 +151,7 @@ namespace OtoTamir.WEBUI.Controllers
                 TempData["FailMessage"] = "Müşteri bulunamadı.";
                 return RedirectToAction("Clients", "Client");
             }
-            var result = _clientService.Delete(id);
+            var result = await _clientService.DeleteAsync(id);
             if (result > 0)
             {
                 TempData["Message"] = "Müşteri başarıyla silindi.";
@@ -209,8 +209,6 @@ namespace OtoTamir.WEBUI.Controllers
 
             return View(statement);
         }
-        [HttpPost]
-        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> MakePayment(
         int clientId,

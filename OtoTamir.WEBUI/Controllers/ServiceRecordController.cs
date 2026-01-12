@@ -20,11 +20,11 @@ public class ServiceRecordController : Controller
     private readonly IServiceRecordService _serviceRecordService;
     private readonly ISymptomService _symptomService;
     private readonly IMapper _mapper;
+    private readonly IServiceProcessManager _processManager;
     private readonly UserManager<Mechanic> _userManager;
    
-    private readonly ServiceProcessManager _processManager;
 
-    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager, ServiceProcessManager processManager)
+    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager, IServiceProcessManager processManager)
     {
         _vehicleService = vehicleService;
         _clientService = clientService;

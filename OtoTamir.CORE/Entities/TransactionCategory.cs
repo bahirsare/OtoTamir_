@@ -9,7 +9,8 @@ namespace OtoTamir.CORE.Entities
     public class TransactionCategory
     {
         public int Id { get; set; }
-        public string Name { get; set; } // Örn: Tahsilat, Masraf, Transfer, Banka Havalesi, Kredi Kartı Ödemesi
+        public string Name { get; set; }
+        public string MechanicId { get; set; }
 
         public List<TreasuryTransaction> Transactions { get; set; }
     }

@@ -4,6 +4,7 @@ using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -12,11 +13,13 @@ namespace OtoTamir.BLL.Concrete
         private readonly IServiceRecordDal _serviceRecordDal;
         private readonly ITreasuryTransactionService _treasuryTransactionService;
         private readonly IMechanicService _mechanicService;
-        public ServiceRecordService(IServiceRecordDal serviceRecordDal, ITreasuryTransactionService treasuryTransactionService, IMechanicService mechanicService)
+        private readonly ILogger<ServiceRecordService> _logger;
+        public ServiceRecordService(IServiceRecordDal serviceRecordDal, ITreasuryTransactionService treasuryTransactionService, IMechanicService mechanicService, ILogger<ServiceRecordService> logger)
         {
             _serviceRecordDal = serviceRecordDal;
             _treasuryTransactionService = treasuryTransactionService;
             _mechanicService = mechanicService;
+            _logger = logger;
         }
 
         public async Task<bool> AnyAsync(Expression<Func<ServiceRecord, bool>> filter)
@@ -29,9 +32,9 @@ namespace OtoTamir.BLL.Concrete
             return await _serviceRecordDal.CreateAsync(entity);
         }
 
-        public int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            return _serviceRecordDal.Delete(id);
+            return await _serviceRecordDal.DeleteAsync(id);
         }
 
 
@@ -58,81 +61,41 @@ namespace OtoTamir.BLL.Concrete
         }
         public async Task UpdateStatusAsync(int id, string mechanicId)
         {
-            await _serviceRecordDal.UpdateStatusAsync(id, mechanicId);
+
             var record = await _serviceRecordDal.GetOneAsync(id, mechanicId, true, true);
+
             if (record == null)
                 throw new Exception("Servis kaydı bulunamadı.");
-            //if (record.Status == "Tamamlandı")
-            //{
-            //    var mechanic =await _mechanicService.GetOneAsync(mechanicId);
-            //    var transaction = new TreasuryTransaction
-            //    {
-            //        TreasuryId = (int)mechanic.TreasuryId,  // mekanikten alınacak
-            //        TransactionType = TransactionType.Incoming,
-            //        Amount = record.Price, // örnek: kayıttaki fiyat
-            //        PaymentSource = PaymentSource.Cash, // ödeme şekli senin mantığına göre
-            //        TransactionDate = DateTime.Now
-            //    };
 
-            //    await _treasuryTransactionService.AddTransactionAsync(transaction);
-            //}
+            var oldStatus = record.Status;
+
+           
+            await _serviceRecordDal.UpdateStatusAsync(id, mechanicId);
+
+            
+            var updatedRecord = await _serviceRecordDal.GetOneAsync(id, mechanicId, true, false);
+
+            
+            if (updatedRecord == null) return;
+
+            var newStatus = updatedRecord.Status;
+
+           
+            if (oldStatus != newStatus)
+            {
+                _logger.LogInformation(
+                    "Servis Durumu Değişti. Kayıt: {RecordId} | Eski: {Old} -> Yeni: {New} | Yapan: {User}",
+                    id, oldStatus, newStatus, mechanicId
+                );
+            }
+            else
+            {
+                
+                _logger.LogInformation("Servis durumu kontrol edildi, değişiklik olmadı. Kayıt: {RecordId} Durum: {Status}", id, newStatus);
+            }
         }
-        //public async Task CompleteServiceAsync(ServiceCompletionDTO model)
-        //{
-        //    // 1. TRANSACTION BAŞLAT (UnitOfWork Mantığı)
-        //    using (var transaction = await _context.Database.BeginTransactionAsync())
-        //    {
-        //        try
-        //        {
-        //            // A. Servis Kaydını Getir
-        //            var record = await _serviceRecordDal.GetOneAsync(model.ServiceRecordId, model.MechanicId, true, false);
-        //            if (record == null) throw new Exception("Servis kaydı bulunamadı.");
 
-        //            // B. Durumu Güncelle
-        //            record.Status = "Tamamlandı";
-        //            record.CompletedDate = DateTime.Now;
-        //            await _serviceRecordDal.UpdateAsync(); // DB'ye yazar ama Commit edilmezse geri alınır.
 
-        //            var mechanic = await _mechanicService.GetOneAsync(model.MechanicId);
-
-        //            // C. Ödeme Yöntemine Göre Finansal İşlem
-        //            if (model.PaymentMethod == PaymentSource.ClientBalance) // Örn: Veresiye
-        //            {
-        //                // Veresiye: Kasaya para girmez, müşterinin borcu artar.
-        //                var client = await _clientService.GetOneAsync(record.Vehicle.ClientId, model.MechanicId, false, false);
-        //                client.Balance -= record.Price; // Bakiye mantığınıza göre (- borç ise)
-        //                await _clientService.UpdateAsync();
-        //            }
-        //            else
-        //            {
-        //                // Nakit veya Kart: Kasaya/Bankaya para girer.
-        //                var transactionRecord = new TreasuryTransaction
-        //                {
-        //                    TreasuryId = (int)mechanic.TreasuryId,
-        //                    TransactionType = TransactionType.Incoming,
-        //                    Amount = record.Price,
-        //                    PaymentSource = model.PaymentMethod,
-        //                    BankId = model.PaymentMethod == PaymentSource.Bank ? model.BankId : null,
-        //                    TransactionDate = DateTime.Now,
-        //                    Description = $"{record.Vehicle.Plate} plakalı araç servis ödemesi."
-        //                };
-
-        //                // TreasuryTransactionService içinde zaten kasa/banka güncelleme mantığı var.
-        //                // Ancak orası da ayrı SaveChanges çağırıyor. Transaction içinde olduğu için sorun yok.
-        //                await _treasuryTransactionService.AddTransactionAsync(transactionRecord);
-        //            }
-
-        //            // 2. HATA YOKSA ONAYLA (COMMIT)
-        //            await transaction.CommitAsync();
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            // 3. HATA VARSA GERİ AL (ROLLBACK)
-        //            await transaction.RollbackAsync();
-        //            throw new Exception("İşlem sırasında hata oluştu: " + ex.Message);
-        //        }
-        //    }
-        //}
     }
 }
 

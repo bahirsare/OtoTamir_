@@ -12,12 +12,12 @@ namespace OtoTamir.DAL.Concrete.EfCore
             _context = context;
         }
 
-       
+
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
         {
             return await _context.Set<T>().AnyAsync(filter);
         }
-              
+
 
         public virtual async Task<int> CreateAsync(T entity)
         {
@@ -30,15 +30,18 @@ namespace OtoTamir.DAL.Concrete.EfCore
             return await _context.SaveChangesAsync();
         }
 
-        public  int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            var entity =  _context.Set<T>().Find(id);
+            var entity = await _context.Set<T>().FindAsync(id);
 
             if (entity != null)
             {
                 _context.Set<T>().Remove(entity);
+
+                return await _context.SaveChangesAsync();
             }
-            return _context.SaveChanges();
+
+            return 0;
         }
     }
 }

@@ -5,6 +5,7 @@ using OtoTamir.CORE.Identity;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -28,9 +29,9 @@ namespace OtoTamir.BLL.Concrete
 
         }
 
-        public  int Delete(int id)
+        public  async Task<int> DeleteAsync(int id)
         {
-            return  _mechanicDal.Delete(id);
+            return await _mechanicDal.DeleteAsync(id);
         }
 
         

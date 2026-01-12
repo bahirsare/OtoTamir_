@@ -28,9 +28,9 @@ namespace OtoTamir.BLL.Concrete
             return await _bankDal.CreateAsync(entity);
         }
 
-        public int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            return _bankDal.Delete(id);
+            return await _bankDal.DeleteAsync(id);
         }
 
         public Task<List<Bank>> GetAllAsync(string mechanicId, Expression<Func<Bank, bool>> filter = null)

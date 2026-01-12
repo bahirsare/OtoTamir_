@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.BLL.Concrete;
+using OtoTamir.BLL.Managers;
 using OtoTamir.CORE.Identity;
 using OtoTamir.CORE.Mapping;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Concrete.EfCore;
 using OtoTamir.DAL.Context;
+using Serilog;
 using System.Globalization;
 
 
@@ -19,6 +21,14 @@ namespace OtoTamir.WEBUI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information() 
+                .WriteTo.Console() 
+                .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) 
+                .CreateLogger();
+
+          
+            builder.Host.UseSerilog();
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<DataContext>(options =>
@@ -42,9 +52,10 @@ namespace OtoTamir.WEBUI
 
             builder.Services.AddScoped<ISymptomDal, EfCoreSymptomDal>();
             builder.Services.AddScoped<ISymptomService, SymptomService>();
-            
-           
-            
+
+            builder.Services.AddScoped<ITransactionCategoryDal, EfCoreTransactionCategoryDal>();
+            builder.Services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
+
             builder.Services.AddScoped<IBankCardDal, EfCoreBankCardDal>();
             builder.Services.AddScoped<IBankCardService, BankCardService>();
             
@@ -60,8 +71,8 @@ namespace OtoTamir.WEBUI
             builder.Services.AddScoped<IPosTerminalDal,EfCorePosTerminalDal>();
             builder.Services.AddScoped<IPosTerminalService,PosTerminalService>();
 
-            builder.Services.AddScoped<BLL.Managers.ServiceProcessManager>();
-
+            builder.Services.AddScoped<IServiceProcessManager, ServiceProcessManager>();
+            builder.Services.AddScoped<Services.MailHelper.IMailHelper, Services.MailHelper.MailHelper>();
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 //password

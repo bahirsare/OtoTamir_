@@ -2,6 +2,7 @@
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -24,9 +25,9 @@ namespace OtoTamir.BLL.Concrete
             return await _vehicleDal.CreateAsync(entity);
         }
 
-        public  int Delete(int id)
+        public  async Task<int> DeleteAsync(int id)
         {
-            return  _vehicleDal.Delete(id);
+            return await _vehicleDal.DeleteAsync(id);
         }
 
         public async Task<List<Vehicle>> GetAllAsync(string mechanicId, Expression<Func<Vehicle, bool>> filter = null)

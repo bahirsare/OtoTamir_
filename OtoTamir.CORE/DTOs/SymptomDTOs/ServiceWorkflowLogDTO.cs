@@ -20,7 +20,7 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
         public bool IsCompleted { get; set; } 
         public PaymentSource PaymentMethod { get; set; } = PaymentSource.Cash; 
         public int? BankId { get; set; }
-        public int? PosTerminalId { get; set; } // Önerim
+        public int? PosTerminalId { get; set; } 
         
         
 

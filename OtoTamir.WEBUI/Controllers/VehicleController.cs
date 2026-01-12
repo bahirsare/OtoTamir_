@@ -127,7 +127,7 @@ namespace OtoTamir.WEBUI.Controllers
                 TempData["FailMessage"] = "Tamirci bulunamadı.";
                 return RedirectToAction("VehicleDetails", "Vehicle", id);
             }
-            var result = _vehicleService.Delete(id);
+            var result = await _vehicleService.DeleteAsync(id);
             if (result == 0)
             {
                 TempData["FailMessage"] = "Araç silinemedi.";

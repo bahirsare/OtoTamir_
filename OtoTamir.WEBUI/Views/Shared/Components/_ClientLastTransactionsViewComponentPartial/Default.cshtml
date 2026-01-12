@@ -1,146 +1,182 @@
-﻿@using OtoTamir.CORE.Entities
-@model List<TreasuryTransaction>
+﻿<div class="modal-dialog">
+    <div class="modal-content">
 
+        <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="expenseModalLabel">
+                <i class="fas fa-minus-circle mr-2"></i>Gider/Harcama Ekle
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
 
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg">
+        <form asp-action="AddExpense" asp-controller="Treasury" method="post">
+            <div class="modal-body">
 
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title font-weight-bold">
-                    <i class="fas fa-file-invoice-dollar mr-2"></i>Finansal Hareket Dökümü
-                </h5>
-                <button type="button" class="close text-white opacity-75" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+                <div class="form-group mb-3">
+                    <label class="fw-bold">Tutar (TL)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">₺</span>
+                        <input type="text" name="Amount" class="form-control form-control-lg font-weight-bold" required placeholder="0.00" />
+                    </div>
+                </div>
 
-            <div class="modal-body p-0 bg-light">
-                @if (Model.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped mb-0 text-nowrap align-middle">
-                            <thead class="bg-white border-bottom small text-muted text-uppercase">
-                                <tr>
-                                    <th class="pl-4">Tarih / Saat</th>
-                                    <th>İşlem Tipi</th>
-                                    <th>Ödeme Yöntemi</th>
-                                    <th>Açıklama</th>
-                                    <th class="text-right pr-4">Tutar</th>
-                                </tr>
-                            </thead>
-                           
-                        <tbody>
-                            @foreach (var item in Model)
+                <div class="form-group mb-3">
+                    <label class="fw-bold">Kategori</label>
+                    <div class="input-group">
+                        <select name="CategoryId" id="categorySelect" class="form-control form-select">
+                            <option value="">Genel (Kategorisiz)</option>
+                            @if (ViewBag.Categories != null)
                             {
-                               
-                                bool isServiceDebt = item.PaymentSource == PaymentSource.ClientBalance;
-
-                                <tr class="bg-white">
-                                    <td class="pl-4">
-                                        <div class="d-flex flex-column">
-                                            <span class="font-weight-bold text-dark">@item.TransactionDate.ToString("dd.MM.yyyy")</span>
-                                            <small class="text-muted">@item.TransactionDate.ToString("HH:mm")</small>
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        @if (isServiceDebt)
-                                        {
-                                           
-                                            <span class="badge badge-warning px-2 py-1 text-dark border">
-                                                <i class="fas fa-file-invoice mr-1"></i> Servis Borcu
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                           
-                                            <span class="badge badge-success px-2 py-1 text-white border">
-                                                <i class="fas fa-check-circle mr-1"></i> Ödeme Yapıldı
-                                            </span>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        @if (isServiceDebt)
-                                        {
-                                            <span class="text-muted small"><i class="fas fa-user-tag mr-1"></i> Cari Hesap</span>
-                                        }
-                                        else
-                                        {
-                                            // İkon Seçimi
-                                            string methodIcon = item.PaymentSource switch
-                                            {
-                                                PaymentSource.Cash => "fa-money-bill-wave text-success",
-                                                PaymentSource.CreditCard => "fa-credit-card text-info",
-                                                PaymentSource.Bank => "fa-university text-primary",
-                                                _ => "fa-circle text-secondary"
-                                            };
-
-                                            // Metin Seçimi
-                                            string methodName = item.PaymentSource switch
-                                            {
-                                                PaymentSource.Cash => "Nakit",
-                                                PaymentSource.CreditCard => "Kredi Kartı",
-                                                PaymentSource.Bank => "Havale/EFT",
-                                                _ => "Diğer"
-                                            };
-
-                                            <i class="fas @methodIcon mr-1"></i>
-                                            <span class="text-dark small font-weight-bold">@methodName</span>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        <span class="d-inline-block text-truncate small text-muted" style="max-width: 250px;" title="@item.Description">
-                                            @item.Description
-                                        </span>
-                                    </td>
-
-                                    <td class="text-right pr-4">
-                                        @if (isServiceDebt)
-                                        {
-                                            // BORÇ: Eksi (-) ve Kırmızı
-                                            <h6 class="mb-0 font-weight-bold text-danger">
-                                                - @item.Amount.ToString("N2") ₺
-                                            </h6>
-                                            <small class="text-danger font-italic">Borç Yansıdı</small>
-                                        }
-                                        else
-                                        {
-                                            // ÖDEME: Artı (+) ve Yeşil
-                                            <h6 class="mb-0 font-weight-bold text-success">
-                                                + @item.Amount.ToString("N2") ₺
-                                            </h6>
-                                            <small class="text-success font-italic">Tahsil Edildi</small>
-                                        }
-                                    </td>
-                                </tr>
+                                foreach (var item in (List<OtoTamir.CORE.Entities.TransactionCategory>)ViewBag.Categories)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
                             }
-                        </tbody>
-                        </table>
+                        </select>
+                        <button type="button" class="btn btn-outline-secondary" onclick="openAddCategoryModal()">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
-                }
-                else
-                {
-                    <div class="d-flex flex-column align-items-center justify-content-center py-5">
-                        <div class="bg-white p-4 rounded-circle shadow-sm mb-3">
-                            <i class="fas fa-file-invoice fa-3x text-muted opacity-50"></i>
-                        </div>
-                        <h6 class="text-muted">Bu müşteriye ait kayıtlı finansal hareket bulunamadı.</h6>
-                    </div>
-                }
-            </div>
+                </div>
 
-            <div class="modal-footer bg-white d-flex justify-content-between align-items-center">
-                <div class="text-muted small">
-                    <i class="fas fa-info-circle mr-1"></i> Son @Model.Count işlem listelenmektedir.
+                <div class="form-group mb-3">
+                    <label class="fw-bold">Açıklama</label>
+                    <textarea name="Description" class="form-control" rows="2" required placeholder="Örn: Elektrik Faturası, Öğle Yemeği..."></textarea>
                 </div>
-                <div>
-                    <button type="button" class="btn btn-outline-secondary btn-sm mr-2" data-dismiss="modal">Kapat</button>
-                    <a asp-controller="Client" asp-action="FinancialHistory" asp-route-id="@ViewBag.ClientId" class="btn btn-primary btn-sm shadow-sm">
-                        <i class="fas fa-external-link-alt mr-1"></i> Tüm Geçmişi İncele
-                    </a>
+
+                <div class="form-group mb-3">
+                    <label class="fw-bold">Ödeme Kaynağı</label>
+                    <select name="PaymentSource" id="expenseSourceSelect" class="form-control form-select" onchange="toggleExpenseFields()">
+                        <option value="0">💵 Nakit (Kasa)</option>
+                        <option value="1">🏦 Banka Hesabı</option>
+                        <option value="2">💳 Kredi Kartı</option>
+                    </select>
                 </div>
+
+                <div class="form-group mb-3 d-none bg-light p-2 rounded border" id="bankSelectDiv">
+                    <label>Hangi Banka?</label>
+                    <select name="BankId" class="form-control form-select">
+                        <option value="">Seçiniz...</option>
+                        @if (ViewBag.Banks != null)
+                        {
+                            foreach (var item in (List<OtoTamir.CORE.Entities.Bank>)ViewBag.Banks)
+                            {
+                                <option value="@item.Id">@item.BankName (@item.Iban)</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group mb-3 d-none bg-light p-2 rounded border" id="cardSelectDiv">
+                    <label>Hangi Kart?</label>
+                    <select name="BankCardId" class="form-control form-select">
+                        <option value="">Seçiniz...</option>
+                        @if (ViewBag.BankCards != null)
+                        {
+                            foreach (var item in (List<OtoTamir.CORE.Entities.BankCard>)ViewBag.BankCards)
+                            {
+                                <option value="@item.Id">@item.CardName</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="submit" class="btn btn-danger px-4">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="addCategoryModal" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Yeni Kategori</h6>
+                <button type="button" class="btn-close" onclick="closeCategoryModal()"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="newCategoryName" class="form-control" placeholder="Kategori Adı Giriniz...">
+            </div>
+            <div class="modal-footer p-1">
+                <button type="button" class="btn btn-primary btn-sm btn-block w-100" onclick="saveNewCategory()">Ekle</button>
             </div>
         </div>
     </div>
+</div>
+
+<script>
+    // 1. Script: Kaynak Alanlarını Aç/Kapa
+    function toggleExpenseFields() {
+        var source = document.getElementById("expenseSourceSelect").value;
+        var bankDiv = document.getElementById("bankSelectDiv");
+        var cardDiv = document.getElementById("cardSelectDiv");
+
+        bankDiv.classList.add("d-none");
+        cardDiv.classList.add("d-none");
+
+        if (source == "1") {
+            bankDiv.classList.remove("d-none");
+        } else if (source == "2") {
+            cardDiv.classList.remove("d-none");
+        }
+    }
+
+    // 2. Script: Küçük Modalı Açma
+    // Bootstrap 5'te bir modal açıkken diğerini açmak bazen backdrop sorunu yapar.
+    // En basiti ana modalı gizleyip diğerini açmak veya üstüne açmaktır.
+    var expenseModalEl = document.getElementById('expenseModal');
+    var categoryModalEl = document.getElementById('addCategoryModal');
+    var categoryModal; // Bootstrap instance
+
+    function openAddCategoryModal() {
+        // Küçük modalı oluştur ve göster
+        categoryModal = new bootstrap.Modal(categoryModalEl);
+        categoryModal.show();
+    }
+
+    function closeCategoryModal() {
+        if(categoryModal) categoryModal.hide();
+    }
+
+    // 3. Script: AJAX ile Kategori Kaydetme
+    function saveNewCategory() {
+        var name = document.getElementById("newCategoryName").value;
+        if (!name) { alert("Lütfen isim girin."); return; }
+
+        // Fetch API ile Controller'a istek atıyoruz
+        fetch('/Treasury/AddCategoryAjax', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Anti-Forgery Token gerekebilir, proje ayarlarına bağlı
+            },
+            body: JSON.stringify(name)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Başarılı!
+                // 1. Selectbox'a yeni seçeneği ekle
+                var select = document.getElementById("categorySelect");
+                var option = document.createElement("option");
+                option.value = data.id;
+                option.text = data.name;
+                option.selected = true; // Yeni ekleneni seçili yap
+                select.add(option);
+
+                // 2. Modalı kapat ve inputu temizle
+                document.getElementById("newCategoryName").value = "";
+                closeCategoryModal();
+            } else {
+                alert("Hata: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Bir hata oluştu.");
+        });
+    }
+</script>

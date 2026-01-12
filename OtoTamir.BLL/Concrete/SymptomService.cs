@@ -2,6 +2,7 @@
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -23,9 +24,9 @@ namespace OtoTamir.BLL.Concrete
             return await _symptomDal.CreateAsync(entity);
         }
 
-        public int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            return  _symptomDal.Delete(id);
+            return await _symptomDal.DeleteAsync(id);
         }
 
         public async Task<Symptom> GetOneAsync(

@@ -3,10 +3,11 @@ using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Context;
+using Microsoft.Extensions.Logging;
 
 namespace OtoTamir.BLL.Managers
 {
-    public class ServiceProcessManager
+    public class ServiceProcessManager:IServiceProcessManager
     {
         private readonly IServiceRecordService _serviceRecordService;
         private readonly ITreasuryTransactionService _treasuryTransactionService;
@@ -17,6 +18,7 @@ namespace OtoTamir.BLL.Managers
         private readonly ITreasuryService _treasuryService;
         private readonly IMapper _mapper;
         private readonly DataContext _context;
+        private readonly ILogger<ServiceProcessManager> _logger;
 
         public ServiceProcessManager(
             IServiceRecordService serviceRecordService,
@@ -27,7 +29,8 @@ namespace OtoTamir.BLL.Managers
             IPosTerminalService posTerminalService,
             IBankService bankService,
             ITreasuryService treasuryService,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<ServiceProcessManager> logger)
         {
             _serviceRecordService = serviceRecordService;
             _treasuryTransactionService = treasuryTransactionService;
@@ -38,6 +41,7 @@ namespace OtoTamir.BLL.Managers
             _bankService = bankService;
             _treasuryService = treasuryService;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task CompleteServiceProcessAsync(ServiceCompletionDTO model)
@@ -46,7 +50,7 @@ namespace OtoTamir.BLL.Managers
             {
                 try
                 {
-                   
+                    _logger.LogInformation("Servis tamamlama işlemi başladı. Kayıt ID: {RecordId}, Usta ID: {MechanicId}", model.ServiceRecordId, model.MechanicId);
                     var record = await _serviceRecordService.GetOneAsync(model.ServiceRecordId, model.MechanicId, true, false);
                     if (record == null) throw new Exception("Servis kaydı bulunamadı.");
 
@@ -96,10 +100,12 @@ namespace OtoTamir.BLL.Managers
                     // 5. Kaydet ve İşlemi Bitir
                     await _serviceRecordService.UpdateAsync();
                     await transaction.CommitAsync();
+                    _logger.LogInformation("Servis başarıyla tamamlandı ve ödeme alındı. Kayıt ID: {RecordId}", model.ServiceRecordId);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
+                    _logger.LogError(ex, "Servis tamamlama işlemi sırasında bir hata oluştu! Kayıt ID: {RecordId}", model.ServiceRecordId);
                     throw;
                 }
             }
@@ -116,12 +122,9 @@ namespace OtoTamir.BLL.Managers
      int? targetBankId = null
  )
         {
-            // KONTROL: Şu an açık bir transaction var mı?
-            // Varsa (CompleteServiceProcessAsync'ten geliyorsak) null gelmez.
-            // Yoksa (Direkt ödeme alıyorsak) null gelir.
             var currentTransaction = _context.Database.CurrentTransaction;
 
-            // Eğer halihazırda bir transaction yoksa, biz başlatalım. (Bu "Local" transaction olur)
+           
             var localTransaction = currentTransaction == null ? await _context.Database.BeginTransactionAsync() : null;
 
             try

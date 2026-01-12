@@ -1,25 +1,35 @@
-﻿namespace OtoTamir.WEBUI.Services
+﻿using Serilog;
+namespace OtoTamir.WEBUI.Services
 {
     public class ImageOperations
     {
         private static string GenerateUniqueFileName(string fileExtension = ".png")
         {
-            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-            var uniqueName = $"{timestamp}{fileExtension}";
+            var uniqueName = $"{Guid.NewGuid()}{fileExtension}";
 
             return uniqueName;
         }
 
         public static async Task<string> UploadImageAsync(IFormFile file)
         {
-            string newFileName = GenerateUniqueFileName();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", newFileName);
-
-            using (var stream = new FileStream(path, FileMode.Create))
+            try
             {
-                await file.CopyToAsync(stream);
+                string newFileName = GenerateUniqueFileName();
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", newFileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                Log.Information("Resim yüklendi! Dosya Adı: {FileName}", file.FileName);
+              
+                return newFileName;
             }
-            return newFileName;
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Dosya yüklenirken hata oluştu! Dosya Adı: {FileName}", file.FileName);
+                throw;
+            }
         }
 
         public static void DeleteImage(string fileName)

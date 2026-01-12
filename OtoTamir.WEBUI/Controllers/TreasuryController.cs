@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.BLL.Concrete;
 using OtoTamir.BLL.Managers;
 using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.Entities;
@@ -22,6 +23,7 @@ namespace OtoTamir.WEBUI.Controllers
         private readonly IBankCardService _bankCardService;
         private readonly IPosTerminalService _posTerminalService;
         private readonly UserManager<Mechanic> _userManager;
+        private readonly ITransactionCategoryService _categoryService;
         private readonly IMapper _mapper;
 
 
@@ -32,7 +34,7 @@ namespace OtoTamir.WEBUI.Controllers
             IBankService bankService,
             IBankCardService bankCardService,
             IPosTerminalService posTerminalService,
-            UserManager<Mechanic> userManager, IMapper mapper)
+            UserManager<Mechanic> userManager, IMapper mapper, ITransactionCategoryService categoryService)
         {
             _treasuryService = treasuryService;
             _transactionService = transactionService;
@@ -42,6 +44,7 @@ namespace OtoTamir.WEBUI.Controllers
             _posTerminalService = posTerminalService;
             _userManager = userManager;
             _mapper = mapper;
+            _categoryService = categoryService;
         }
 
        
@@ -53,7 +56,8 @@ namespace OtoTamir.WEBUI.Controllers
             var treasury = await _treasuryService.GetOneAsync((int)user.TreasuryId, user.Id);
 
             var model = await _treasuryService.GetDashboardDataAsync(user.Id, user.TreasuryId);
-
+            ViewBag.Banks = await _bankService.GetAllAsync(user.Id);
+            ViewBag.BankCards = await _bankCardService.GetAllAsync(user.Id);
             return View(model);
                 
         }
@@ -103,7 +107,7 @@ namespace OtoTamir.WEBUI.Controllers
         public async Task<IActionResult> DeleteBank(int id)
         {
           
-            var result = _bankService.Delete(id);
+            var result = await _bankService.DeleteAsync(id);
 
             if (result > 0)
             {
@@ -119,7 +123,7 @@ namespace OtoTamir.WEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteCard(int id)
         {
-            var result = _bankCardService.Delete(id);
+            var result =  await _bankCardService.DeleteAsync(id);
 
             if (result > 0)
             {
@@ -254,7 +258,7 @@ namespace OtoTamir.WEBUI.Controllers
         public async Task<IActionResult> DeletePosTerminal(int id)
         {
             
-            var result = _posTerminalService.Delete(id);
+            var result = await _posTerminalService.DeleteAsync(id);
 
             if (result > 0) TempData["SuccessMessage"] = "POS silindi.";
             else TempData["FailMessage"] = "Silinemedi.";
@@ -278,5 +282,62 @@ namespace OtoTamir.WEBUI.Controllers
             TempData["SuccessMessage"] = "POS bilgileri güncellendi.";
             return RedirectToAction("Index");
         }
+        [HttpPost]
+        public async Task<IActionResult> AddExpense(AddExpenseDTO model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user.TreasuryId == null)
+            {
+                TempData["FailMessage"] = "Kasa bulunamadı.";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                
+                await _transactionService.ProcessExpenseAsync(model, user.Id, (int)user.TreasuryId);
+
+                TempData["SuccessMessage"] = "Harcama başarıyla kaydedildi.";
+            }
+            catch (Exception ex)
+            {
+                TempData["FailMessage"] = "Hata: " + ex.Message;
+            }
+
+            
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddCategoryAjax([FromBody] string name)
+        {
+            
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return Json(new { success = false, message = "Lütfen bir kategori adı giriniz." });
+            }
+
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+
+                var category = new TransactionCategory
+                {
+                    Name = name,
+                    MechanicId = user.Id 
+                };
+
+               
+                await _categoryService.CreateAsync(category);
+
+               
+                return Json(new { success = true, id = category.Id, name = category.Name });
+            }
+            catch (Exception ex)
+            {
+                
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
+
 }

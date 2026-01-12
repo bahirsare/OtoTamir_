@@ -1,7 +1,12 @@
-﻿using OtoTamir.BLL.Abstract;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
+
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -12,19 +17,21 @@ namespace OtoTamir.BLL.Concrete
         private readonly IBankDal _bankDal;
         private readonly IBankCardDal _bankCardDal;
         private readonly IClientDal _clientDal;
+        private readonly ILogger<TreasuryTransaction> _logger;
 
         public TreasuryTransactionService(
             ITreasuryTransactionDal transactionDal,
             ITreasuryDal treasuryDal,
             IBankDal bankDal,
             IBankCardDal bankCardDal,
-            IClientDal clientDal)
+            IClientDal clientDal, ILogger<TreasuryTransaction> logger)
         {
             _transactionDal = transactionDal;
             _treasuryDal = treasuryDal;
             _bankDal = bankDal;
             _bankCardDal = bankCardDal;
             _clientDal = clientDal;
+            _logger = logger;
         }
 
         public async Task AddTransactionAsync(TreasuryTransaction transaction, string mechanicId)
@@ -115,12 +122,34 @@ namespace OtoTamir.BLL.Concrete
 
         public async Task<int> CreateAsync(TreasuryTransaction entity)
         {
-            return await _transactionDal.CreateAsync(entity);
+            try
+            {
+                
+                var result = await _transactionDal.CreateAsync(entity);
+
+               
+                _logger.LogInformation(
+                    "Finansal İşlem: {Type} - Miktar: {Amount} TL - KasaID: {TreasuryId} - Açıklama: {Desc}",
+                    entity.TransactionType,
+                    entity.Amount,
+                    entity.TreasuryId,
+                    entity.Description
+                );
+
+               
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Finansal işlem kaydedilirken hata oluştu! Miktar: {Amount}", entity.Amount);
+                throw;
+            }
+
         }
 
-        public int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            return _transactionDal.Delete(id);
+            return await _transactionDal.DeleteAsync(id);
         }
 
         public Task<List<TreasuryTransaction>> GetAllAsync(string mechanicId, int treasuryId, Expression<Func<TreasuryTransaction, bool>> filter = null)
@@ -152,5 +181,73 @@ namespace OtoTamir.BLL.Concrete
         {
             return await _transactionDal.UpdateAsync();
         }
+        public async Task ProcessExpenseAsync(AddExpenseDTO model, string mechanicId, int treasuryId)
+        {
+            
+            var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId);
+            if (treasury == null) throw new Exception("Kasa bulunamadı.");
+
+            
+            var trx = new TreasuryTransaction
+            {
+                TreasuryId = treasuryId,
+                Amount = model.Amount, 
+                Description = model.Description,
+                TransactionDate = model.Date,
+                TransactionType = TransactionType.Outgoing,
+                PaymentSource = model.PaymentSource,
+                AuthorName = "Yönetici", 
+                
+            };
+
+            
+            switch (model.PaymentSource)
+            {
+                case PaymentSource.Cash:
+                    
+                    if (treasury.CashBalance < model.Amount)
+                        throw new Exception($"Kasada yeterli nakit yok! Mevcut: {treasury.CashBalance:C2}");
+
+                    treasury.CashBalance -= model.Amount;
+
+                    
+                    await _treasuryDal.UpdateAsync();
+                    break;
+
+                case PaymentSource.Bank:
+                    if (model.BankId == null) throw new Exception("Banka seçimi zorunludur.");
+                    trx.BankId = model.BankId;
+
+                    var bank = await _bankDal.GetOneAsync((int)model.BankId, mechanicId);
+                    if (bank == null) throw new Exception("Banka bulunamadı.");
+
+                    if (bank.Balance < model.Amount)
+                        throw new Exception($"Banka hesabında yeterli bakiye yok! Mevcut: {bank.Balance:C2}");
+
+                   
+                    bank.Balance -= model.Amount;
+                    await _bankDal.UpdateAsync();
+                    break;
+
+                case PaymentSource.CreditCard:
+                    if (model.BankCardId == null) throw new Exception("Kredi kartı seçimi zorunludur.");
+
+                   
+                    trx.BankCardId = model.BankCardId;
+                   
+                    trx.Description += $" (Kart ID: {model.BankCardId})";
+
+                    var card = await _bankCardDal.GetOneAsync((int)model.BankCardId, mechanicId);
+                    if (card == null) throw new Exception("Kredi kartı bulunamadı.");
+
+                    
+                    card.Debt += model.Amount;
+                    await _bankCardDal.UpdateAsync();
+                    break;
+            }
+
+            await _transactionDal.CreateAsync(trx);
+        }
+    
     }
 }

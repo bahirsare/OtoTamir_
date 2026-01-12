@@ -30,6 +30,8 @@ namespace OtoTamir.CORE.Entities
         public Client Client { get; set; }
         public int? PosTerminalId { get; set; }
         public PosTerminal PosTerminal { get; set; }
+        public int? TransactionCategoryId { get; set; }
+        public TransactionCategory TransactionCategory { get; set; }
 
 
 
