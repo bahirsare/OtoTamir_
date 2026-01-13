@@ -5,6 +5,8 @@ using OtoTamir.CORE.Entities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
+using OtoTamir.CORE.Utilities;
+using OtoTamir.CORE.Repositories;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -95,7 +97,10 @@ namespace OtoTamir.BLL.Concrete
             }
         }
 
-
+        Task<PagedResult<ServiceRecord>> IRepositoryService<ServiceRecord>.GetPagedAsync(Expression<Func<ServiceRecord, bool>> filter, Func<IQueryable<ServiceRecord>, IOrderedQueryable<ServiceRecord>> orderBy, int page, int pageSize, params Expression<Func<ServiceRecord, object>>[] includes)
+        {
+           return _serviceRecordDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
     }
 }
 

@@ -1,5 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -51,5 +53,9 @@ namespace OtoTamir.BLL.Concrete
             return await _vehicleDal.UpdateAsync();
         }
 
+        Task<PagedResult<Vehicle>> IRepositoryService<Vehicle>.GetPagedAsync(Expression<Func<Vehicle, bool>> filter, Func<IQueryable<Vehicle>, IOrderedQueryable<Vehicle>> orderBy, int page, int pageSize, params Expression<Func<Vehicle, object>>[] includes)
+        {
+           return _vehicleDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
     }
 }

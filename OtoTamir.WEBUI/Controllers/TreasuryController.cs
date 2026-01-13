@@ -10,6 +10,7 @@ using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.WEBUI.Models;
 using OtoTamir.WEBUI.Services;
+using System.Linq.Expressions;
 
 namespace OtoTamir.WEBUI.Controllers
 {
@@ -47,21 +48,55 @@ namespace OtoTamir.WEBUI.Controllers
             _categoryService = categoryService;
         }
 
-       
-        public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
+
+        public async Task<IActionResult> Index(
+     DateTime? startDate,
+     DateTime? endDate,
+     int? typeId,
+     int? sourceId,
+     int page = 1) 
         {
             var user = await _userManager.GetUserAsync(User);
-            var start = startDate ?? DateTime.Now.AddDays(-30);
-            var end = endDate ?? DateTime.Now.AddDays(1);
-            var treasury = await _treasuryService.GetOneAsync((int)user.TreasuryId, user.Id);
+            if (user.TreasuryId == null) return RedirectToAction("Profile", "Account");
 
-            var model = await _treasuryService.GetDashboardDataAsync(user.Id, user.TreasuryId);
-            ViewBag.Banks = await _bankService.GetAllAsync(user.Id);
-            ViewBag.BankCards = await _bankCardService.GetAllAsync(user.Id);
-            return View(model);
+           
+            if (!startDate.HasValue) startDate = DateTime.Today.AddDays(-30);
+            if (!endDate.HasValue) endDate = DateTime.Today.AddDays(1).AddSeconds(-1);
+            else endDate = endDate.Value.Date.AddDays(1).AddSeconds(-1);
+
+            Expression<Func<TreasuryTransaction, bool>> filter = x =>
                 
-        }
+                x.TreasuryId == user.TreasuryId &&
+                x.TransactionDate >= startDate &&
+                x.TransactionDate <= endDate;
 
+            if (typeId.HasValue) filter = filter.AndAlso(x => x.TransactionType == (TransactionType)typeId.Value);
+            if (sourceId.HasValue) filter = filter.AndAlso(x => x.PaymentSource == (PaymentSource)sourceId.Value);
+
+          
+            var pagedResult = await _transactionService.GetPagedAsync(
+                filter: filter,
+                orderBy: q => q.OrderByDescending(x => x.TransactionDate), 
+                page: page,
+                pageSize: 10,
+                includes: x => x.TransactionCategory 
+            );
+
+           
+            var model = await _treasuryService.GetDashboardDataAsync(user.Id, (int)user.TreasuryId);
+
+            
+            model.Transactions = pagedResult.Results;
+
+            ViewBag.PagedResult = pagedResult; 
+
+            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.SelectedType = typeId;
+            ViewBag.SelectedSource = sourceId;
+
+            return View(model);
+        }
         [HttpPost]
         public async Task<IActionResult> AddBank(AddBankDTO model)
         {

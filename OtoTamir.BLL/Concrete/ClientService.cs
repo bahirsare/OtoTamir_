@@ -2,6 +2,8 @@
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
 
@@ -64,14 +66,13 @@ namespace OtoTamir.BLL.Concrete
         }
         public async Task<ClientStatementDTO> GetClientStatementAsync(int clientId, string mechanicId, int treasuryId)
         {
-            // 1. Verileri Çek
+            
             var client = await _clientDal.GetOneAsync(clientId, mechanicId, true, true);
             if (client == null) return null;
 
-            // 2. Temel bilgileri ve MEVCUT BAKİYEYİ Map'le
+            
             var model = _mapper.Map<ClientStatementDTO>(client);
 
-            // 3. Geçmiş Hareketleri Listele (Sadece tablo doldurmak için)
             var statementItems = new List<StatementItem>();
 
             if (client.Vehicles != null)
@@ -87,20 +88,24 @@ namespace OtoTamir.BLL.Concrete
             );
             statementItems.AddRange(_mapper.Map<List<StatementItem>>(payments));
 
-            // 4. Listeyi Sırala
+           
             model.Transactions = statementItems.OrderByDescending(x => x.Date).ToList();
 
-            // 5. Alt bilgi için toplamlar (Opsiyonel ama faydalı)
             model.TotalDebt = model.Transactions.Where(x => x.Type == "DEBT").Sum(x => x.Amount);
             model.TotalPaid = model.Transactions.Where(x => x.Type == "PAYMENT").Sum(x => x.Amount);
 
-            // DİKKAT: CurrentBalance'ı burada hesaplamıyoruz, veritabanından gelen model.CurrentBalance kullanılıyor.
+           
 
             return model;
         }
 
         public async Task<bool> UpdateBalanceAsync(string mechanicId, int clientId, decimal amount) { 
             return await _clientDal.UpdateBalanceAsync(mechanicId, clientId, amount);
+        }
+
+        Task<PagedResult<Client>> IRepositoryService<Client>.GetPagedAsync(Expression<Func<Client, bool>> filter, Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy, int page, int pageSize, params Expression<Func<Client, object>>[] includes)
+        {
+           return _clientDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
         }
     }
 }

@@ -4,14 +4,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.BLL.Concrete;
+using OtoTamir.BLL.Managers;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.DTOs.SymptomDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
+using OtoTamir.DAL.Abstract;
 using OtoTamir.WEBUI.Services;
 using System.Linq.Expressions;
-using OtoTamir.BLL.Managers;
 [Authorize]
 public class ServiceRecordController : Controller
 {
@@ -289,22 +290,23 @@ public class ServiceRecordController : Controller
     
 
     [HttpGet]
-    public async Task<IActionResult> Ongoing(ListServiceRecordsDTO model)
+    public async Task<IActionResult> Ongoing(ListServiceRecordsDTO model, int page = 1)
     {
         var mechanic = await _userManager.GetUserAsync(User);
 
-        Expression<Func<ServiceRecord, bool>> filter = sr => true;
+        
+        Expression<Func<ServiceRecord, bool>> filter = sr => sr.Vehicle.Client.MechanicId == mechanic.Id;
 
+       
         if (Request.Query.Count == 0 && !model.CurrentStatus.HasValue)
         {
             model.CurrentStatus = ServiceStatus.InProgress;
         }
 
+        
+
         if (model.CurrentStatus.HasValue)
-        {
-            
             filter = filter.AndAlso(sr => sr.Status == model.CurrentStatus.Value);
-        }
 
         if (model.StartDate.HasValue)
             filter = filter.AndAlso(sr => sr.CreatedDate >= model.StartDate.Value);
@@ -312,53 +314,62 @@ public class ServiceRecordController : Controller
         if (model.EndDate.HasValue)
             filter = filter.AndAlso(sr => sr.CreatedDate <= model.EndDate.Value);
 
-        var records = await _serviceRecordService.GetAllAsync(
-            mechanic.Id,
-            includeVehicle: true,
-            includeClient: true,
-            includeSymptoms: false,
-            filter: filter
-        );
-
+       
         if (!string.IsNullOrWhiteSpace(model.ClientName))
-            records = records.Where(r => r.Vehicle.Client.Name.IndexOf(model.ClientName, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
+            filter = filter.AndAlso(r => r.Vehicle.Client.Name.Contains(model.ClientName));
 
         if (!string.IsNullOrWhiteSpace(model.VehicleName))
-            records = records.Where(r => r.Vehicle.Name.IndexOf(model.VehicleName, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
+            filter = filter.AndAlso(r => r.Vehicle.Name.Contains(model.VehicleName));
 
-        
+
         string sortCol = model.SortColumn?.Trim() ?? "CreatedDate";
         string sortDir = model.SortDirection?.ToLower() ?? "desc";
 
-        records = (sortCol, sortDir) switch
+        
+        Func<IQueryable<ServiceRecord>, IOrderedQueryable<ServiceRecord>> orderBy = (sortCol, sortDir) switch
         {
-            ("ClientName", "asc") => records.OrderBy(r => r.Vehicle.Client.Name).ToList(),
-            ("ClientName", "desc") => records.OrderByDescending(r => r.Vehicle.Client.Name).ToList(),
+            ("ClientName", "asc") => q => q.OrderBy(r => r.Vehicle.Client.Name),
+            ("ClientName", "desc") => q => q.OrderByDescending(r => r.Vehicle.Client.Name),
 
-            ("VehicleName", "asc") => records.OrderBy(r => r.Vehicle.Name).ToList(),
-            ("VehicleName", "desc") => records.OrderByDescending(r => r.Vehicle.Name).ToList(),
+            ("VehicleName", "asc") => q => q.OrderBy(r => r.Vehicle.Name),
+            ("VehicleName", "desc") => q => q.OrderByDescending(r => r.Vehicle.Name),
 
-            ("Plate", "asc") => records.OrderBy(r => r.Vehicle.Plate).ToList(),
-            ("Plate", "desc") => records.OrderByDescending(r => r.Vehicle.Plate).ToList(),
+            ("Plate", "asc") => q => q.OrderBy(r => r.Vehicle.Plate),
+            ("Plate", "desc") => q => q.OrderByDescending(r => r.Vehicle.Plate),
 
-            ("Status", "asc") => records.OrderBy(r => r.Status).ToList(),
-            ("Status", "desc") => records.OrderByDescending(r => r.Status).ToList(),
+            ("Status", "asc") => q => q.OrderBy(r => r.Status),
+            ("Status", "desc") => q => q.OrderByDescending(r => r.Status),
 
-            ("CreatedDate", "asc") => records.OrderBy(r => r.CreatedDate).ToList(),
-            ("CreatedDate", "desc") => records.OrderByDescending(r => r.CreatedDate).ToList(),
+            ("CreatedDate", "asc") => q => q.OrderBy(r => r.CreatedDate),
+         
+            ("ModifiedDate", "asc") => q => q.OrderBy(r => r.ModifiedDate),
+            ("ModifiedDate", "desc") => q => q.OrderByDescending(r => r.ModifiedDate),
 
-            ("ModifiedDate", "asc") => records.OrderBy(r => r.ModifiedDate).ToList(),
-            ("ModifiedDate", "desc") => records.OrderByDescending(r => r.ModifiedDate).ToList(),
+            ("CompletedDate", "asc") => q => q.OrderBy(r => r.CompletedDate),
+            ("CompletedDate", "desc") => q => q.OrderByDescending(r => r.CompletedDate),
 
-            ("CompletedDate", "asc") => records.OrderBy(r => r.CompletedDate).ToList(),
-            ("CompletedDate", "desc") => records.OrderByDescending(r => r.CompletedDate).ToList(),
-
-            _ => records.OrderByDescending(r => r.CreatedDate).ToList()
+            _ => q => q.OrderByDescending(r => r.CreatedDate) // Varsayılan
         };
 
-        model.Records = records;
+        // 5. VERİ ÇEKME (Generic Paging)
+        // _serviceRecordService yerine _serviceRecordDal (veya servise eklediysen o) kullanıyoruz
+        var pagedResult = await _serviceRecordService.GetPagedAsync(
+            filter: filter,
+            orderBy: orderBy,
+            page: page,
+            pageSize: 15, // Her sayfada 15 kayıt
+                          // Include'ları burada belirtiyoruz
+            includes: new Expression<Func<ServiceRecord, object>>[] {
+            x => x.Vehicle,
+            x => x.Vehicle.Client
+            }
+        );
 
         
+        model.Records = pagedResult.Results;
+
+        
+        ViewBag.PagedResult = pagedResult;
 
         return View(model);
     }

@@ -250,72 +250,142 @@
         </div>
     </div>
 
-    <div class="col-lg-12">
-        <div class="card shadow-sm">
-            <div class="card-header border-0 d-flex justify-content-between align-items-center bg-light">
-                <h3 class="card-title"><i class="fas fa-history mr-1"></i> Son Kasa Hareketleri</h3>
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card shadow-sm">
+                <div class="card-header border-0 bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 mb-2 mb-md-0">
+                            <h3 class="card-title"><i class="fas fa-history mr-1"></i> Son Kasa Hareketleri</h3>
+                        </div>
 
-                <form asp-action="Index" method="get" class="d-flex align-items-center ml-auto">
-                    <div class="input-group input-group-sm" style="width: 350px;">
-                        <input type="date" name="startDate" class="form-control" value="@startVal" placeholder="Başlangıç">
-                        <input type="date" name="endDate" class="form-control" value="@endVal" placeholder="Bitiş">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter"></i>
-                        </button>
-                        <a href="/Treasury/Index" class="btn btn-secondary" title="Filtreyi Temizle">
-                            <i class="fas fa-sync"></i>
-                        </a>
+                        <div class="col-md-9">
+                            <form asp-action="Index" method="get">
+                                <div class="row g-2 justify-content-md-end">
+
+                                    <div class="col-auto">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-white text-muted">Tarih</span>
+                                            <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
+                                            <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <select name="typeId" class="form-select form-select-sm">
+                                            <option value="">Tüm İşlemler</option>
+                                            <!option value="0" @(ViewBag.SelectedType == 0 ? "selected" : "")>Para Girişi (+)</!option>
+                                            <!option value="1" @(ViewBag.SelectedType == 1 ? "selected" : "")>Para Çıkışı (-)</!option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <select name="sourceId" class="form-select form-select-sm">
+                                            <option value="">Tüm Kaynaklar</option>
+                                            <!option value="0" @(ViewBag.SelectedSource == 0 ? "selected" : "")>Nakit (Kasa)</!option>
+                                            <!option value="1" @(ViewBag.SelectedSource == 1 ? "selected" : "")>Banka</!option>
+                                            <!option value="2" @(ViewBag.SelectedSource == 2 ? "selected" : "")>Kredi Kartı</!option>
+                                            <!option value="3" @(ViewBag.SelectedSource == 3 ? "selected" : "")>Veresiye</!option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <button type="submit" class="btn btn-primary btn-sm px-3 shadow-sm">
+                                            <i class="fas fa-filter"></i> Filtrele
+                                        </button>
+                                        <a href="/Treasury/Index" class="btn btn-outline-secondary btn-sm shadow-sm">
+                                            <i class="fas fa-times"></i> Temizle
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
 
-            <div class="card-body table-responsive p-0">
-                <table class="table table-striped table-hover table-valign-middle">
-                    <thead>
-                        <tr>
-                            <th>Tarih</th>
-                            <th>Açıklama</th>
-                            <th>Yapan</th>
-                            <th>Kaynak</th>
-                            <th class="text-right">Tutar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Transactions)
-                        {
-                            <tr>
-                                <td><i class="far fa-calendar-alt text-muted mr-1"></i> @item.TransactionDate.ToString("dd.MM.yyyy HH:mm")</td>
-                                <td>@item.Description</td>
-                                <td><span class="badge bg-light text-dark border">@item.AuthorName</span></td>
-                                <td>
-                                    @if (item.PaymentSource == OtoTamir.CORE.Entities.PaymentSource.Cash)
-                                    {
-                                        <span class="badge bg-success"><i class="fas fa-money-bill-wave mr-1"></i> Nakit</span>
-                                    }
-                                    else if (item.PaymentSource == OtoTamir.CORE.Entities.PaymentSource.Bank)
-                                    {
-                                        <span class="badge bg-primary"><i class="fas fa-university mr-1"></i> Banka</span>
-                                    }
-                                    else if (item.PaymentSource == OtoTamir.CORE.Entities.PaymentSource.CreditCard)
-                                    {
-                                        <span class="badge bg-info"><i class="fas fa-credit-card mr-1"></i> K.Kartı</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-warning text-dark">Veresiye</span>
-                                    }
-                                </td>
-                                <td class="text-right font-weight-bold @(item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming ? "text-success" : "text-danger")">
-                                    @(item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming ? "+" : "-") @item.Amount.ToString("C2")
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <div class="card-body table-responsive p-0">
+                    @if (Model.Transactions == null || Model.Transactions.Count == 0)
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-search fa-3x mb-3 text-gray-300"></i>
+                            <h5>Kayıt Bulunamadı</h5>
+                            <p class="mb-0">Seçilen kriterlere uygun kasa hareketi yok.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-striped table-hover table-valign-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Açıklama</th>
+                                    <th>Yapan</th>
+                                    <th>Kategori</th>
+                                    <th>Kaynak</th>
+                                    <th class="text-right">Tutar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Transactions)
+                                {
+                                    <tr>
+                                        <td class="text-nowrap">
+                                            <i class="far fa-calendar-alt text-muted mr-1"></i>
+                                            @item.TransactionDate.ToString("dd.MM.yyyy HH:mm")
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-dark">@item.Description</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">@item.AuthorName</span>
+                                        </td>
+                                        <td>
+                                            @if (item.TransactionCategory != null)
+                                            {
+                                                <span class="badge bg-info text-dark">@item.TransactionCategory.Name</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.PaymentSource == OtoTamir.CORE.Entities.PaymentSource.Cash)
+                                            {
+                                                <span class="badge bg-success rounded-pill"><i class="fas fa-money-bill-wave me-1"></i> Nakit</span>
+                                            }
+                                            else if (item.PaymentSource == OtoTamir.CORE.Entities.PaymentSource.Bank)
+                                            {
+                                                <span class="badge bg-primary rounded-pill"><i class="fas fa-university me-1"></i> Banka</span>
+                                            }
+                                            else if (item.PaymentSource == OtoTamir.CORE.Entities.PaymentSource.CreditCard)
+                                            {
+                                                <span class="badge bg-secondary rounded-pill"><i class="fas fa-credit-card me-1"></i> Kart</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark rounded-pill">Veresiye</span>
+                                            }
+                                        </td>
+                                        <td class="text-right font-weight-bold @(item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming ? "text-success" : "text-danger")">
+                                            <i class="fas @(item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming ? "fa-arrow-up" : "fa-arrow-down") small mr-1"></i>
+                                            @Math.Abs(item.Amount).ToString("C2")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        
+
+
+                    }
+                </div>
+                 <partial name="_Pagination" model="ViewBag.PagedResult" />
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="modal fade" id="modalAddBank" tabindex="-1" aria-hidden="true">
     @await Component.InvokeAsync("_AddBankViewComponentPartial")

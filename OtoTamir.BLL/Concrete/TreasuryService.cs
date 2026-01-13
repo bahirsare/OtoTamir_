@@ -2,8 +2,10 @@
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
-using OtoTamir.DAL.Context; // DataContext için
+using OtoTamir.DAL.Context;
 using System.Linq.Expressions;
 
 namespace OtoTamir.BLL.Concrete
@@ -132,8 +134,13 @@ namespace OtoTamir.BLL.Concrete
         }
         public async Task UpdateCashBalanceAsync(int treasuryId, string mechanicId, decimal amount)
         {
-            
+
             await _treasuryDal.UpdateCashBalanceAsync(treasuryId, mechanicId, amount);
+        }
+
+        Task<PagedResult<Treasury>> IRepositoryService<Treasury>.GetPagedAsync(Expression<Func<Treasury, bool>> filter, Func<IQueryable<Treasury>, IOrderedQueryable<Treasury>> orderBy, int page, int pageSize, params Expression<Func<Treasury, object>>[] includes)
+        {
+            return _treasuryDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
         }
     }
 }

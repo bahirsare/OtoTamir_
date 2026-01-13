@@ -1,5 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -48,6 +50,11 @@ namespace OtoTamir.BLL.Concrete
         public async Task<int> UpdateAsync()
         {
             return await _symptomDal.UpdateAsync();
+        }
+
+        Task<PagedResult<Symptom>> IRepositoryService<Symptom>.GetPagedAsync(Expression<Func<Symptom, bool>> filter, Func<IQueryable<Symptom>, IOrderedQueryable<Symptom>> orderBy, int page, int pageSize, params Expression<Func<Symptom, object>>[] includes)
+        {
+            return _symptomDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
         }
     }
 }

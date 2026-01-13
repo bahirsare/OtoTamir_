@@ -1,5 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using System;
 using System.Collections.Generic;
@@ -51,6 +53,11 @@ namespace OtoTamir.BLL.Concrete
         {
             
             await _bankDal.UpdateBalanceAsync(bankId, mechanicId, amount);
+        }
+
+        Task<PagedResult<Bank>> IRepositoryService<Bank>.GetPagedAsync(Expression<Func<Bank, bool>> filter, Func<IQueryable<Bank>, IOrderedQueryable<Bank>> orderBy, int page, int pageSize, params Expression<Func<Bank, object>>[] includes)
+        {
+            return _bankDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
         }
     }
 }

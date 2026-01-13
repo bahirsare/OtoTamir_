@@ -1,5 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
 
@@ -42,6 +44,11 @@ namespace OtoTamir.BLL.Concrete
         public async Task<int> UpdateAsync()
         {
             return await _bankCardDal.UpdateAsync();
+        }
+
+        async Task<PagedResult<BankCard>> IRepositoryService<BankCard>.GetPagedAsync(Expression<Func<BankCard, bool>> filter, Func<IQueryable<BankCard>, IOrderedQueryable<BankCard>> orderBy, int page, int pageSize, params Expression<Func<BankCard, object>>[] includes)
+        {
+            return await _bankCardDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
         }
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -248,6 +250,10 @@ namespace OtoTamir.BLL.Concrete
 
             await _transactionDal.CreateAsync(trx);
         }
-    
+
+        Task<PagedResult<TreasuryTransaction>> IRepositoryService<TreasuryTransaction>.GetPagedAsync(Expression<Func<TreasuryTransaction, bool>> filter, Func<IQueryable<TreasuryTransaction>, IOrderedQueryable<TreasuryTransaction>> orderBy, int page, int pageSize, params Expression<Func<TreasuryTransaction, object>>[] includes)
+        {
+            return _transactionDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
     }
 }

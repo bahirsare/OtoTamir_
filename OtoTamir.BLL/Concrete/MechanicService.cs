@@ -2,6 +2,8 @@
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
@@ -90,6 +92,11 @@ namespace OtoTamir.BLL.Concrete
         public async Task<bool> AnyAsync(Expression<Func<Mechanic, bool>> filter)
         {
             return await _mechanicDal.AnyAsync(filter);
+        }
+
+        Task<PagedResult<Mechanic>> IRepositoryService<Mechanic>.GetPagedAsync(Expression<Func<Mechanic, bool>> filter, Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy, int page, int pageSize, params Expression<Func<Mechanic, object>>[] includes)
+        {
+            return _mechanicDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
         }
     }
 }

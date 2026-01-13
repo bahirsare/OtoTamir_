@@ -1,11 +1,9 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace OtoTamir.BLL.Concrete
 {
@@ -27,7 +25,7 @@ namespace OtoTamir.BLL.Concrete
         {
             if (string.IsNullOrWhiteSpace(entity.Name)) return 0;
 
-            
+
             bool exists = await _transactionCategoryDal.IsNameExistsAsync(entity.Name, entity.MechanicId);
             if (exists) throw new Exception("Bu kategori zaten mevcut.");
 
@@ -41,7 +39,7 @@ namespace OtoTamir.BLL.Concrete
 
         async Task<TransactionCategory> ITransactionCategoryService.GetOneAsync(int id, string mechanicId)
         {
-           return await _transactionCategoryDal.GetOneAsync(id, mechanicId);
+            return await _transactionCategoryDal.GetOneAsync(id, mechanicId);
         }
 
         async Task<bool> ITransactionCategoryService.IsCategoryExistsAsync(string name, string mechanicId)
@@ -61,12 +59,17 @@ namespace OtoTamir.BLL.Concrete
 
         async Task<int> IRepositoryService<TransactionCategory>.DeleteAsync(int id)
         {
-          return await _transactionCategoryDal.DeleteAsync(id);
+            return await _transactionCategoryDal.DeleteAsync(id);
         }
 
         async Task<bool> IRepositoryService<TransactionCategory>.AnyAsync(Expression<Func<TransactionCategory, bool>> filter)
         {
-           return await _transactionCategoryDal.AnyAsync(filter);
+            return await _transactionCategoryDal.AnyAsync(filter);
+        }
+
+        Task<PagedResult<TransactionCategory>> IRepositoryService<TransactionCategory>.GetPagedAsync(Expression<Func<TransactionCategory, bool>> filter, Func<IQueryable<TransactionCategory>, IOrderedQueryable<TransactionCategory>> orderBy, int page, int pageSize, params Expression<Func<TransactionCategory, object>>[] includes)
+        {
+            return _transactionCategoryDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
         }
     }
 }

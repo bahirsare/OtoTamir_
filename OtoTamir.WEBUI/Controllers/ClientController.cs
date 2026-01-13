@@ -6,7 +6,9 @@ using OtoTamir.BLL.Managers;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
+using OtoTamir.DAL.Abstract;
 using OtoTamir.WEBUI.Services;
+using System.Linq.Expressions;
 using System.Security.Permissions;
 
 namespace OtoTamir.WEBUI.Controllers
@@ -26,38 +28,57 @@ namespace OtoTamir.WEBUI.Controllers
             _mapper = mapper;
             _serviceProcessManager = serviceProcessManager;
         }
-        public async Task<IActionResult> Clients(string sortOrder, string searchString)
+        public async Task<IActionResult> Clients(string sortOrder, string searchString, int page = 1)
         {
+          
             ViewBag.CurrentSort = sortOrder;
             ViewBag.Search = searchString;
 
-
+            
             var mechanic = await _userManager.GetUserAsync(User);
             if (!mechanic.IsProfileCompleted)
             {
                 TempData["Message"] = "Lütfen bilgilerinizi doldurunuz";
                 return RedirectToAction("Profile", "Account");
             }
-            var clients = await _clientService.GetAllAsync(mechanic.Id, includeVehicles: true);
+
+           
+            Expression<Func<Client, bool>> filter = x => x.MechanicId == mechanic.Id;
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                clients = clients.Where(c => c.Name.IndexOf(searchString, StringComparison.CurrentCultureIgnoreCase) >= 0 || c.PhoneNumber.IndexOf(searchString, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
+                
+                filter = filter.AndAlso(c =>
+                    c.Name.Contains(searchString) ||
+                    c.PhoneNumber.Contains(searchString));
             }
 
-            clients = sortOrder switch
+          
+            Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy = sortOrder switch
             {
-                "name_desc" => clients.OrderByDescending(c => c.Name).ToList(),
-                "balance" => clients.OrderBy(c => c.Balance).ToList(),
-                "balance_desc" => clients.OrderByDescending(c => c.Balance).ToList(),
-                "created" => clients.OrderBy(c => c.CreatedDate).ToList(),
-                "created_desc" => clients.OrderByDescending(c => c.CreatedDate).ToList(),
-                "modified" => clients.OrderBy(c => c.ModifiedDate).ToList(),
-                "modified_desc" => clients.OrderByDescending(c => c.ModifiedDate).ToList(),
-                _ => clients.OrderBy(c => c.Name).ToList()
+                "name_desc" => q => q.OrderByDescending(c => c.Name),
+                "balance" => q => q.OrderBy(c => c.Balance),
+                "balance_desc" => q => q.OrderByDescending(c => c.Balance),
+                "created" => q => q.OrderBy(c => c.CreatedDate),
+                "created_desc" => q => q.OrderByDescending(c => c.CreatedDate),
+                "modified" => q => q.OrderBy(c => c.ModifiedDate),
+                "modified_desc" => q => q.OrderByDescending(c => c.ModifiedDate),
+                _ => q => q.OrderBy(c => c.Name)
             };
 
-            return View(clients);
+            
+            var pagedResult = await _clientService.GetPagedAsync(
+                filter: filter,
+                orderBy: orderBy,
+                page: page,
+                pageSize: 15, 
+                includes: x => x.Vehicles 
+            );
+
+            // 4. VIEW'A GÖNDERME
+            ViewBag.PagedResult = pagedResult; 
+
+            return View(pagedResult.Results);
         }
 
         public async Task<IActionResult> ClientDetails(int clientId)

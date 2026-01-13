@@ -1,5 +1,7 @@
 ﻿using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Repositories;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using System;
 using System.Collections.Generic;
@@ -47,6 +49,11 @@ namespace OtoTamir.BLL.Concrete
         public async Task<int> UpdateAsync()
         {
             return await _posTerminalDal.UpdateAsync();
+        }
+
+        Task<PagedResult<PosTerminal>> IRepositoryService<PosTerminal>.GetPagedAsync(Expression<Func<PosTerminal, bool>> filter, Func<IQueryable<PosTerminal>, IOrderedQueryable<PosTerminal>> orderBy, int page, int pageSize, params Expression<Func<PosTerminal, object>>[] includes)
+        {
+            return _posTerminalDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
         }
     }
     }
