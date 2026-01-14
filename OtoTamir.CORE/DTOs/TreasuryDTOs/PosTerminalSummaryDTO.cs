@@ -14,6 +14,8 @@ namespace OtoTamir.CORE.DTOs.TreasuryDTOs
         public decimal CommissionRate { get; set; }
         public int MaturityDays { get; set; }
         public decimal BlockedBalance { get; set; }    
-        public decimal LastMonthTurnover { get; set; } 
+        public decimal LastMonthTurnover { get; set; }
+        public int BlockedTransactionCount { get; set; } 
+        public int LastMonthTransactionCount { get; set; }
     }
 }

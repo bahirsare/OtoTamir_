@@ -3,12 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
-using OtoTamir.BLL.Concrete;
-using OtoTamir.BLL.Managers;
 using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
-using OtoTamir.WEBUI.Models;
+using OtoTamir.CORE.Utilities;
+using OtoTamir.DAL.Abstract;
 using OtoTamir.WEBUI.Services;
 using System.Linq.Expressions;
 
@@ -54,18 +53,18 @@ namespace OtoTamir.WEBUI.Controllers
      DateTime? endDate,
      int? typeId,
      int? sourceId,
-     int page = 1) 
+     int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user.TreasuryId == null) return RedirectToAction("Profile", "Account");
 
-           
+
             if (!startDate.HasValue) startDate = DateTime.Today.AddDays(-30);
             if (!endDate.HasValue) endDate = DateTime.Today.AddDays(1).AddSeconds(-1);
             else endDate = endDate.Value.Date.AddDays(1).AddSeconds(-1);
 
             Expression<Func<TreasuryTransaction, bool>> filter = x =>
-                
+
                 x.TreasuryId == user.TreasuryId &&
                 x.TransactionDate >= startDate &&
                 x.TransactionDate <= endDate;
@@ -73,22 +72,22 @@ namespace OtoTamir.WEBUI.Controllers
             if (typeId.HasValue) filter = filter.AndAlso(x => x.TransactionType == (TransactionType)typeId.Value);
             if (sourceId.HasValue) filter = filter.AndAlso(x => x.PaymentSource == (PaymentSource)sourceId.Value);
 
-          
+
             var pagedResult = await _transactionService.GetPagedAsync(
                 filter: filter,
-                orderBy: q => q.OrderByDescending(x => x.TransactionDate), 
+                orderBy: q => q.OrderByDescending(x => x.TransactionDate),
                 page: page,
                 pageSize: 10,
-                includes: x => x.TransactionCategory 
+                includes: x => x.TransactionCategory
             );
 
-           
+
             var model = await _treasuryService.GetDashboardDataAsync(user.Id, (int)user.TreasuryId);
 
-            
+
             model.Transactions = pagedResult.Results;
 
-            ViewBag.PagedResult = pagedResult; 
+            ViewBag.PagedResult = pagedResult;
 
             ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
@@ -102,7 +101,7 @@ namespace OtoTamir.WEBUI.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            
+
             var bank = _mapper.Map<Bank>(model);
             bank.TreasuryId = user.TreasuryId;
 
@@ -141,7 +140,7 @@ namespace OtoTamir.WEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteBank(int id)
         {
-          
+
             var result = await _bankService.DeleteAsync(id);
 
             if (result > 0)
@@ -158,7 +157,7 @@ namespace OtoTamir.WEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteCard(int id)
         {
-            var result =  await _bankCardService.DeleteAsync(id);
+            var result = await _bankCardService.DeleteAsync(id);
 
             if (result > 0)
             {
@@ -170,107 +169,197 @@ namespace OtoTamir.WEBUI.Controllers
             }
             return RedirectToAction("Index");
         }
-       
-        public async Task<IActionResult> BankTransactions(int id)
+
+        public async Task<IActionResult> BankTransactions(int id, DateTime? startDate, DateTime? endDate, int? typeId, int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
-            var bank = await _bankService.GetOneAsync(id, user.Id);
+
+            var bank = await _bankService.GetOneAsync(id,user.Id);
             if (bank == null) return RedirectToAction("Index");
 
             
-            var transactions = await _transactionService.GetAllAsync(user.Id, (int)user.TreasuryId, x => x.BankId == id);
+            var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var end = endDate ?? DateTime.Today.AddDays(1).AddSeconds(-1);
+
+            ViewBag.StartDate = start;
+            ViewBag.EndDate = end;
+            ViewBag.SelectedType = typeId;
 
             
-            var lastMonth = DateTime.Now.AddDays(-30);
+            Expression<Func<TreasuryTransaction, bool>> filter = x =>
+                x.Treasury.MechanicId == user.Id &&
+                x.BankId == id &&
+                x.TransactionDate >= start &&
+                x.TransactionDate <= end;
 
-            var model = _mapper.Map<BankDetailsDTO>(bank);
+            if (typeId.HasValue)
+            {
+                filter = filter.AndAlso(x => x.TransactionType == (TransactionType)typeId.Value);
+            }
 
-            model.Transactions = transactions.OrderByDescending(x => x.TransactionDate).ToList();
+            
+            var allTransactions = await _transactionService.GetAllAsync(user.Id,user.TreasuryId,filter);
 
-            model.CurrentBalance = bank.Balance;
-            model.TotalIncomingLastMonth = transactions
-                 .Where(x => x.TransactionDate >= lastMonth && x.TransactionType == TransactionType.Incoming)
-                 .Sum(x => x.Amount);
-
-            model.TotalOutgoingLastMonth = transactions
-                .Where(x => x.TransactionDate >= lastMonth && x.TransactionType == TransactionType.Outgoing)
+            var totalIn = allTransactions
+                .Where(x => x.TransactionType == TransactionType.Incoming)
                 .Sum(x => x.Amount);
 
+            var totalOut = allTransactions
+                .Where(x => x.TransactionType == TransactionType.Outgoing)
+                .Sum(x => x.Amount);
+
+            int pageSize = 20;
+            var pagedResult = await _transactionService.GetPagedAsync(
+                filter: filter,
+                orderBy: q => q.OrderByDescending(x => x.TransactionDate), 
+                page: page,
+                pageSize: pageSize,
+                includes: x => x.TransactionCategory
+            );
+
+           
+            decimal startBalanceForPage = bank.Balance;
+
+            if (page > 1)
+            {
+                var newerTransactions = allTransactions
+                    .OrderByDescending(x => x.TransactionDate)
+                    .Take((page - 1) * pageSize)
+                    .ToList();
+
+                var sumNewer = newerTransactions.Sum(x => x.Amount);
+                startBalanceForPage -= sumNewer;
+            }
+           
+            ViewBag.StartingBalance = startBalanceForPage;
+
+            
+            if (pagedResult == null)
+            {
+                pagedResult = new PagedResult<TreasuryTransaction> { Results = new List<TreasuryTransaction>() };
+            }
+            ViewBag.PagedResult = pagedResult;
 
 
-            return View("BankDetails", model);
+            var model = _mapper.Map<BankDetailsDTO>(bank);
+           
+            model.Transactions = pagedResult.Results != null
+                    ? pagedResult.Results.ToList()
+                    : new List<TreasuryTransaction>();
+
+
+            return View(model);
         }
 
-        public async Task<IActionResult> CardTransactions(int id)
+
+
+
+        public async Task<IActionResult> CardTransactions(int id, DateTime? startDate, DateTime? endDate, int? typeId, int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            
-            var card = await _bankCardService.GetOneAsync(id, user.Id);
-
+            // 1. Kart Bilgisini Çek
+            var card = await _bankCardService.GetOneAsync(id ,user.Id);
             if (card == null) return RedirectToAction("Index");
 
-           
-            var transactions = await _transactionService.GetAllAsync(user.Id, (int)user.TreasuryId, x => x.BankCardId == id);
+            // Banka Adını Bul (Görsellik için)
+            var linkedBank = await _bankService.GetOneAsync(card.BankId,user.Id);
+            string bankName = linkedBank != null ? linkedBank.BankName : "Diğer Banka";
 
-           
+            // 2. Filtre Tarihleri
+            var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var end = endDate ?? DateTime.Today.AddDays(1).AddSeconds(-1);
+
+            ViewBag.StartDate = start;
+            ViewBag.EndDate = end;
+            ViewBag.SelectedType = typeId;
+
+            // 3. Sorgu Filtresi
+            // Transaction'da BankCardId varsa onu kullanıyoruz
+            Expression<Func<TreasuryTransaction, bool>> filter = x =>
+              
+                
+                x.TransactionDate >= start &&
+                x.TransactionDate <= end;
+
+            if (typeId.HasValue)
+                filter = filter.AndAlso(x => x.TransactionType == (TransactionType)typeId.Value);
+
+            // 4. İstatistikler (Tüm Veri - Limit Doluluğu vs. için değil, ekstre toplamı için)
+            // Not: Kartın CurrentDebt (Borç) bilgisi zaten 'card.Balance' içinde var.
+            // Biz burada sadece seçilen tarihteki harcama/ödeme toplamını buluyoruz.
+            var allTransactions = await _transactionService.GetAllAsync(user.Id,user.TreasuryId,filter);
+
+            // (İsteğe bağlı: View'da bu dönem ne kadar harcadım diye göstermek istersen ViewBag'e atabilirsin)
+            // var periodSpending = allTransactions.Where(x => x.TransactionType == TransactionType.Outgoing).Sum(x => x.Amount);
+
+            // 5. Sayfalama
+            int pageSize = 20;
+            var pagedResult = await _transactionService.GetPagedAsync(
+                filter: filter,
+                orderBy: q => q.OrderByDescending(x => x.TransactionDate),
+                page: page,
+                pageSize: pageSize,
+                includes: x => x.TransactionCategory
+            );
+
+            if (pagedResult == null) pagedResult = new PagedResult<TreasuryTransaction> { Results = new List<TreasuryTransaction>() };
+
+            // 6. Running Balance (Borç Takibi) Başlangıç Hesabı
+            decimal startDebtForPage = card.Debt;
+
+            if (page > 1)
+            {
+                var newerTransactions = allTransactions
+                    .OrderByDescending(x => x.TransactionDate)
+                    .Take((page - 1) * pageSize)
+                    .ToList();
+
+                // Geriye sarma: Şu anki borçtan, harcamaları DÜŞ, ödemeleri EKLE.
+                foreach (var t in newerTransactions)
+                {
+                    if (t.TransactionType == TransactionType.Outgoing)
+                        startDebtForPage -= t.Amount;
+                    else
+                        startDebtForPage += t.Amount;
+                }
+            }
+
+            // 7. Tarih Hesaplamaları (DTO İçin)
             var today = DateTime.Today;
 
-            
-            int billingDay = card.BillingDay < 1 ? 1 : card.BillingDay;
+            // a. Kesim Tarihi Hesapla (Ayın kaçı? 30 çekmeyen aylar için güvenli hesap)
+            int safeBillingDay = Math.Min(card.BillingDay, DateTime.DaysInMonth(today.Year, today.Month));
+            var nextBillingDay = new DateTime(today.Year, today.Month, safeBillingDay);
 
-            
-            int daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
-            int safeBillingDay = Math.Min(billingDay, daysInMonth);
-
-            var cutOffDate = new DateTime(today.Year, today.Month, safeBillingDay);
-
-            
-            if (today > cutOffDate)
+            if (nextBillingDay < today) // Bu ayın kesimi geçtiyse, bir sonraki aya at
             {
-                var nextMonth = today.AddMonths(1);
-                int daysInNextMonth = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
-                int safeBillingDayNext = Math.Min(billingDay, daysInNextMonth);
-                cutOffDate = new DateTime(nextMonth.Year, nextMonth.Month, safeBillingDayNext);
+                nextBillingDay = nextBillingDay.AddMonths(1);
+                safeBillingDay = Math.Min(card.BillingDay, DateTime.DaysInMonth(nextBillingDay.Year, nextBillingDay.Month));
+                nextBillingDay = new DateTime(nextBillingDay.Year, nextBillingDay.Month, safeBillingDay);
             }
 
-           
-            int dueDay = card.DueDay < 1 ? 10 : card.DueDay; 
+            // b. Son Ödeme Tarihi Hesapla
+            int safePaymentDay = Math.Min(card.DueDay, DateTime.DaysInMonth(today.Year, today.Month));
+            var nextPayment = new DateTime(today.Year, today.Month, safePaymentDay);
 
-            var paymentDateTemp = new DateTime(cutOffDate.Year, cutOffDate.Month, 1);
-
-           
-            if (dueDay < billingDay)
+            if (nextPayment < today)
             {
-                paymentDateTemp = cutOffDate.AddMonths(1);
+                nextPayment = nextPayment.AddMonths(1);
+                safePaymentDay = Math.Min(card.DueDay, DateTime.DaysInMonth(nextPayment.Year, nextPayment.Month));
+                nextPayment = new DateTime(nextPayment.Year, nextPayment.Month, safePaymentDay);
             }
 
-            int daysInPaymentMonth = DateTime.DaysInMonth(paymentDateTemp.Year, paymentDateTemp.Month);
-            int safeDueDay = Math.Min(dueDay, daysInPaymentMonth);
-
-            var finalPaymentDate = new DateTime(paymentDateTemp.Year, paymentDateTemp.Month, safeDueDay);
-            var daysLeft = (cutOffDate - today).Days;
-            
-
-          
+            // 8. DTO Doldur
             var model = _mapper.Map<CardDetailsDTO>(card);
+            model.DaysLeftToCutOff = (nextBillingDay - today).Days;
 
-            
-            model.CutOffDay = cutOffDate;
-            model.DaysLeftToCutOff = daysLeft;
-            model.NextPaymentDate = finalPaymentDate;
-            model.Transactions = transactions.OrderByDescending(x => x.TransactionDate).ToList();
+            model.Transactions = pagedResult.Results != null ? pagedResult.Results.ToList() : new List<TreasuryTransaction>();
+            ViewBag.StartingDebt = startDebtForPage;
+            ViewBag.PagedResult = pagedResult;
 
-            
-            if (string.IsNullOrEmpty(model.BankName) && card.BankId != 0)
-            {
-                var bank = await _bankService.GetOneAsync(card.BankId, user.Id);
-                if (bank != null) model.BankName = bank.BankName;
-            }
-
-            return View("CardDetails", model);
+            return View(model);
         }
-
         [HttpPost]
         public async Task<IActionResult> AddPosTerminal(AddPosTerminalDTO model)
         {
@@ -292,7 +381,7 @@ namespace OtoTamir.WEBUI.Controllers
         [HttpPost]
         public async Task<IActionResult> DeletePosTerminal(int id)
         {
-            
+
             var result = await _posTerminalService.DeleteAsync(id);
 
             if (result > 0) TempData["SuccessMessage"] = "POS silindi.";
@@ -329,7 +418,7 @@ namespace OtoTamir.WEBUI.Controllers
 
             try
             {
-                
+
                 await _transactionService.ProcessExpenseAsync(model, user.Id, (int)user.TreasuryId);
 
                 TempData["SuccessMessage"] = "Harcama başarıyla kaydedildi.";
@@ -339,13 +428,13 @@ namespace OtoTamir.WEBUI.Controllers
                 TempData["FailMessage"] = "Hata: " + ex.Message;
             }
 
-            
+
             return RedirectToAction("Index");
         }
         [HttpPost]
         public async Task<IActionResult> AddCategoryAjax([FromBody] string name)
         {
-            
+
             if (string.IsNullOrWhiteSpace(name))
             {
                 return Json(new { success = false, message = "Lütfen bir kategori adı giriniz." });
@@ -358,18 +447,18 @@ namespace OtoTamir.WEBUI.Controllers
                 var category = new TransactionCategory
                 {
                     Name = name,
-                    MechanicId = user.Id 
+                    MechanicId = user.Id
                 };
 
-               
+
                 await _categoryService.CreateAsync(category);
 
-               
+
                 return Json(new { success = true, id = category.Id, name = category.Name });
             }
             catch (Exception ex)
             {
-                
+
                 return Json(new { success = false, message = ex.Message });
             }
         }

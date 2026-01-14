@@ -1,0 +1,196 @@
+﻿@using OtoTamir.CORE.DTOs.TreasuryDTOs
+@model CardDetailsDTO
+
+@{
+    ViewData["Title"] = $"{Model.CardName} Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var sDate = ((DateTime)ViewBag.StartDate).ToString("yyyy-MM-dd");
+    var eDate = ((DateTime)ViewBag.EndDate).ToString("yyyy-MM-dd");
+    var sType = (int?)ViewBag.SelectedType;
+
+    // Controller'dan gelen borç başlangıç değeri
+    decimal runningDebt = (decimal)ViewBag.StartingDebt;
+
+    // Limit Doluluk Oranı
+    var usagePercent = Model.Limit > 0 ? (Model.CurrentDebt / Model.Limit) * 100 : 0;
+    var barColor = usagePercent > 85 ? "bg-danger" : (usagePercent > 50 ? "bg-warning" : "bg-success");
+}
+
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3 mb-lg-0">
+        <div class="card bg-white border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-dark text-white p-3 rounded me-3 text-center" style="min-width: 60px;">
+                        <i class="bi bi-credit-card-2-front fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold text-dark">@Model.CardName</h4>
+                        <div class="text-muted small">
+                            @Model.BankName • <span class="fw-bold">**** @Model.Last4Digit</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">Kullanılan: <strong class="text-danger">@Model.CurrentDebt.ToString("C2")</strong></span>
+                    <span class="text-muted">Müsait: <strong class="text-success">@Model.AvailableLimit.ToString("C2")</strong></span>
+                </div>
+                <div class="progress" style="height: 10px;">
+                    <div class="progress-bar @barColor" role="progressbar" style="width: @usagePercent%" aria-valuenow="@usagePercent" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="text-end mt-1">
+                    <small class="text-muted" style="font-size: 0.75rem;">Toplam Limit: @Model.Limit.ToString("N0")</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="row g-3 h-100">
+            <div class="col-6">
+                <div class="card h-100 border-0 shadow-sm" style="background-color: #f8f9fa;">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <i class="bi bi-scissors text-secondary mb-2 fs-4"></i>
+                        <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Hesap Kesim</small>
+                        <h5 class="fw-bold text-dark mb-0">@Model.CutOffDay.ToString("dd.MM.yyyy")</h5>
+
+                        @if (Model.DaysLeftToCutOff == 0)
+                        {
+                            <span class="badge bg-warning text-dark mt-1">Bugün Kesiliyor!</span>
+                        }
+                        else
+                        {
+                            <small class="text-primary fw-bold mt-1">@Model.DaysLeftToCutOff gün kaldı</small>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="card h-100 border-0 shadow-sm" style="background-color: #fff0f0;">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <i class="bi bi-calendar-check text-danger mb-2 fs-4"></i>
+                        <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Son Ödeme</small>
+                        <h5 class="fw-bold text-danger mb-0">@Model.NextPaymentDate.ToString("dd.MM.yyyy")</h5>
+                        <small class="text-muted mt-1">Her ayın @Model.DueDay. günü</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-body p-2 bg-light rounded">
+        <form asp-action="CardTransactions" method="get">
+            <input type="hidden" name="id" value="@Model.CardId" />
+
+            <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-0"><i class="bi bi-calendar3"></i></span>
+                        <input type="date" name="startDate" class="form-control border-0" value="@sDate" onchange="this.form.submit()">
+                        <span class="input-group-text bg-white border-0">-</span>
+                        <input type="date" name="endDate" class="form-control border-0" value="@eDate" onchange="this.form.submit()">
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="nav nav-pills nav-fill bg-white p-1 rounded shadow-sm" style="font-size: 0.9rem;">
+                        <label class="nav-link cursor-pointer @(sType == null ? "active bg-secondary" : "text-muted")">
+                            <input type="radio" name="typeId" value="" class="d-none" @(sType == null ? "checked" : "") onchange="this.form.submit()">
+                            <i class="bi bi-list-ul me-1"></i> Tümü
+                        </label>
+
+                        <label class="nav-link cursor-pointer @(sType == 1 ? "active bg-danger" : "text-muted")">
+                            <input type="radio" name="typeId" value="1" class="d-none" @(sType == 1 ? "checked" : "") onchange="this.form.submit()">
+                            <i class="bi bi-cart-x me-1"></i> Harcamalar
+                        </label>
+
+                        <label class="nav-link cursor-pointer @(sType == 0 ? "active bg-success" : "text-muted")">
+                            <input type="radio" name="typeId" value="0" class="d-none" @(sType == 0 ? "checked" : "") onchange="this.form.submit()">
+                            <i class="bi bi-cash-coin me-1"></i> Ödemeler
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0 table-responsive">
+        <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0;">
+            <thead class="bg-light text-secondary small text-uppercase">
+                <tr>
+                    <th class="ps-4 py-3">Tarih</th>
+                    <th>Açıklama</th>
+                    <th class="text-end">Tutar</th>
+                    <th class="text-end pe-4" style="width: 180px;">Güncel Borç</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Transactions == null || Model.Transactions.Count == 0)
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="text-muted opacity-50">
+                                <i class="bi bi-credit-card-2-back display-4"></i>
+                                <p class="mt-2">Seçilen dönemde kart hareketi yok.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Transactions)
+                    {
+                        var isSpending = item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Outgoing;
+
+                        // Renkler: Harcama Kırmızı, Ödeme Yeşil
+                        var rowStyle = isSpending ? "background-color: #fef2f2;" : "background-color: #f0fdf4;";
+                        var amountColor = isSpending ? "text-danger" : "text-success";
+                        var icon = isSpending ? "bi-arrow-up-right" : "bi-arrow-down-left";
+                        var sign = isSpending ? "-" : "+";
+
+                        // Borç Hesabı (Geriye Doğru)
+                        decimal currentDebtDisplay = runningDebt;
+
+                        if (isSpending)
+                            runningDebt -= item.Amount;
+                        else
+                            runningDebt += item.Amount;
+
+                        <tr style="@rowStyle border-bottom: 1px solid #fff;">
+                            <td class="ps-4 text-nowrap">
+                                <div class="fw-bold text-dark">@item.TransactionDate.ToString("dd.MM.yyyy")</div>
+                                <div class="small text-muted">@item.TransactionDate.ToString("HH:mm")</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@item.Description</div>
+                                <div class="small text-muted">
+                                    @(item.TransactionCategory != null ? item.TransactionCategory.Name : "Diğer")
+                                    • @item.AuthorName
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="fs-6 fw-bold @amountColor">
+                                    <i class="bi @icon small me-1"></i>@item.Amount.ToString("N2") ₺
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="fw-bold text-secondary">
+                                    @currentDebtDisplay.ToString("N2") ₺
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Pagination" model="ViewBag.PagedResult" />
+</div>

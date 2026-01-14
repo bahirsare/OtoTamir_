@@ -5,7 +5,6 @@ using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Repositories;
 using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
-using OtoTamir.DAL.Context;
 using System.Linq.Expressions;
 
 namespace OtoTamir.BLL.Concrete
@@ -18,7 +17,7 @@ namespace OtoTamir.BLL.Concrete
         private readonly ITreasuryTransactionDal _transactionDal;
         private readonly IClientDal _clientDal;
         private readonly IPosTerminalDal _posTerminalDal;
-        private readonly DataContext _context;
+
         private readonly IMapper _mapper;
 
         public TreasuryService(
@@ -28,7 +27,7 @@ namespace OtoTamir.BLL.Concrete
             ITreasuryTransactionDal transactionDal,
             IClientDal clientDal,
             IPosTerminalDal posTerminalDal,
-            DataContext context, IMapper mapper)
+            IMapper mapper)
         {
             _treasuryDal = treasuryDal;
             _bankDal = bankDal;
@@ -36,7 +35,7 @@ namespace OtoTamir.BLL.Concrete
             _transactionDal = transactionDal;
             _clientDal = clientDal;
             _posTerminalDal = posTerminalDal;
-            _context = context;
+
             _mapper = mapper;
         }
 
@@ -80,7 +79,6 @@ namespace OtoTamir.BLL.Concrete
         {
             var model = new TreasuryDashboardDTO();
 
-
             var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId);
             if (treasury == null)
             {
@@ -98,43 +96,38 @@ namespace OtoTamir.BLL.Concrete
             var clients = await _clientDal.GetAllAsync(mechanicId, false, false, c => c.Balance > 0);
             model.Treasury.ReceivablesBalance = clients.Sum(c => c.Balance);
 
-
-
             var posTerminals = await _posTerminalDal.GetAllAsync(mechanicId);
+
             var posTransactions = await _transactionDal.GetAllAsync(mechanicId, (int)treasuryId,
-        x => x.PosTerminalId != null && x.TransactionType == TransactionType.Incoming);
+                x => x.PosTerminalId != null && x.TransactionType == TransactionType.Incoming);
             var posSummaryList = new List<PosTerminalSummaryDTO>();
             var now = DateTime.Now;
             var lastMonthStart = now.AddMonths(-1).Date;
 
             foreach (var pos in posTerminals)
             {
-
                 var summaryItem = _mapper.Map<PosTerminalSummaryDTO>(pos);
-
 
                 var myTrans = posTransactions.Where(t => t.PosTerminalId == pos.Id).ToList();
 
-                summaryItem.BlockedBalance = myTrans
-                    .Where(t => t.MaturityDate != null && t.MaturityDate > now)
-                    .Sum(t => t.Amount);
+                var blockedList = myTrans.Where(t => t.MaturityDate != null && t.MaturityDate > now).ToList();
 
-                summaryItem.LastMonthTurnover = myTrans
-                    .Where(t => t.TransactionDate >= lastMonthStart)
-                    .Sum(t => t.Amount);
+                summaryItem.BlockedBalance = blockedList.Sum(t => t.Amount);
+                summaryItem.BlockedTransactionCount = blockedList.Count;
+
+                var lastMonthList = myTrans.Where(t => t.TransactionDate >= lastMonthStart).ToList();
+
+                summaryItem.LastMonthTurnover = lastMonthList.Sum(t => t.Amount);
+                summaryItem.LastMonthTransactionCount = lastMonthList.Count;
 
                 posSummaryList.Add(summaryItem);
             }
 
             model.PosTerminals = posSummaryList;
-
-
-
             return model;
         }
         public async Task UpdateCashBalanceAsync(int treasuryId, string mechanicId, decimal amount)
         {
-
             await _treasuryDal.UpdateCashBalanceAsync(treasuryId, mechanicId, amount);
         }
 

@@ -1,0 +1,144 @@
+﻿@using OtoTamir.CORE.DTOs.TreasuryDTOs
+@model BankDetailsDTO
+
+@{
+    ViewData["Title"] = $"{Model.BankName} Ekstresi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var sDate = ((DateTime)ViewBag.StartDate).ToString("yyyy-MM-dd");
+    var eDate = ((DateTime)ViewBag.EndDate).ToString("yyyy-MM-dd");
+    var sType = (int?)ViewBag.SelectedType;
+
+    // Controller'dan gelen sayfa başlangıç bakiyesi
+    decimal runningBalance = (decimal)ViewBag.StartingBalance;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center">
+        <div class="bg-white p-3 rounded shadow-sm me-3 text-center" style="min-width: 60px;">
+            <i class="bi bi-bank2 text-primary fs-3"></i>
+        </div>
+        <div>
+            <h4 class="mb-0 fw-bold text-dark">@Model.BankName</h4>
+            <div class="text-muted" style="letter-spacing: 1px;">@Model.Iban</div>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <small class="text-muted text-uppercase fw-bold">Güncel Bakiye</small>
+        <h2 class="mb-0 fw-bold text-primary">@Model.CurrentBalance.ToString("C2")</h2>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-body p-2 bg-light rounded">
+        <form asp-action="BankTransactions" method="get" id="filterForm">
+            <input type="hidden" name="id" value="@Model.BankId" />
+
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-0"><i class="bi bi-calendar3"></i></span>
+                        <input type="date" name="startDate" class="form-control border-0" value="@sDate" onchange="this.form.submit()">
+                        <span class="input-group-text bg-white border-0">-</span>
+                        <input type="date" name="endDate" class="form-control border-0" value="@eDate" onchange="this.form.submit()">
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="nav nav-pills nav-fill bg-white p-1 rounded shadow-sm" style="font-size: 0.9rem;">
+                        <label class="nav-link cursor-pointer @(sType == null ? "active bg-secondary" : "text-muted")" style="cursor: pointer;">
+                            <input type="radio" name="typeId" value="" class="d-none" @(sType == null ? "checked" : "") onchange="this.form.submit()">
+                            <i class="bi bi-list-ul me-1"></i> Tümü
+                        </label>
+
+                        <label class="nav-link cursor-pointer @(sType == 0 ? "active bg-success" : "text-muted")" style="cursor: pointer;">
+                            <input type="radio" name="typeId" value="0" class="d-none" @(sType == 0 ? "checked" : "") onchange="this.form.submit()">
+                            <i class="bi bi-arrow-down-circle me-1"></i> Girişler (+@Model.TotalIncomingLastMonth.ToString("N0"))
+                        </label>
+
+                        <label class="nav-link cursor-pointer @(sType == 1 ? "active bg-danger" : "text-muted")" style="cursor: pointer;">
+                            <input type="radio" name="typeId" value="1" class="d-none" @(sType == 1 ? "checked" : "") onchange="this.form.submit()">
+                            <i class="bi bi-arrow-up-circle me-1"></i> Çıkışlar (-@Math.Abs(Model.TotalOutgoingLastMonth).ToString("N0"))
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0 table-responsive">
+        <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0;">
+            <thead class="bg-light text-secondary small text-uppercase">
+                <tr>
+                    <th class="ps-4 py-3">Tarih</th>
+                    <th>Açıklama / Kategori</th>
+                    <th class="text-end">Tutar</th>
+                    <th class="text-end pe-4" style="width: 180px;">Bakiye</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Transactions == null || Model.Transactions.Count == 0)
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="text-muted opacity-50">
+                                <i class="bi bi-wallet2 display-4"></i>
+                                <p class="mt-2">Seçilen tarih aralığında işlem bulunamadı.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Transactions)
+                    {
+                        var isIncoming = item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming;
+
+                        // RENKLENDİRME (Satır Arka Planı)
+                        // Girişse açık yeşil, Çıkışsa açık kırmızı
+                        var rowStyle = isIncoming ? "background-color: #f0fdf4;" : "background-color: #fef2f2;";
+                        var amountColor = isIncoming ? "text-success" : "text-danger";
+                        var sign = isIncoming ? "+" : "-";
+
+                        // BAKİYE HESABI (Yeniden Eskiye)
+                        decimal currentBalanceDisplay = runningBalance;
+
+                        // Bir sonraki satır için bakiyeyi geri sarıyoruz
+                        runningBalance = runningBalance - item.Amount;
+
+                        <tr style="@rowStyle border-bottom: 1px solid #fff;">
+                            <td class="ps-4 text-nowrap">
+                                <div class="fw-bold text-dark">@item.TransactionDate.ToString("dd.MM.yyyy")</div>
+                                <div class="small text-muted">@item.TransactionDate.ToString("HH:mm")</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@item.Description</div>
+                                <div class="small text-muted d-flex align-items-center">
+                                    <i class="bi bi-tag me-1"></i>
+                                    @(item.TransactionCategory != null ? item.TransactionCategory.Name : "Genel")
+                                    <span class="mx-2">•</span>
+                                    <i class="bi bi-person me-1"></i> @item.AuthorName
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="fs-6 fw-bold @amountColor">
+                                    @sign@Math.Abs(item.Amount).ToString("N2") ₺
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="fw-bold text-secondary">
+                                    @currentBalanceDisplay.ToString("N2") ₺
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Pagination" model="ViewBag.PagedResult" />
+</div>
