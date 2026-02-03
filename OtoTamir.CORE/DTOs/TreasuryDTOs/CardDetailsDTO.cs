@@ -22,6 +22,6 @@ namespace OtoTamir.CORE.DTOs.TreasuryDTOs
         public int DaysLeftToCutOff { get; set; }
         public DateTime NextPaymentDate { get; set; }
 
-        public List<OtoTamir.CORE.Entities.TreasuryTransaction> Transactions { get; set; }
+        public List<Entities.TreasuryTransaction> Transactions { get; set; }
     }
 }

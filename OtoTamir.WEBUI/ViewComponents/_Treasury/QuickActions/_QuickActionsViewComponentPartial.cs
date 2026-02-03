@@ -6,13 +6,13 @@ using OtoTamir.CORE.Identity;
 
 namespace OtoTamir.WEBUI.ViewComponents._Treasury.AddExpense
 {
-    public class _AddExpenseViewComponentPartial : ViewComponent
+    public class _QuickActionsViewComponentPartial : ViewComponent
     {
         private readonly IBankService _bankService;
         private readonly IBankCardService _bankCardService;
         private readonly UserManager<Mechanic> _userManager;
 
-        public _AddExpenseViewComponentPartial(IBankService bankService, IBankCardService bankCardService, UserManager<Mechanic> userManager)
+        public _QuickActionsViewComponentPartial(IBankService bankService, IBankCardService bankCardService, UserManager<Mechanic> userManager)
         {
             _bankService = bankService;
             _bankCardService = bankCardService;

@@ -1,0 +1,85 @@
+﻿@model List<Bank>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-credit-card me-2"></i>Borç Ödeme
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form asp-action="PayCardDebt" asp-controller="Treasury" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="CardId" id="payCardId" />
+
+                    <div class="alert alert-light border text-center mb-3">
+                        <strong id="payCardNameDisplay" class="text-success">Seçilen Kart</strong><br>
+                        için ödeme yapıyorsunuz.
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="fw-bold mb-1">Ödenecek Tutar</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₺</span>
+                            <input type="number" step="0.01" name="Amount" class="form-control form-control-lg fw-bold" required placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="fw-bold mb-1">Ödeme Kaynağı</label>
+                        <select name="SourceType" id="paySourceSelect" class="form-control form-select" onchange="togglePayBankDiv()">
+                            <option value="0">💵 Nakit (Kasa)</option>
+                            <option value="1">🏦 Banka Hesabı</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3 d-none bg-light p-2 rounded border" id="payBankSelectDiv">
+                        <label class="fw-bold text-success mb-1">Hangi Bankadan?</label>
+                        <select name="SourceBankId" class="form-control form-select">
+                            <option value="">Banka Seçiniz...</option>
+                            @if (Model != null)
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <option value="@item.Id">@item.BankName (@item.Iban)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="fw-bold mb-1">Açıklama</label>
+                        <textarea name="Description" class="form-control" rows="2" placeholder="Örn: Dönem borcu ödemesi"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-success px-4">Ödemeyi Onayla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+<script>
+   
+    function setPayModal(id, name) {
+        document.getElementById('payCardId').value = id;
+        document.getElementById('payCardNameDisplay').innerText = name;
+    }
+
+    
+    function togglePayBankDiv() {
+        var sourceSelect = document.getElementById("paySourceSelect");
+        var bankDiv = document.getElementById("payBankSelectDiv");
+
+        if (sourceSelect && bankDiv) {
+            if (sourceSelect.value === "1") {
+                bankDiv.classList.remove("d-none");
+            } else {
+                bankDiv.classList.add("d-none");
+            }
+        }
+    }
+</script>

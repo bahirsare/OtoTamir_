@@ -43,13 +43,9 @@
     </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded shadow-sm">
-    <h4 class="m-0 text-secondary"><i class="bi bi-grid-1x2 me-2"></i>Finansal Genel Bakış</h4>
-    <button type="button" class="btn btn-danger shadow-sm" data-bs-toggle="modal" data-bs-target="#expenseModal">
-        <i class="bi bi-dash-circle me-2"></i>Hızlı Gider Ekle
-    </button>
-</div>
+@await Component.InvokeAsync("_QuickActionsViewComponentPartial")
 
+<div class="row">
 <div class="row">
     <div class="col-lg-12 col-xl-5 mb-4">
         <div class="card card-primary card-outline shadow-sm h-100">
@@ -86,7 +82,7 @@
                                         </a>
                                         <form asp-action="DeleteBank" method="post">
                                             <input type="hidden" name="id" value="@bank.Id" />
-                                            <button type="submit" class="btn btn-danger btn-sm shadow-sm py-1 px-2" onclick="return confirm('Silmek istediğine emin misin?')">
+                                                <button type="submit" class="btn btn-danger btn-sm shadow-sm py-1 px-2" title="Sil" onclick="return confirm('Silmek istediğine emin misin?')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -123,7 +119,7 @@
                     <tbody>
                         @foreach (var card in Model.BankCards)
                         {
-                            // TARIH HESAPLAMA
+                            
                             var today = DateTime.Today;
                             var nextCutOff = new DateTime(today.Year, today.Month, card.BillingDay);
                             if (nextCutOff < today) nextCutOff = nextCutOff.AddMonths(1);
@@ -165,12 +161,20 @@
                                 </td>
                                 <td class="align-middle text-center">
                                     <div class="d-flex gap-1 justify-content-center">
+                                            <button type="button"
+                                                    class="btn btn-success text-white btn-sm shadow-sm py-1 px-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#payCardModal"
+                                                    title="Öde"
+                                                    onclick="setPayModal('@card.Id', '@card.CardName')">
+                                                <i class="bi bi-wallet2"></i> 
+                                            </button>
                                         <a asp-action="CardTransactions" asp-route-id="@card.Id" class="btn btn-info text-white btn-sm shadow-sm py-1 px-2" title="Ekstre">
                                             <i class="bi bi-receipt"></i>
                                         </a>
                                         <form asp-action="DeleteCard" method="post">
                                             <input type="hidden" name="id" value="@card.Id" />
-                                            <button type="submit" class="btn btn-danger btn-sm shadow-sm py-1 px-2" onclick="return confirm('Silmek istediğine emin misin?')">
+                                                <button type="submit" class="btn btn-danger btn-sm shadow-sm py-1 px-2" title="Sil" onclick="return confirm('Silmek istediğine emin misin?')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -285,23 +289,31 @@
                                         <option value="1" selected="@(ViewBag.SelectedType == 1)">Para Çıkışı (-)</option>
                                     </select>
                                 </div>
-                                <div class="col-auto">
-                                    <select name="sourceId" class="form-select form-select-sm">
-                                        <option value="">Tüm Kaynaklar</option>
-                                        <option value="0" selected="@(ViewBag.SelectedSource == 0)">Nakit (Kasa)</option>
-                                        <option value="1" selected="@(ViewBag.SelectedSource == 1)">Banka</option>
-                                        <option value="2" selected="@(ViewBag.SelectedSource == 2)">Kredi Kartı</option>
-                                        <option value="3" selected="@(ViewBag.SelectedSource == 3)">Veresiye</option>
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-primary btn-sm px-3 shadow-sm">
-                                        <i class="bi bi-funnel"></i> Filtrele
-                                    </button>
-                                    <a href="/Treasury/Index" class="btn btn-outline-secondary btn-sm shadow-sm">
-                                        <i class="bi bi-x-lg"></i> Temizle
-                                    </a>
-                                </div>
+                                   
+
+                                    <div class="col-auto">
+                                        <select name="sourceId" class="form-select form-select-sm">
+                                            <option value="">Tüm Kaynaklar</option>
+                                            <option value="0" selected="@(ViewBag.SelectedSource == 0)">Nakit (Kasa)</option>
+                                            <option value="1" selected="@(ViewBag.SelectedSource == 1)">Banka</option>
+                                            <option value="2" selected="@(ViewBag.SelectedSource == 2)">Veresiye</option>
+                                            <option value="3" selected="@(ViewBag.SelectedSource == 3)">Kredi Kartı</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <button type="submit" class="btn btn-primary btn-sm px-3 shadow-sm me-1">
+                                            <i class="bi bi-funnel"></i> Filtrele
+                                        </button>
+
+                                        <button type="submit" asp-action="ExportToExcel" formmethod="get" class="btn btn-success btn-sm px-3 shadow-sm" title="Excel Olarak İndir">
+                                            <i class="bi bi-file-earmark-excel"></i> Excel
+                                        </button>
+
+                                        <a href="/Treasury/Index" class="btn btn-outline-secondary btn-sm shadow-sm ms-1">
+                                            <i class="bi bi-x-lg"></i> Temizle
+                                        </a>
+                                    </div>
                             </div>
                         </form>
                     </div>
@@ -396,9 +408,11 @@
 <div class="modal fade" id="modalAddPos" tabindex="-1" aria-hidden="true">
     @await Component.InvokeAsync("_AddPosTerminalViewComponentPartial")
 </div>
-<div class="modal fade" id="expenseModal" tabindex="-1" aria-hidden="true">
-    @await Component.InvokeAsync("_AddExpenseViewComponentPartial")
+
+<div class="modal fade" id="payCardModal" tabindex="-1" aria-hidden="true">
+    @await Component.InvokeAsync("_PayBankCardViewComponentPartial")
 </div>
+
 
 @if (Model.PosTerminals != null)
 {
@@ -409,7 +423,14 @@
         </div>
     }
 }
+   
 
+    <script>
+        function setPayModal(id, name) {
+            document.getElementById('payCardId').value = id;
+            document.getElementById('payCardNameDisplay').innerText = name;
+        }
+    </script>
 <script>
     function toggleExpenseFields() {
         var source = document.getElementById("expenseSourceSelect").value;

@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.Entities;
@@ -174,10 +176,10 @@ namespace OtoTamir.WEBUI.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var bank = await _bankService.GetOneAsync(id,user.Id);
+           
+            var bank = await _bankService.GetOneAsync(id, user.Id);
             if (bank == null) return RedirectToAction("Index");
 
-            
             var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var end = endDate ?? DateTime.Today.AddDays(1).AddSeconds(-1);
 
@@ -186,19 +188,14 @@ namespace OtoTamir.WEBUI.Controllers
             ViewBag.SelectedType = typeId;
 
             
-            Expression<Func<TreasuryTransaction, bool>> filter = x =>
+            Expression<Func<TreasuryTransaction, bool>> generalFilter = x =>
                 x.Treasury.MechanicId == user.Id &&
                 x.BankId == id &&
                 x.TransactionDate >= start &&
                 x.TransactionDate <= end;
 
-            if (typeId.HasValue)
-            {
-                filter = filter.AndAlso(x => x.TransactionType == (TransactionType)typeId.Value);
-            }
-
-            
-            var allTransactions = await _transactionService.GetAllAsync(user.Id,user.TreasuryId,filter);
+         
+            var allTransactions = await _transactionService.GetAllAsync(user.Id, user.TreasuryId, generalFilter);
 
             var totalIn = allTransactions
                 .Where(x => x.TransactionType == TransactionType.Incoming)
@@ -208,65 +205,75 @@ namespace OtoTamir.WEBUI.Controllers
                 .Where(x => x.TransactionType == TransactionType.Outgoing)
                 .Sum(x => x.Amount);
 
+            var tableFilter = generalFilter;
+
+            if (typeId.HasValue)
+            {
+                
+                tableFilter = tableFilter.AndAlso(x => x.TransactionType == (TransactionType)typeId.Value);
+            }
+
             int pageSize = 20;
             var pagedResult = await _transactionService.GetPagedAsync(
-                filter: filter,
-                orderBy: q => q.OrderByDescending(x => x.TransactionDate), 
+                filter: tableFilter, 
+                orderBy: q => q.OrderByDescending(x => x.TransactionDate),
                 page: page,
                 pageSize: pageSize,
                 includes: x => x.TransactionCategory
             );
 
-           
+          
             decimal startBalanceForPage = bank.Balance;
 
             if (page > 1)
             {
+                
                 var newerTransactions = allTransactions
                     .OrderByDescending(x => x.TransactionDate)
                     .Take((page - 1) * pageSize)
                     .ToList();
 
-                var sumNewer = newerTransactions.Sum(x => x.Amount);
-                startBalanceForPage -= sumNewer;
+                foreach (var item in newerTransactions)
+                {
+                    if (item.TransactionType == TransactionType.Incoming)
+                        startBalanceForPage -= item.Amount; 
+                    else
+                        startBalanceForPage += item.Amount;
+                }
             }
-           
+
             ViewBag.StartingBalance = startBalanceForPage;
 
-            
             if (pagedResult == null)
             {
                 pagedResult = new PagedResult<TreasuryTransaction> { Results = new List<TreasuryTransaction>() };
             }
             ViewBag.PagedResult = pagedResult;
 
-
             var model = _mapper.Map<BankDetailsDTO>(bank);
-           
+
+            // Toplamları Modele Basıyoruz
+            model.TotalIncomingLastMonth = totalIn;
+            model.TotalOutgoingLastMonth = totalOut;
+
             model.Transactions = pagedResult.Results != null
                     ? pagedResult.Results.ToList()
                     : new List<TreasuryTransaction>();
-
-
+            model.CurrentBalance = bank.Balance;
             return View(model);
         }
-
-
 
 
         public async Task<IActionResult> CardTransactions(int id, DateTime? startDate, DateTime? endDate, int? typeId, int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            // 1. Kart Bilgisini Çek
-            var card = await _bankCardService.GetOneAsync(id ,user.Id);
+            var card = await _bankCardService.GetOneAsync(id,user.Id);
             if (card == null) return RedirectToAction("Index");
 
-            // Banka Adını Bul (Görsellik için)
             var linkedBank = await _bankService.GetOneAsync(card.BankId,user.Id);
-            string bankName = linkedBank != null ? linkedBank.BankName : "Diğer Banka";
+            string bankName = linkedBank != null ? linkedBank.BankName : "Diğer";
 
-            // 2. Filtre Tarihleri
             var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var end = endDate ?? DateTime.Today.AddDays(1).AddSeconds(-1);
 
@@ -274,26 +281,32 @@ namespace OtoTamir.WEBUI.Controllers
             ViewBag.EndDate = end;
             ViewBag.SelectedType = typeId;
 
-            // 3. Sorgu Filtresi
-            // Transaction'da BankCardId varsa onu kullanıyoruz
-            Expression<Func<TreasuryTransaction, bool>> filter = x =>
-              
-                
+             Expression<Func<TreasuryTransaction, bool>> filter = x =>
+                x.Treasury.MechanicId == user.Id &&
+                x.BankCardId == id  &&
                 x.TransactionDate >= start &&
                 x.TransactionDate <= end;
 
-            if (typeId.HasValue)
-                filter = filter.AndAlso(x => x.TransactionType == (TransactionType)typeId.Value);
+            
 
-            // 4. İstatistikler (Tüm Veri - Limit Doluluğu vs. için değil, ekstre toplamı için)
-            // Not: Kartın CurrentDebt (Borç) bilgisi zaten 'card.Balance' içinde var.
-            // Biz burada sadece seçilen tarihteki harcama/ödeme toplamını buluyoruz.
+            if (typeId.HasValue)
+            {
+                if (typeId.Value == 1) // KULLANICI "HARCAMALAR" SEKMESİNİ SEÇTİ
+                {
+                    // Sadece Kredi Kartı ile yapılanları getir (Borç Artıranlar)
+                    filter = filter.AndAlso(x => x.PaymentSource == PaymentSource.CreditCard);
+                }
+                else if (typeId.Value == 0) // KULLANICI "ÖDEMELER" SEKMESİNİ SEÇTİ
+                {
+                    // Kredi Kartı OLMAYANLARI getir (Nakit veya Bankadan Karta ödenenler)
+                    filter = filter.AndAlso(x => x.PaymentSource != PaymentSource.CreditCard);
+                }
+            }
+
+
             var allTransactions = await _transactionService.GetAllAsync(user.Id,user.TreasuryId,filter);
 
-            // (İsteğe bağlı: View'da bu dönem ne kadar harcadım diye göstermek istersen ViewBag'e atabilirsin)
-            // var periodSpending = allTransactions.Where(x => x.TransactionType == TransactionType.Outgoing).Sum(x => x.Amount);
-
-            // 5. Sayfalama
+           
             int pageSize = 20;
             var pagedResult = await _transactionService.GetPagedAsync(
                 filter: filter,
@@ -303,61 +316,58 @@ namespace OtoTamir.WEBUI.Controllers
                 includes: x => x.TransactionCategory
             );
 
+            
             if (pagedResult == null) pagedResult = new PagedResult<TreasuryTransaction> { Results = new List<TreasuryTransaction>() };
 
-            // 6. Running Balance (Borç Takibi) Başlangıç Hesabı
+           
             decimal startDebtForPage = card.Debt;
-
             if (page > 1)
             {
-                var newerTransactions = allTransactions
-                    .OrderByDescending(x => x.TransactionDate)
-                    .Take((page - 1) * pageSize)
-                    .ToList();
-
-                // Geriye sarma: Şu anki borçtan, harcamaları DÜŞ, ödemeleri EKLE.
+                var newerTransactions = allTransactions.OrderByDescending(x => x.TransactionDate).Take((page - 1) * pageSize).ToList();
                 foreach (var t in newerTransactions)
                 {
-                    if (t.TransactionType == TransactionType.Outgoing)
-                        startDebtForPage -= t.Amount;
-                    else
-                        startDebtForPage += t.Amount;
+                    if (t.TransactionType == TransactionType.Outgoing) startDebtForPage -= t.Amount;
+                    else startDebtForPage += t.Amount;
                 }
             }
-
-            // 7. Tarih Hesaplamaları (DTO İçin)
-            var today = DateTime.Today;
-
-            // a. Kesim Tarihi Hesapla (Ayın kaçı? 30 çekmeyen aylar için güvenli hesap)
-            int safeBillingDay = Math.Min(card.BillingDay, DateTime.DaysInMonth(today.Year, today.Month));
-            var nextBillingDay = new DateTime(today.Year, today.Month, safeBillingDay);
-
-            if (nextBillingDay < today) // Bu ayın kesimi geçtiyse, bir sonraki aya at
-            {
-                nextBillingDay = nextBillingDay.AddMonths(1);
-                safeBillingDay = Math.Min(card.BillingDay, DateTime.DaysInMonth(nextBillingDay.Year, nextBillingDay.Month));
-                nextBillingDay = new DateTime(nextBillingDay.Year, nextBillingDay.Month, safeBillingDay);
-            }
-
-            // b. Son Ödeme Tarihi Hesapla
-            int safePaymentDay = Math.Min(card.DueDay, DateTime.DaysInMonth(today.Year, today.Month));
-            var nextPayment = new DateTime(today.Year, today.Month, safePaymentDay);
-
-            if (nextPayment < today)
-            {
-                nextPayment = nextPayment.AddMonths(1);
-                safePaymentDay = Math.Min(card.DueDay, DateTime.DaysInMonth(nextPayment.Year, nextPayment.Month));
-                nextPayment = new DateTime(nextPayment.Year, nextPayment.Month, safePaymentDay);
-            }
-
-            // 8. DTO Doldur
-            var model = _mapper.Map<CardDetailsDTO>(card);
-            model.DaysLeftToCutOff = (nextBillingDay - today).Days;
-
-            model.Transactions = pagedResult.Results != null ? pagedResult.Results.ToList() : new List<TreasuryTransaction>();
             ViewBag.StartingDebt = startDebtForPage;
             ViewBag.PagedResult = pagedResult;
 
+            var today = DateTime.Today;
+            DateTime GetNextValidDate(int targetDay)
+            {
+                int daysInThisMonth = DateTime.DaysInMonth(today.Year, today.Month);
+                int safeDay = Math.Min(targetDay, daysInThisMonth);
+                var dateCandidate = new DateTime(today.Year, today.Month, safeDay);
+
+                if (dateCandidate < today)
+                {
+                    var nextMonth = today.AddMonths(1);
+                    int daysInNextMonth = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
+                    int safeDayNext = Math.Min(targetDay, daysInNextMonth);
+                    dateCandidate = new DateTime(nextMonth.Year, nextMonth.Month, safeDayNext);
+                }
+                return dateCandidate;
+            }
+
+            var nextCutOffDate = GetNextValidDate(card.BillingDay);
+            var nextPaymentDate = GetNextValidDate(card.DueDay);
+
+            if (nextPaymentDate < nextCutOffDate)
+            {
+                nextPaymentDate = nextPaymentDate.AddMonths(1);
+                int safeDay = Math.Min(card.DueDay, DateTime.DaysInMonth(nextPaymentDate.Year, nextPaymentDate.Month));
+                nextPaymentDate = new DateTime(nextPaymentDate.Year, nextPaymentDate.Month, safeDay);
+            }
+
+            var daysLeft = (nextCutOffDate - DateTime.Today).Days;
+            
+            var model = _mapper.Map<CardDetailsDTO>(card);
+            model.CutOffDay = nextCutOffDate;
+            model.NextPaymentDate = nextPaymentDate;
+            model.DaysLeftToCutOff = daysLeft < 0 ? 0 : daysLeft; // Negatif çıkarsa 0 yaz
+
+            model.Transactions = pagedResult.Results.ToList();
             return View(model);
         }
         [HttpPost]
@@ -432,34 +442,155 @@ namespace OtoTamir.WEBUI.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
-        public async Task<IActionResult> AddCategoryAjax([FromBody] string name)
-        {
 
-            if (string.IsNullOrWhiteSpace(name))
+        [HttpPost]
+        public async Task<IActionResult> PayCardDebt(int CardId, decimal Amount, int SourceType, int? SourceBankId, string Description)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user.TreasuryId == null)
             {
-                return Json(new { success = false, message = "Lütfen bir kategori adı giriniz." });
+                TempData["FailMessage"] = "Kasa bulunamadı.";
+                return RedirectToAction("Index");
+            }
+
+            if (Amount <= 0)
+            {
+                TempData["FailMessage"] = "Geçersiz tutar.";
+                return RedirectToAction("CardTransactions", new { id = CardId });
             }
 
             try
             {
-                var user = await _userManager.GetUserAsync(User);
+                // GÜNCELLENMİŞ ÇAĞRI: SourceBankId parametresi eklendi
+                await _transactionService.ProcessCardPaymentAsync(user.Id, user.TreasuryId, CardId, Amount, SourceType, SourceBankId, Description);
 
-                var category = new TransactionCategory
-                {
-                    Name = name,
-                    MechanicId = user.Id
-                };
-
-
-                await _categoryService.CreateAsync(category);
-
-
-                return Json(new { success = true, id = category.Id, name = category.Name });
+                TempData["SuccessMessage"] = "Ödeme başarıyla alındı.";
             }
             catch (Exception ex)
             {
+                TempData["FailMessage"] = "Hata: " + ex.Message;
+            }
 
-                return Json(new { success = false, message = ex.Message });
+            return RedirectToAction("CardTransactions", new { id = CardId });
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddIncome(AddExpenseDTO model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            try
+            {
+                await _transactionService.ProcessIncomeAsync(model, user.Id, (int)user.TreasuryId);
+                TempData["SuccessMessage"] = "Gelir girişi başarılı.";
+            }
+            catch (Exception ex)
+            {
+                TempData["FailMessage"] = "Hata: " + ex.Message;
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        
+        public async Task<IActionResult> AddTransfer(decimal Amount, string Direction, int? SourceBankId, int? TargetBankId, string Description)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            try
+            {
+                await _transactionService.ProcessTransferAsync(user.Id, (int)user.TreasuryId, Amount, Direction, SourceBankId, TargetBankId, Description);
+                TempData["SuccessMessage"] = "Transfer işlemi başarılı.";
+            }
+            catch (Exception ex)
+            {
+                TempData["FailMessage"] = "Hata: " + ex.Message;
+            }
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> ExportToExcel(DateTime? startDate, DateTime? endDate, int? typeId, int? sourceId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+          
+            var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var end = endDate ?? DateTime.Today.AddDays(1).AddSeconds(-1);
+
+           
+            var transactions = await _transactionService.GetAllAsync(user.Id, (int)user.TreasuryId, x =>
+                x.TransactionDate >= start &&
+                x.TransactionDate <= end &&
+                (!typeId.HasValue || x.TransactionType == (TransactionType)typeId) &&
+                (!sourceId.HasValue || (int)x.PaymentSource == sourceId)
+            );
+
+
+            ExcelPackage.License.SetNonCommercialPersonal("Ototamir");
+
+            using (var package = new ExcelPackage())
+            {
+                // Sayfa ekle
+                var ws = package.Workbook.Worksheets.Add("Kasa Hareketleri");
+
+                // --- BAŞLIKLAR ---
+                ws.Cells[1, 1].Value = "Tarih";
+                ws.Cells[1, 2].Value = "Açıklama";
+                ws.Cells[1, 3].Value = "İşlem Yapan";
+                ws.Cells[1, 4].Value = "Kategori";
+                ws.Cells[1, 5].Value = "Tür";       // Gelir/Gider
+                ws.Cells[1, 6].Value = "Kaynak";    // Nakit/Banka
+                ws.Cells[1, 7].Value = "Tutar";
+
+                // Başlık Stili (Kalın ve Gri Arka Plan)
+                using (var range = ws.Cells[1, 1, 1, 7])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                }
+
+                // --- VERİLERİ DOLDUR ---
+                int row = 2;
+                foreach (var item in transactions.OrderByDescending(x => x.TransactionDate))
+                {
+                    ws.Cells[row, 1].Value = item.TransactionDate.ToString("dd.MM.yyyy HH:mm");
+                    ws.Cells[row, 2].Value = item.Description;
+                    ws.Cells[row, 3].Value = item.AuthorName;
+                    ws.Cells[row, 4].Value = item.TransactionCategory?.Name ?? "Genel";
+
+                    // Tür (Giriş/Çıkış)
+                    ws.Cells[row, 5].Value = item.TransactionType == TransactionType.Incoming ? "Giriş (+)" : "Çıkış (-)";
+                    if (item.TransactionType == TransactionType.Incoming) ws.Cells[row, 5].Style.Font.Color.SetColor(System.Drawing.Color.Green);
+                    else ws.Cells[row, 5].Style.Font.Color.SetColor(System.Drawing.Color.Red);
+
+                    // Kaynak
+                    ws.Cells[row, 6].Value = item.PaymentSource.ToString(); // Cash/Bank/CreditCard
+
+                    // Tutar
+                    ws.Cells[row, 7].Value = item.Amount;
+                    ws.Cells[row, 7].Style.Numberformat.Format = "#,##0.00 ₺"; // Para formatı
+
+                    row++;
+                }
+
+                // --- TOPLAM SATIRI (En Alta) ---
+                ws.Cells[row, 6].Value = "TOPLAM:";
+                ws.Cells[row, 6].Style.Font.Bold = true;
+
+                // Formül ile toplam aldıralım (Giriş - Çıkış karışık olduğu için kodla hesaplamak daha güvenli)
+                var totalAmount = transactions.Sum(x => x.TransactionType == TransactionType.Incoming ? x.Amount : -x.Amount);
+                ws.Cells[row, 7].Value = totalAmount;
+                ws.Cells[row, 7].Style.Font.Bold = true;
+                ws.Cells[row, 7].Style.Numberformat.Format = "#,##0.00 ₺";
+
+                // Sütunları içeriğe göre genişlet
+                ws.Cells.AutoFitColumns();
+
+                // Dosya adı oluştur
+                string fileName = $"KasaRaporu_{start:dd.MM}_{end:dd.MM}.xlsx";
+
+                // İndir
+                return File(package.GetAsByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
         }
     }
