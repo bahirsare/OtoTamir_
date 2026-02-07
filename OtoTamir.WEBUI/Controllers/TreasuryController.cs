@@ -126,6 +126,8 @@ namespace OtoTamir.WEBUI.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             var card = _mapper.Map<BankCard>(model);
+            card.DueDay = model.DueDate;
+            card.BillingDay = model.DueDate + 10;
             var result = await _bankCardService.CreateAsync(card);
             if (result > 0)
             {

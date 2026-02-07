@@ -64,6 +64,7 @@ namespace OtoTamir.CORE.Mapping
             .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(s => DateTime.Now))
             .ReverseMap();
             CreateMap<ServiceWorkflowLogDTO, ServiceCompletionDTO>().ReverseMap();
+            CreateMap<BankCard, BankCardSummaryDTO>().ReverseMap();
 
         }
     }

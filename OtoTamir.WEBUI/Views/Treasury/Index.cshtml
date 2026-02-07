@@ -4,6 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
 <div class="row mb-3">
     <div class="col-lg-3 col-6">
         <div class="small-box bg-success shadow-sm">
@@ -119,69 +120,41 @@
                     <tbody>
                         @foreach (var card in Model.BankCards)
                         {
-                            
-                            var today = DateTime.Today;
-                            var nextCutOff = new DateTime(today.Year, today.Month, card.BillingDay);
-                            if (nextCutOff < today) nextCutOff = nextCutOff.AddMonths(1);
 
-                            var nextPayment = new DateTime(today.Year, today.Month, card.DueDay);
-                            if (nextPayment < today) nextPayment = nextPayment.AddMonths(1);
+                                var barColor = card.UsagePercent > 80 ? "bg-danger" : (card.UsagePercent > 50 ? "bg-warning" : "bg-success");
+                                var alertClass = card.IsAlert ? "text-danger fw-bold" : "text-dark";
 
-                            var isCutoffCloser = nextCutOff < nextPayment;
-                            var criticalDate = isCutoffCloser ? nextCutOff : nextPayment;
-                            var label = isCutoffCloser ? "Kesim" : "Ödeme";
-                            var alertClass = (criticalDate - today).TotalDays <= 3 ? "text-danger fw-bold" : "text-dark";
-
-                            <tr>
-                                <td class="align-middle">
-                                    <div class="fw-bold">@card.CardName</div>
-                                    @{
-                                        var linkedBank = Model.Banks.FirstOrDefault(b => b.Id == card.BankId);
-                                        <div class="small text-muted"><i class="bi bi-bank2 me-1"></i>@(linkedBank != null ? linkedBank.BankName : "-")</div>
-                                    }
-                                </td>
-                                <td class="align-middle" style="min-width: 140px;">
-                                    <div class="d-flex justify-content-between small mb-1">
-                                        <span>Borç: <span class="text-danger fw-bold">@card.Debt.ToString("C0")</span></span>
-                                        <span>Limit: @card.Limit.ToString("C0")</span>
-                                    </div>
-                                    @{
-                                        var percent = card.Limit > 0 ? (card.Debt / card.Limit) * 100 : 0;
-                                        var barColor = percent > 80 ? "bg-danger" : (percent > 50 ? "bg-warning" : "bg-success");
-                                        var remaining = card.Limit - card.Debt;
-                                    }
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar @barColor" role="progressbar" style="width: @percent%" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <div class="small text-success mt-1 text-end">Kalan: @remaining.ToString("C0")</div>
-                                </td>
-                                <td class="align-middle text-center">
-                                    <div class="@alertClass">@criticalDate.ToString("dd.MM.yyyy")</div>
-                                    <div class="badge bg-light text-dark border">@label</div>
-                                </td>
-                                <td class="align-middle text-center">
-                                    <div class="d-flex gap-1 justify-content-center">
-                                            <button type="button"
-                                                    class="btn btn-success text-white btn-sm shadow-sm py-1 px-2"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#payCardModal"
-                                                    title="Öde"
-                                                    onclick="setPayModal('@card.Id', '@card.CardName')">
-                                                <i class="bi bi-wallet2"></i> 
+                                <tr>
+                                    <td class="align-middle">
+                                        <div class="fw-bold">@card.CardName</div>
+                                        <div class="small text-muted"><i class="bi bi-bank2 me-1"></i>@card.BankName</div>
+                                    </td>
+                                    <td class="align-middle" style="min-width: 140px;">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>Borç: <span class="text-danger fw-bold">@card.Debt.ToString("C0")</span></span>
+                                            <span>Limit: @card.Limit.ToString("C0")</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar @barColor" role="progressbar" style="width: @card.UsagePercent.ToString("0")%" aria-valuenow="@card.UsagePercent" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="small text-success mt-1 text-end">Kalan: @card.RemainingLimit.ToString("C0")</div>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <div class="@alertClass">@card.CriticalDateDisplay</div>
+                                        <div class="badge bg-light text-dark border">@card.DateLabel</div>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex gap-1 justify-content-center">
+                                            <button type="button" class="btn btn-success btn-sm..." onclick="setPayModal('@card.Id', '@card.CardName')">
+                                                <i class="bi bi-wallet2"></i>
                                             </button>
-                                        <a asp-action="CardTransactions" asp-route-id="@card.Id" class="btn btn-info text-white btn-sm shadow-sm py-1 px-2" title="Ekstre">
-                                            <i class="bi bi-receipt"></i>
-                                        </a>
-                                        <form asp-action="DeleteCard" method="post">
-                                            <input type="hidden" name="id" value="@card.Id" />
-                                                <button type="submit" class="btn btn-danger btn-sm shadow-sm py-1 px-2" title="Sil" onclick="return confirm('Silmek istediğine emin misin?')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
+                                            <a asp-action="CardTransactions" asp-route-id="@card.Id" class="btn btn-info text-white btn-sm...">
+                                                <i class="bi bi-receipt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                     </tbody>
                 </table>
             </div>
