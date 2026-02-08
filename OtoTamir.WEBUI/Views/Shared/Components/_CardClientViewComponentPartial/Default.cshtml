@@ -1,94 +1,114 @@
 ﻿@model Client
+<div class="card shadow-sm border-0 h-100">
 
+    <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-person-badge me-2"></i>Müşteri Bilgileri</h6>
+               
+    </div>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow-sm mb-4 border-info">
-            <div class="card-header bg-primary text-white">
-                Müşteri Bilgileri
+    <div class="card-body">
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-7">
+                <div class="mb-1">
+                    <label class="small text-muted fw-bold d-block mb-0">Ad Soyad</label>
+                    <span class="fs-5 fw-semibold text-dark">@Model.Name</span>
+                </div>
+                <div class="mb-1">
+                    <label class="small text-muted fw-bold d-block mb-0">Telefon</label>
+                    <span class="fs-6">@Model.PhoneNumber</span>
+                </div>
+                <div>
+                    <label class="small text-muted fw-bold d-block mb-0">Bakiye</label>
+                    <div class="d-flex align-items-center">
+                        <span class="fs-5 fw-bold @(Model.Balance > 0 ? "text-danger" : "text-success") me-2">
+                            @Model.Balance.ToString("C2")
+                        </span>
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-2 rounded-pill" style="font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#balanceLogModal">
+                            <i class="bi bi-clock-history"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="card-body d-flex">
-                <div class="col-md-7">
-                    <dl class="row">
-                        <dt class="col-sm-5">Ad Soyad</dt>
-                        <dd class="col-sm-7">@Model.Name</dd>
 
-                        <dt class="col-sm-5">Telefon</dt>
-                        <dd class="col-sm-7">@Model.PhoneNumber</dd>
+            <div class="col-md-5 border-start ps-3">
+                <div class="mb-1">
+                    <label class="small text-muted fw-bold d-block mb-0">Kayıt Tarihi</label>
+                    <span class="small">@Model.CreatedDate.ToString("dd.MM.yyyy")</span>
+                </div>
+                <div class="mb-1">
+                    <label class="small text-muted fw-bold d-block mb-0">Son İşlem</label>
+                    <span class="small">@(Model.ModifiedDate.ToString("dd.MM.yyyy") ?? "-")</span>
+                </div>
+                <div class="mt-2">
 
-                        <dt class="col-sm-5">Bakiye</dt>
-                        <dd class="col-sm-7">@Model.Balance ₺
-                            <button class="btn btn-sm btn-info ms-3" data-bs-toggle="modal" data-bs-target="#balanceLogModal">
-                                <i class="bi bi-info-lg"></i> Ödeme Geçmişi
-                            </button>
-                            <div class="modal fade" id="balanceLogModal" tabindex="-1" aria-labelledby="balanceLogModalLabel" aria-hidden="true">
-                               
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    @await Component.InvokeAsync("_ClientLastTransactionsViewComponentPartial", new { clientId = Model.Id })
-                        </div>
+
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="bg-light rounded p-2 mb-3 border border-dashed">
+            <div class="row text-center g-1 small">
+                <div class="col-3 border-end">
+                    <div class="fw-bold text-dark">@Model.Vehicles?.Count()</div>
+                    <span class="text-muted" style="font-size: 0.7rem">Araç</span>
+                </div>
+
+                <div class="col-3 border-end">
+                    <div class="fw-bold text-primary">@Model.Vehicles?.Sum(v => v.ServiceRecords?.Count() ?? 0)</div>
+                    <span class="text-muted" style="font-size: 0.7rem">İşlem</span>
+                </div>
+                <div class="col-3 border-end">
+                    <div class="fw-bold text-warning">@Model.Vehicles?.Sum(v => v.ServiceRecords?.Count(r => r.Status == ServiceStatus.InProgress) ?? 0)</div>
+                    <span class="text-muted" style="font-size: 0.7rem">Aktif</span>
+                </div>
+                <div class="col-3">
+                    <div class="fw-bold text-success">@Model.Vehicles?.Sum(v => v.ServiceRecords?.Count(r => r.Status == ServiceStatus.Completed) ?? 0)</div>
+                    <span class="text-muted" style="font-size: 0.7rem">Biten</span>
+                </div>
+            </div>
+
+        </div>
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn btn-outline-primary btn-sm fw-bold shadow-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createVehicleModal-@Model.Id">
+                <i class="bi bi-plus-lg me-1"></i> Araç Ekle
+            </button>
+        </div>
+
+        <form asp-action="UpdateNotes" asp-controller="Client" method="post">
+            <input type="hidden" name="clientId" value="@Model.Id" />
+            <input type="hidden" name="returnUrl" value="ServiceRecord/Index" />
+
+            <label class="form-label small fw-bold text-muted mb-1">Müşteri Notu</label>
+            <div class="input-group">
+                <textarea name="note" class="form-control form-control-sm bg-light" placeholder="Not ekle..." style="height: 50px; resize: none;">@Model.Notes</textarea>
+                <button type="submit" class="btn btn-success btn-sm">
+                    <i class="bi bi-check-lg"></i>
+                </button>
+            </div>
+        </form>
+
+    </div>
 </div>
-                        </dd>
 
-                        <dt class="col-sm-5">Oluşturulma Tarihi:</dt>
-                        <dd class="col-sm-7">@Model.CreatedDate</dd>
-
-                        <dt class="col-sm-5">Son Güncelleme:</dt>
-                        <dd class="col-sm-7">@Model.ModifiedDate</dd>
-
-                        <dt class="col-sm-5">Kayıtlı Araç Sayısı</dt>
-                        <dd class="col-sm-7 d-flex align-items-center">
-                            <span>@Model.Vehicles.Count</span>
-                            <button class="btn btn-sm btn-success ms-3" data-bs-toggle="modal" data-bs-target="#createVehicleModal-@Model.Id">
-                                <i class="bi bi-plus-lg"></i> Araç Ekle
-                            </button>
-                            <div class="modal fade" id="createVehicleModal-@Model.Id" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
-                                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = Model.Id, ReturnUrl = "/Client/ClientDetails" })
-                            </div>
-                        </dd>
-                    </dl>
-                </div>
-                <div class="col-md-5">
-                    <form asp-action="UpdateNotes" asp-controller="Client" method="post">
-                        
-                        <input type="hidden" name="clientId" value="@Model.Id" />
-
-                        
-                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
-
-                        <div class="d-flex flex-column h-100">
-                            <label class="form-label fw-semibold mb-2">Notlar</label>
-
-                            <textarea name="note" class="form-control flex-grow-1 mb-2"
-                                      placeholder="Not Girilmemiş."
-                                      style="min-height: 120px; resize: none;">@Model.Notes</textarea>
-
-                            <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="bi bi-check-circle"></i> Kaydet
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
+<div class="modal fade" id="balanceLogModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Ödeme Geçmişi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                @await Component.InvokeAsync("_ClientLastTransactionsViewComponentPartial", new { clientId = Model.Id })
             </div>
         </div>
     </div>
-
-
-    <div class="col-md-4">
-        <div class="card shadow-sm mb-4 border-info">
-            <div class="card-header bg-primary text-white">
-                Toplam İstatistik
-            </div>
-            <div class="card-body">
-                <p><strong>Toplam Araç Sayısı:</strong> @Model.Vehicles.Count()</p>
-                <p><strong>Toplam Servis Kayıtları:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count())</p>
-                <p><strong>Devam Eden İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status ==ServiceStatus.InProgress))</p>
-                <p><strong>Tamamlanan İşlemler:</strong> @Model.Vehicles.Sum(v => v.ServiceRecords.Count(r => r.Status == ServiceStatus.Completed))</p>
-            </div>
-        </div>
-    </div>
 </div>
 
-
+<div class="modal fade" id="createVehicleModal-@Model.Id" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      
+            @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = Model.Id, ReturnUrl = "/Client/ClientDetails" })
+        
+    </div>
+</div>

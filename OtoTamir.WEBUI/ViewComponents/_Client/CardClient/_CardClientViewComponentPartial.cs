@@ -20,7 +20,7 @@ namespace OtoTamir.WEBUI.ViewComponents._Client.CardClient
         public async Task<IViewComponentResult> InvokeAsync(int clientId,string returnUrl)
         {
             var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
-            var model = await _clientService.GetOneAsync(clientId,mechanic.Id,includeVehicles:true,includeServiceRecords:false);
+            var model = await _clientService.GetOneAsync(clientId,mechanic.Id,includeVehicles:true,includeServiceRecords:true);
             ViewData["ReturnUrl"] = returnUrl;
             return View(model);
         }

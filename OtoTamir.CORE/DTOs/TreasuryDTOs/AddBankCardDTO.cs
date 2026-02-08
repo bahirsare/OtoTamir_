@@ -20,11 +20,11 @@ namespace OtoTamir.CORE.DTOs.TreasuryDTOs
         public string Last4Digit { get; set; }
         [Range(1, 31, ErrorMessage = "Lütfen 1-31 arası bir gün giriniz.")]
         [Display(Name = "Hesap Kesim Günü")]
-        public int BillingDate { get; set; }
+        public int BillingDay{ get; set; }
 
         [Range(1, 31, ErrorMessage = "Lütfen 1-31 arası bir gün giriniz.")]
         [Display(Name = "Son Ödeme Günü")]
-        public int DueDate { get; set; }
+        public int DueDay { get; set; }
         public decimal Limit { get; set; }
         public decimal Debt { get; set; }
 

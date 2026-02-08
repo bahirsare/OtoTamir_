@@ -1,19 +1,19 @@
 ﻿@model List<Vehicle>
 
 <div class="card shadow-sm">
-    <div class="card-header bg-primary text-white py-2">
-        <h6 class="mb-0 small">Araç Listesi</h6>
+    <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 small"><i class="bi bi-list-ul me-2"></i>Araç Listesi</h6>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-sm table-striped mb-0">
+            <table class="table table-sm table-striped mb-0 align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Plaka</th>
+                        <th class="ps-3">Plaka</th>
                         <th>Marka</th>
                         <th>Model</th>
                         <th>Yıl</th>
-                        <th>İşlemler</th>
+                        <th class="text-end pe-3">İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -22,35 +22,43 @@
                         @foreach (var vehicle in Model)
                         {
                             <tr>
-                                <td>@vehicle.Plate</td>
+                                <td class="ps-3">
+                                    <a href="/Vehicle/VehicleDetails?vehicleid=@vehicle.Id"
+                                       class="btn btn-outline-primary btn-sm fw-bold border-1 bg-light text-primary "
+                                       title="Araç detayına git">
+                                        <i class="bi bi-car-front-fill me-2"></i>@vehicle.Plate
+                                    </a>
+                                </td>
                                 <td>@vehicle.Brand</td>
                                 <td>@vehicle.Model</td>
                                 <td>@vehicle.Year</td>
-                                <td>
+                                <td class="text-end pe-3">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#collapse-history-@vehicle.Id">
-                                            Geçmiş
+                                            <i class="bi bi-clock-history me-1"></i>Geçmiş
                                         </a>
                                         <a class="btn btn-outline-success" data-bs-toggle="collapse" href="#collapse-new-@vehicle.Id">
-                                            Yeni İşlem
+                                            <i class="bi bi-plus-lg me-1"></i>Yeni İşlem
                                         </a>
                                     </div>
                                 </td>
                             </tr>
-                            <tr class="collapse" id="collapse-history-@vehicle.Id">
-                                <td colspan="5" class="p-0 border-0">
-                                    <div class="card shadow-sm m-1">
-                                        <div class="card-header bg-info text-white py-2">
-                                            <h6 class="mb-0 small">İşlem Geçmişi - @vehicle.Plate</h6>
+
+                            <tr class="collapse bg-light" id="collapse-history-@vehicle.Id">
+                                <td colspan="5" class="p-3 border-0">
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-header bg-secondary text-white py-1 px-2">
+                                            <small><i class="bi bi-clock-history me-1"></i>İşlem Geçmişi - @vehicle.Plate</small>
                                         </div>
-                                        <div class="card-body p-3">
+                                        <div class="card-body p-0">
                                             @await Component.InvokeAsync("_ListServiceRecordbyVehicleIdViewComponentPartial", vehicle.Id)
                                         </div>
                                     </div>
                                 </td>
                             </tr>
-                            <tr class="collapse" id="collapse-new-@vehicle.Id">
-                                <td colspan="5" class="p-0 border-0">
+
+                            <tr class="collapse bg-white" id="collapse-new-@vehicle.Id">
+                                <td colspan="5" class="p-3 border-0 border-top border-bottom border-success border-2">
                                     @await Component.InvokeAsync("_CreateServiceRecordViewComponentPartial", new { VehicleId = vehicle.Id, ReturnContext = "ServiceRecord" })
                                 </td>
                             </tr>
@@ -59,7 +67,10 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-3">Kayıtlı araç bulunamadı.</td>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-cone-striped fs-3 d-block mb-2 opacity-50"></i>
+                                Kayıtlı araç bulunamadı.
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -68,4 +79,21 @@
     </div>
 </div>
 
+<script>
+    // Bir collapse açıldığında diğerlerini kapatma mantığı (AutoCollapse.js varsa gerek yok)
+    // Ama buraya minik bir fix ekleyebiliriz çakışmaları önlemek için.
+    document.querySelectorAll('.collapse').forEach(collapse => {
+        collapse.addEventListener('show.bs.collapse', function () {
+            // Açılanın ID'si
+            var openedId = this.id;
+            // Diğer açık olanları bul ve kapat
+            document.querySelectorAll('.collapse.show').forEach(other => {
+                if (other.id !== openedId) {
+                    var bsCollapse = bootstrap.Collapse.getInstance(other);
+                    if (bsCollapse) bsCollapse.hide();
+                }
+            });
+        });
+    });
+</script>
 <script src="~/js/AutoCollapse.js" defer></script>

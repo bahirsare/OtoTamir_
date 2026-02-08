@@ -1,37 +1,92 @@
 ﻿@using OtoTamir.WEBUI.Services
+@using OtoTamir.CORE.Entities
 @model Vehicle
 
-<table class="table table-sm table-striped">
-    <thead>
-        <tr>
-            <th>Tarih</th>
-            <th>Uygulanan İşlem</th>
-            <th>Açıklama</th>
-            <th>Fiyat</th>
-            <th>Son Güncelleme Tarihi</th>
-            <th>Durum</th>
-            <th>Yazar</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var record in Model.ServiceRecords)
-        {
-            <tr>
-                <td>@record.CreatedDate</td>
-                <td>@record.Name</td>
-                <td>@record.Description</td>
-                <td>@record.Price</td>
-                <td>@record.ModifiedDate</td>
-                <td>
-                <td>
-                    @* Tek satırda hem rengi hem yazıyı hallediyoruz *@
-                    <span class="badge @record.Status.ToBadgeClass()">
-                        @record.Status.ToTurkish()
-                    </span>
-                </td>
-                </td>
-                <td>@record.AuthorName</td>
-            </tr>
-        }
-    </tbody>
-</table>
+@if (Model.ServiceRecords != null && Model.ServiceRecords.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-muted small">
+                <tr>
+                    <th class="ps-3" style="width: 15%;">Tarih</th>
+                    <th style="width: 35%;">Yapılan İşlem / Açıklama</th>
+                    <th class="text-center" style="width: 15%;">Durum</th>
+                    <th class="text-end" style="width: 15%;">Tutar</th>
+                    <th class="text-end pe-3" style="width: 20%;">İşlemi Yapan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in Model.ServiceRecords.OrderByDescending(x => x.CreatedDate))
+                {
+                    <tr>
+                        <td class="ps-3">
+                            <div class="d-flex flex-column">
+                                <span class="fw-semibold text-dark">
+                                    <i class="bi bi-calendar-event me-1 text-muted"></i>
+                                    @record.CreatedDate.ToString("dd.MM.yyyy")
+                                </span>
+                                <small class="text-muted" style="font-size: 0.75rem;">
+                                    <i class="bi bi-clock me-1"></i>@record.CreatedDate.ToString("HH:mm")
+                                </small>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-primary">@record.Name</div>
+                            @if (!string.IsNullOrEmpty(record.Description))
+                            {
+                                <div class="small text-muted text-truncate" style="max-width: 300px;" title="@record.Description">
+                                    @record.Description
+                                </div>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <span class="badge @record.Status.ToBadgeClass() rounded-pill px-3 py-2 fw-bold">
+                                @record.Status.ToTurkish()
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <span class="fw-bold fs-6 @(record.Status == ServiceStatus.Cancelled ? "text-decoration-line-through text-muted" : "text-dark")">
+                                @record.Price.ToString("C2")
+                            </span>
+                        </td>
+                        <td class="text-end pe-3">
+                            <div class="d-flex align-items-center justify-content-end">
+                                <div class="text-end me-2">
+                                    <div class="small fw-semibold">@record.AuthorName</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Personel</div>
+                                </div>
+                                <div class="bg-secondary bg-opacity-10 text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+            <tfoot class="bg-light border-top border-2">
+                <tr>
+                    <td colspan="3" class="text-end py-3 pe-3">
+                        <small class="text-muted fw-bold d-block">TAMAMLANAN İŞLEMLER TOPLAMI</small>
+                        <small class="text-muted fst-italic" style="font-size: 0.7rem;">(İptal edilen ve bekleyenler dahil değildir)</small>
+                    </td>
+                    <td class="text-end py-3">
+                        <span class="fs-5 fw-bold text-success">
+                            @Model.ServiceRecords.Where(x => x.Status == ServiceStatus.Completed).Sum(x => x.Price).ToString("C2")
+                        </span>
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-4">
+        <div class="bg-light rounded-circle d-inline-flex p-3 mb-2">
+            <i class="bi bi-clipboard-x text-muted fs-3"></i>
+        </div>
+        <p class="text-muted small mb-0">Bu araca ait geçmiş işlem kaydı bulunamadı.</p>
+    </div>
+}

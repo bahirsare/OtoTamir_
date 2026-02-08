@@ -3,84 +3,93 @@
     ViewData["Title"] = "Yeni İşlem";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
-@if (TempData["FailMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["FailMessage"]
-    </div>
-}
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-info">
-        @TempData["Message"]
-    </div>
-}
 
-<section class="content">
-    
+<section class="content pt-3">
     <div class="container-fluid">
-        <div class="card card-primary card-outline">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                
-                <div>
-                    <form method="post" asp-action="GetVehiclesByClientId">
-                    <label for="clientSelect" class="form-label">Müşteri Seç</label>
-                    <select class="form-select d-inline w-auto me-2" id="clientSelect" name="SelectedClientId">
-                       
-                                @if (Model.SelectedClientName!=null)
-                                {
-                                <option selected disabled>
-                                    @Model.SelectedClientName
-                                </option>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-3">
+                <div class="row g-2 align-items-center">
+
+                    <div class="col-md-9">
+                        <form method="post" asp-action="GetVehiclesByClientId" class="d-flex">
+                            <div class="input-group w-100">
+                                <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-search"></i></span>
+                                <select class="form-select border-start-0 ps-0" id="clientSelect" name="SelectedClientId" aria-label="Müşteri Seç">
+                                    @if (!string.IsNullOrEmpty(Model.SelectedClientName))
+                                    {
+                                        <option selected value="@Model.SelectedClientId">@Model.SelectedClientName</option>
+                                        <option disabled>──────────</option>
                                     }
-                                    else{
-                                     <option selected disabled>
-                                    Müşteri Seçiniz
-                                </option>
+                                    else
+                                    {
+                                        <option selected disabled value="">Müşteri Seçiniz...</option>
                                     }
 
-                            
-                            @foreach(var item in Model.Clients)
-                            {
-                            <option value="@item.Id">@item.Name</option>
-                            }                      
-                    </select>
-                    <button class="btn btn-primary" type="submit">
-                        Listele
-                    </button>
-                    </form>
-                    
+                                    @foreach (var item in Model.Clients)
+                                    {
+                                        if (item.Id != Model.SelectedClientId)
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                </select>
+                                <button class="btn btn-primary px-4" type="submit">
+                                    Seç ve Getir
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="col-md-3 text-end">
+                        <a class="btn btn-success text-white w-100 shadow-sm" data-bs-toggle="modal" data-bs-target="#createClientModal">
+                            <i class="bi bi-person-plus-fill me-2"></i>Yeni Müşteri
+                        </a>
+                    </div>
                 </div>
-                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClientModal">
-                    <i class="bi bi-plus-circle"></i> Yeni Müşteri Ekle
-                </a>
-                
             </div>
-        </div>      
-      
-        @if (Model.SelectedClientId != null && Model.SelectedClientId!=0)
+        </div>
+
+        @if (Model.SelectedClientId != null && Model.SelectedClientId != 0)
         {
-            @await Component.InvokeAsync("_CardClientViewComponentPartial", new { clientId = Model.SelectedClientId, returnUrl = "ServiceRecord/GetClientDetails" })
-            @await Component.InvokeAsync("_ListVehicleViewComponentPartial", Model.SelectedClientId)
-            <div class="modal fade" id="createVehicleModal-@Model.SelectedClientId" tabindex="-1" aria-labelledby="createVehicleModalLabel" aria-hidden="true">
-                @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = (int)Model.SelectedClientId, ReturnUrl = "ServiceRecord/Index" })
+            <div class="row g-4 animate__animated animate__fadeIn">
+                <div class="col-lg-7 col-md-12">
+                    @await Component.InvokeAsync("_ListVehicleViewComponentPartial", Model.SelectedClientId)
+                </div>
+                <div class="col-lg-5 col-md-12">
+                    <div class="sticky-top" >
+                        @await Component.InvokeAsync("_CardClientViewComponentPartial", new { clientId = Model.SelectedClientId, returnUrl = "ServiceRecord/GetClientDetails" })
+                    </div>
+                </div>
+               
+            </div>     
+            
+        }
+        else
+        {
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-6 text-center">
+                    <div class="p-5 bg-white rounded shadow-sm border border-dashed">
+                        <div class="mb-3">
+                            <span class="bg-light rounded-circle p-4 d-inline-block">
+                                <i class="bi bi-search text-primary opacity-50" style="font-size: 3rem;"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-secondary fw-bold">İşlem Yapılacak Müşteriyi Seçin</h4>
+                        <p class="text-muted">Yukarıdaki arama kutusundan mevcut bir müşteriyi seçebilir veya sağdaki butondan yeni müşteri oluşturabilirsiniz.</p>
+                    </div>
+                </div>
             </div>
-        }     
-       
+        }
+
     </div>
-    <div class="modal fade" id="createClientModal" tabindex="-1" aria-labelledby="createClientModalLabel" aria-hidden="true">
-        @await Component.InvokeAsync("_CreateClientViewComponentPartial","ServiceRecord/Index")
+
+    <div class="modal fade" id="createClientModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            @await Component.InvokeAsync("_CreateClientViewComponentPartial", "ServiceRecord/Index")
+        </div>
     </div>
 
 </section>
+
 <script src="~/js/serviceRecord.js"></script>
-
-
-
-

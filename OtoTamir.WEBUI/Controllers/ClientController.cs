@@ -120,11 +120,11 @@ namespace OtoTamir.WEBUI.Controllers
             if (result > 0)
             {
                 TempData["SuccessMessage"] = "Not güncellendi.";
-                return RedirectToAction(URL[1], URL[0], clientId); ;
+                return RedirectToAction(URL[1], URL[0], new { SelectedClientId = clientId }); ;
             }
             TempData["FailMessage"] = "Bir hata oluştu.Lütfen tekrar deneyiniz.";
 
-            return RedirectToAction(URL[1], URL[0], clientId);
+            return RedirectToAction(URL[1], URL[0], new { SelectedClientId = clientId });
         }
         [HttpPost]
         public async Task<IActionResult> CreateClient(CreateClientDTO model)
