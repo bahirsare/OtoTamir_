@@ -8,6 +8,7 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
 {
     public class SymptomDTO
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
         public decimal EstimatedCost { get; set; }

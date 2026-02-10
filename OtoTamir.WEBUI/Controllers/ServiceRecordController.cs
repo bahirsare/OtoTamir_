@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.BLL.Concrete;
 using OtoTamir.BLL.Managers;
@@ -20,12 +21,13 @@ public class ServiceRecordController : Controller
     private readonly IClientService _clientService;
     private readonly IServiceRecordService _serviceRecordService;
     private readonly ISymptomService _symptomService;
+    private readonly ITreasuryTransactionService _transactionService;
     private readonly IMapper _mapper;
     private readonly IServiceProcessManager _processManager;
     private readonly UserManager<Mechanic> _userManager;
    
 
-    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager, IServiceProcessManager processManager)
+    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager, IServiceProcessManager processManager, ITreasuryTransactionService transactionService)
     {
         _vehicleService = vehicleService;
         _clientService = clientService;
@@ -34,6 +36,7 @@ public class ServiceRecordController : Controller
         _mapper = mapper;
         _userManager = userManager;
         _processManager = processManager;
+        _transactionService = transactionService;
     }
 
 
@@ -286,9 +289,20 @@ public class ServiceRecordController : Controller
             TempData["SuccessMessage"] = "Servis kaydı ve semptomlar başarıyla oluşturuldu!";
             return RedirectToAction(model.ReturnAction, model.ReturnController, new { id = model.ReturnId });
 
-        } 
-    
+        }
 
+    [HttpGet]
+    
+    public async Task<IActionResult> Details(int id)
+    {   var mechanic= await _userManager.GetUserAsync(User);
+        var serviceRecord = await _serviceRecordService.GetOneAsync(id,mechanic.Id,true,true);
+        
+
+        if (serviceRecord == null) return NotFound();
+
+        return View(serviceRecord);
+        
+    }
     [HttpGet]
     public async Task<IActionResult> Ongoing(ListServiceRecordsDTO model, int page = 1)
     {
@@ -297,14 +311,12 @@ public class ServiceRecordController : Controller
         
         Expression<Func<ServiceRecord, bool>> filter = sr => sr.Vehicle.Client.MechanicId == mechanic.Id;
 
-       
-        if (Request.Query.Count == 0 && !model.CurrentStatus.HasValue)
+        if (Request.Query.Count == 0)
         {
+            
             model.CurrentStatus = ServiceStatus.InProgress;
         }
-
         
-
         if (model.CurrentStatus.HasValue)
             filter = filter.AndAlso(sr => sr.Status == model.CurrentStatus.Value);
 
@@ -348,17 +360,15 @@ public class ServiceRecordController : Controller
             ("CompletedDate", "asc") => q => q.OrderBy(r => r.CompletedDate),
             ("CompletedDate", "desc") => q => q.OrderByDescending(r => r.CompletedDate),
 
-            _ => q => q.OrderByDescending(r => r.CreatedDate) // Varsayılan
+            _ => q => q.OrderByDescending(r => r.CreatedDate) 
         };
 
-        // 5. VERİ ÇEKME (Generic Paging)
-        // _serviceRecordService yerine _serviceRecordDal (veya servise eklediysen o) kullanıyoruz
+       
         var pagedResult = await _serviceRecordService.GetPagedAsync(
             filter: filter,
             orderBy: orderBy,
             page: page,
-            pageSize: 15, // Her sayfada 15 kayıt
-                          // Include'ları burada belirtiyoruz
+            pageSize: 15,
             includes: new Expression<Func<ServiceRecord, object>>[] {
             x => x.Vehicle,
             x => x.Vehicle.Client

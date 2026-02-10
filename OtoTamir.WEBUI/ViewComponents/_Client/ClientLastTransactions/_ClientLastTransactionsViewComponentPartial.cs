@@ -9,10 +9,12 @@ namespace OtoTamir.WEBUI.ViewComponents._Client.ClientLastTransactions
     public class _ClientLastTransactionsViewComponentPartial : ViewComponent
     {
         private readonly ITreasuryTransactionService _transactionService;
+        private readonly IClientService _clientService;
         private readonly UserManager<Mechanic> _userManager;
 
-        public _ClientLastTransactionsViewComponentPartial(ITreasuryTransactionService transactionService,UserManager<Mechanic> userManager)
+        public _ClientLastTransactionsViewComponentPartial(ITreasuryTransactionService transactionService, IClientService clientService, UserManager<Mechanic> userManager)
         {
+            _clientService = clientService;
             _transactionService = transactionService;
             _userManager = userManager;
         }
@@ -21,17 +23,10 @@ namespace OtoTamir.WEBUI.ViewComponents._Client.ClientLastTransactions
         {
             var mechanic = await _userManager.GetUserAsync((ClaimsPrincipal)User);
 
-           
+            var client = await _clientService.GetOneAsync(clientId, mechanic.Id, true, true);
 
-            var allTransactions = await _transactionService.GetAllAsync(mechanic.Id,mechanic.TreasuryId, filter: x => x.ClientId == clientId);
 
-            var lastTransactions = allTransactions
-                                    .OrderByDescending(x => x.TransactionDate)
-                                    .Take(20)
-                                    .ToList();
-
-            ViewBag.ClientId = clientId;
-            return View(lastTransactions);
+            return View(client);
         }
     }
 }

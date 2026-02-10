@@ -28,12 +28,13 @@
                 </div>
                 <div class="col-md-2">
                     <label>İşlem Durumu</label>
-                   
-                        
-                            <select asp-for="CurrentStatus"
-                                    class="form-control"
-                                    asp-items="Html.GetEnumSelectList<ServiceStatus>()">
-                            </select>
+                    
+
+                    <select asp-for="CurrentStatus"
+                            class="form-select"
+                            asp-items="Html.GetEnumSelectList<ServiceStatus>()">
+                        <option value="">Tüm Durumlar</option>
+                    </select>
                         
                 </div>
                 <div class="col-md-2">
@@ -185,7 +186,11 @@
                                 </button>
                                 </td>
                             <td>@record.Vehicle.Plate</td>
-                            <td>@record.Status</td>
+                            <td>
+                                <span class="badge @record.Status.ToBadgeClass()">
+                                    @record.Status.ToTurkish()
+                                </span>
+                            </td>
                             <td>@record.CreatedDate.ToString("dd.MM.yyyy")</td>
                             <td>@record.ModifiedDate.ToString("dd.MM.yyyy")</td>
                             <td>@(record.CompletedDate?.ToString("dd.MM.yyyy") ?? "-")</td>

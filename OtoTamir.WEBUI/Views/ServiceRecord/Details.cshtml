@@ -1,0 +1,158 @@
+﻿@using OtoTamir.CORE.Entities
+@using OtoTamir.WEBUI.Services
+@model ServiceRecord
+
+@{
+    ViewData["Title"] = "Servis Detayı";
+}
+
+<div class="container-fluid pt-3">
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold text-primary mb-0">@Model.Vehicle.Plate</h4>
+                    <span class="text-muted">@Model.Vehicle.Brand @Model.Vehicle.Model | @Model.Vehicle.Client.Name</span>
+                </div>
+                <div class="text-end">
+                    <div class="mb-1">
+                        <span class="text-muted small fw-bold">GİRİŞ:</span>
+                        <span class="fw-bold">@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-bold">DURUM:</span>
+                        <span class="badge @Model.Status.ToBadgeClass()">@Model.Status.ToTurkish()</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold"><i class="bi bi-list-check me-2"></i>Yapılacak İşlemler & Fiyatlar</h6>
+
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSymptomModal">
+                <i class="bi bi-plus-lg me-1"></i> İşlem Ekle
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-3">İşlem Adı</th>
+                        <th>Açıklama</th>
+                        <th class="text-center">Durum</th>
+                        <th class="text-end pe-3">Tutar (TL)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.SymptomList != null && Model.SymptomList.Any())
+                    {
+                        @foreach (var item in Model.SymptomList)
+                        {
+                            <tr>
+                                <td class="ps-3 fw-bold">@item.Name</td>
+                                <td class="text-muted small">@item.Description</td>
+                                <td class="text-center">
+                                    @if (item.Status == SymptomStatus.Fixed)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success">Yapıldı</span>
+                                    }
+                                    else if (item.Status == SymptomStatus.NotFixed)
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">İptal/Yapılmadı</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Bekliyor</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-3 fs-5 font-monospace text-dark">
+                                    @item.EstimatedCost.ToString("C2")
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="DeleteSymptom" asp-route-id="@item.Id" asp-route-returnUrl="/ServiceRecord/Details/@Model.Id" class="btn btn-sm text-danger" title="Sil">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    @if (item.Status != SymptomStatus.Fixed)
+                                    {
+                                        <a asp-action="MarkSymptomFixed" asp-route-id="@item.Id" class="btn btn-sm text-success" title="Tamamlandı İşaretle">
+                                            <i class="bi bi-check2-square"></i>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="text-center text-muted py-4">Henüz kayıtlı işlem yok.</td></tr>
+                    }
+                </tbody>
+                <tfoot class="bg-light border-top border-2">
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold py-3 text-secondary">GENEL TOPLAM:</td>
+                        <td class="text-end fw-bold fs-4 text-primary py-3">
+                            @(Model.SymptomList?.Sum(x => x.EstimatedCost).ToString("C2") ?? "0.00 ₺")
+                        </td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3 mb-5">
+        <a asp-controller="ServiceRecord" asp-action="Index" class="btn btn-secondary me-2">Geri Dön</a>
+        <a asp-controller="ServiceRecord" asp-action="CompleteService" asp-route-id="@Model.Id" class="btn btn-success fw-bold px-4 shadow-sm">
+            <i class="bi bi-check-circle-fill me-2"></i>Servisi Tamamla
+        </a>
+    </div>
+
+</div>
+
+<div class="modal fade" id="addSymptomModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Yeni İşlem / Arıza Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form asp-action="AddSymptom" method="post">
+                <input type="hidden" name="ServiceRecordId" value="@Model.Id" />
+
+                <input type="hidden" name="returnUrl" value="/ServiceRecord/Details/@Model.Id" />
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="fw-bold form-label">İşlem Adı <span class="text-danger">*</span></label>
+                        <input type="text" name="Name" class="form-control" placeholder="Örn: Balata Değişimi" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold form-label">Fiyat (TL)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₺</span>
+                            <input type="number" name="EstimatedCost" class="form-control" value="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold form-label text-muted small">Açıklama (Opsiyonel)</label>
+                        <textarea name="Description" class="form-control" rows="2" placeholder="Detay..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary px-4">Ekle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

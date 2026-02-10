@@ -6,7 +6,7 @@ namespace OtoTamir.CORE.DTOs.ServiceRecordDTOs
     {
         public List<ServiceRecord> Records { get; set; }
         public string ClientName { get; set; }
-        public ServiceStatus? CurrentStatus { get; set; } = ServiceStatus.InProgress;
+        public ServiceStatus? CurrentStatus { get; set; }
         public string VehicleName { get; set; }
         public string SortColumn { get; set; }
         public string SortDirection { get; set; }

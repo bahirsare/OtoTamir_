@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace OtoTamir.CORE.Entities
 {
@@ -24,8 +25,13 @@ namespace OtoTamir.CORE.Entities
     }
     public enum SymptomStatus
     {
-        Pending = 1,      // Bekliyor (Henüz bakılmadı)
-        Fixed = 2,        // Giderildi (Tamir edildi)
-        NotFixed = 3      // Giderilmedi (Müşteri istemedi / Parça yoktu vs.)
+        [Display(Name = "Bekliyor / İşlemde")]
+        Pending = 1,
+
+        [Display(Name = "Giderildi (Tamamlandı)")]
+        Fixed = 2,
+
+        [Display(Name = "Giderilemedi / İptal")]
+        NotFixed = 3
     }
 }

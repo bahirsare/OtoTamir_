@@ -1,6 +1,7 @@
 ﻿using OtoTamir.CORE.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,10 +29,17 @@ namespace OtoTamir.CORE.Entities
     }
     public enum ServiceStatus
     {
-        InProgress = 1,    
-        Completed = 2,      
-        Cancelled = 3       
+        
+
+        [Display(Name = "İşlemde / Devam Ediyor")]
+        InProgress = 1,
+
+        [Display(Name = "Tamamlandı")]
+        Completed = 2,
+
+        [Display(Name = "İptal Edildi")]
+        Cancelled = 3
     }
-    
+
 
 }
