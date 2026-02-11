@@ -5,68 +5,106 @@
 }
 
 <div class="container mt-5">
-    <h2 class="mb-4">Profil Bilgilerim</h2>
+    <div class="d-flex align-items-center mb-4">
+        <h2 class="mb-0 me-3">Profil Ayarları</h2>
+        <span class="text-muted small">Bu bilgiler servis fişlerinde kullanılacaktır.</span>
+    </div>
 
     <form asp-action="Profile" asp-controller="Account" method="post" enctype="multipart/form-data">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
         <div class="row">
-            
             <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Kullanıcı Adı</label>
-                    <input asp-for="UserName" class="form-control" value="@Model.UserName" readonly />
-                  
-                </div>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light fw-bold text-primary">
+                        <i class="bi bi-shop me-2"></i>Firma & Fiş Bilgileri
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="StoreName" class="form-label fw-bold"></label>
+                            <input asp-for="StoreName" class="form-control" placeholder="Örn: Yıldırım Oto Servis" />
+                            <span asp-validation-for="StoreName" class="text-danger"></span>
+                        </div>
 
-                <div class="mb-3">
-                    <label asp-for="StoreName" class="form-label"></label>
-                    <input asp-for="StoreName" class="form-control" />
-                    <span asp-validation-for="StoreName" class="text-danger"></span>
-                </div>
+                        <div class="mb-3">
+                            <label asp-for="Adress" class="form-label"></label>
+                            <textarea asp-for="Adress" class="form-control" rows="3" placeholder="Fatura adresi..."></textarea>
+                            <span asp-validation-for="Adress" class="text-danger"></span>
+                        </div>
 
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="PhoneNumber" class="form-label"></label>
-                    <input asp-for="PhoneNumber" class="form-control" />
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Adress" class="form-label"></label>
-                    <input asp-for="Adress" class="form-control" />
-                    <span asp-validation-for="Adress" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TaxOffice" class="form-label"></label>
+                                <input asp-for="TaxOffice" class="form-control" placeholder="Örn: Ümraniye VD" />
+                                <span asp-validation-for="TaxOffice" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TaxNumber" class="form-label"></label>
+                                <input asp-for="TaxNumber" class="form-control" placeholder="Vergi No" />
+                                <span asp-validation-for="TaxNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-           
             <div class="col-md-6">
-                <div class="mb-3">
-                    <label asp-for="Skills" class="form-label"></label>
-                    <input asp-for="Skills" class="form-control" />
-                    <span asp-validation-for="Skills" class="text-danger"></span>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light fw-bold text-success">
+                        <i class="bi bi-person-badge me-2"></i>İletişim & Kişisel
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 text-center">
+                            
+                            
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 100px; height: 100px; font-size: 2rem;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            
+                            <div class="input-group">
+                                <input type="file" class="form-control" name="file">
+                            </div>
+                            <small class="text-muted">Profil resmi yükleyin</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserName" class="form-label"></label>
+                            <input asp-for="UserName" class="form-control bg-light" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="05xxxxxxxxx" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Skills" class="form-label"></label>
+                            <input asp-for="Skills" class="form-control" placeholder="Örn: Motor, Şanzıman" />
+                        </div>
+                    </div>
                 </div>
-
-                <div class="mb-3">
-                    <label  class="form-label">Profil Resmi</label>
-
-                    
-                    <input type="file" class="form-control" name="file">
-                </div>
-
-               
             </div>
         </div>
-       
-        <div class="text-end">
-            <button type="submit" class="btn btn-primary">Bilgileri Güncelle</button>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+            <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
+                <i class="bi bi-save me-2"></i>Değişiklikleri Kaydet
+            </button>
         </div>
     </form>
-    @await Component.InvokeAsync("_ChangePasswordViewComponentPartial")
+
+    <div class="card border-danger mb-5">
+        <div class="card-body">
+            @await Component.InvokeAsync("_ChangePasswordViewComponentPartial")
+        </div>
+    </div>
 </div>
 
 @section Scripts {

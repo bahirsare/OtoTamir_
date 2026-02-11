@@ -25,9 +25,10 @@ public class ServiceRecordController : Controller
     private readonly IMapper _mapper;
     private readonly IServiceProcessManager _processManager;
     private readonly UserManager<Mechanic> _userManager;
-   
+    private readonly ILogger<ServiceRecordController> _logger;
 
-    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager, IServiceProcessManager processManager, ITreasuryTransactionService transactionService)
+
+    public ServiceRecordController(IVehicleService vehicleService, IClientService clientService, IServiceRecordService serviceRecordService, ISymptomService symptomService, IMapper mapper, UserManager<Mechanic> userManager, IServiceProcessManager processManager, ITreasuryTransactionService transactionService, ILogger<ServiceRecordController> logger)
     {
         _vehicleService = vehicleService;
         _clientService = clientService;
@@ -37,6 +38,7 @@ public class ServiceRecordController : Controller
         _userManager = userManager;
         _processManager = processManager;
         _transactionService = transactionService;
+        _logger = logger;
     }
 
 
@@ -456,6 +458,98 @@ public class ServiceRecordController : Controller
         return RedirectToAction("Ongoing"); // Veya uygun bir yere yönlendir
     }
 
+    [HttpPost]
+    [HttpPost]
+    public async Task<IActionResult> BulkComplete(List<int> selectedIds)
+    {
+        if (selectedIds == null || !selectedIds.Any())
+        {
+            TempData["Error"] = "Lütfen en az bir kayıt seçiniz.";
+            return RedirectToAction("Ongoing");
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        int successCount = 0;
+        int errorCount = 0;
+
+        foreach (var id in selectedIds)
+        {
+            try
+            {
+                // 1. DTO Hazırla
+                // Toplu işlemde genelde varsayılan olarak "Cari Hesaba (Veresiye)" atılır.
+                // Çünkü her biri için tek tek "Nakit mi Kart mı" diye soramazsın.
+                var completionModel = new ServiceCompletionDTO
+                {
+                    ServiceRecordId = id,
+                    MechanicId = user.Id,
+                   
+                    AuthorName="Toplu İşlem",
+
+                    PaymentMethod = PaymentSource.ClientBalance,
+
+                    PosTerminalId = null,
+                    BankId = null
+                };
+
+                
+                await _processManager.CompleteServiceProcessAsync(completionModel);
+
+                successCount++;
+            }
+            catch (Exception ex)
+            {
+                
+                _logger.LogError(ex, $"Bulk işlemde hata. ID: {id}");
+                errorCount++;
+            }
+        }
+
+        if (errorCount > 0)
+            TempData["Warning"] = $"{successCount} kayıt tamamlandı, {errorCount} kayıt hata nedeniyle tamamlanamadı.";
+        else
+            TempData["Success"] = $"{successCount} adet servis başarıyla tamamlandı ve ücretleri cari hesaplara işlendi.";
+
+        return RedirectToAction("Ongoing");
+    }
+    public async Task<IActionResult> Print(int id)
+    {
+        // 1. Kaydı getir
+        var mechanic = await _userManager.GetUserAsync(User);
+        var record = await _serviceRecordService.GetOneAsync(id, mechanic.Id,true,true);
+        var client = await _clientService.GetOneAsync(record.Vehicle.ClientId,mechanic.Id);
+        if (record == null) return NotFound();
+
+        if (mechanic != null)
+        {
+            // Dükkan Adı (Yoksa Ad Soyad yazsın)
+            ViewBag.ShopName = !string.IsNullOrEmpty(mechanic.StoreName)
+                ? mechanic.StoreName
+                : $"{mechanic.UserName} Oto Servis";
+
+            // Adres
+            ViewBag.ShopAddress = !string.IsNullOrEmpty(mechanic.Adress)
+                ? mechanic.Adress
+                : "Adres Bilgisi Girilmedi";
+
+            // Telefon
+            ViewBag.ShopPhone = !string.IsNullOrEmpty(mechanic.PhoneNumber)
+                ? mechanic.PhoneNumber
+                : "Tel Yok";
+
+            // Vergi Bilgileri (İkisi de varsa birleştirip gönderelim)
+            if (!string.IsNullOrEmpty(mechanic.TaxOffice) && !string.IsNullOrEmpty(mechanic.TaxNumber))
+            {
+                ViewBag.TaxInfo = $"{mechanic.TaxOffice} VD. / {mechanic.TaxNumber}";
+            }
+            else
+            {
+                ViewBag.TaxInfo = null;
+            }
+        }
+
+        return View(record);
+    }
 }
 
 

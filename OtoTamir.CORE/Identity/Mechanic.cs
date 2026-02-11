@@ -20,7 +20,8 @@ namespace OtoTamir.CORE.Identity
         public DateTime ModifiedDate { get; set; }
         public List<Client> Clients { get; set; }
         public List<Bank> Banks { get; set; }
-
+        public string? TaxNumber { get; set; } // Vergi No
+        public string? TaxOffice { get; set; } // Vergi Dairesi
         public Mechanic()
         {
             Clients = new List<Client>();

@@ -37,8 +37,14 @@ namespace OtoTamir.CORE.DTOs.MechanicDTOs
         [DisplayName("Telefon Numarası")]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
-       
 
-       
+        [DisplayName("Vergi Numarası")]
+        [StringLength(11, ErrorMessage = "Vergi numarası en fazla 11 karakter olabilir.")]
+        public string? TaxNumber { get; set; }
+
+        [DisplayName("Vergi Dairesi")]
+        public string? TaxOffice { get; set; }
+
+
     }
 }

@@ -179,11 +179,11 @@
                                     <td>
                                         <div class="btn-group">
                                             <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal-@record.Id">Detay</button>
-                                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id">Düzenle</button>
+                                           
 
                                             @if (record.Status == ServiceStatus.InProgress)
                                             {
-                                               
+                                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@record.Id">Düzenle</button>
                                                 <button type="button"
                                                         class="btn btn-danger btn-sm confirm-button"
                                                         data-confirm-message="Bu işlemi iptal etmek istediğinize emin misiniz?"
@@ -202,7 +202,9 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        <a href="/ServiceRecord/Print/@record.Id" target="_blank" class="btn btn-secondary btn-sm" title="Yazdır">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
                                         <!-- Düzenle Modal -->
                                         <div class="modal fade" id="editModal-@record.Id" tabindex="-1" aria-hidden="true">
                                             <div class="modal-dialog modal-lg">

@@ -107,6 +107,9 @@
     </div>
 
     <div class="d-flex justify-content-end mt-3 mb-5">
+        <a href="/ServiceRecord/Print/@Model.Id" target="_blank" class="btn btn-outline-dark">
+            <i class="bi bi-printer-fill me-2"></i>Servis Fişi Yazdır
+        </a>
         <a asp-controller="ServiceRecord" asp-action="Index" class="btn btn-secondary me-2">Geri Dön</a>
         <a asp-controller="ServiceRecord" asp-action="CompleteService" asp-route-id="@Model.Id" class="btn btn-success fw-bold px-4 shadow-sm">
             <i class="bi bi-check-circle-fill me-2"></i>Servisi Tamamla

@@ -1,0 +1,216 @@
+﻿@model OtoTamir.CORE.Entities.ServiceRecord
+@{
+    Layout = null; 
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <title>Servis Fişi - @Model.Vehicle.Plate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        .invoice-header {
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .invoice-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .table thead th {
+            border-bottom: 2px solid #dee2e6;
+            background-color: #f8f9fa;
+        }
+
+        .total-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+       
+        @@media print {
+            body
+
+        {
+            background: white;
+            margin: 0;
+        }
+
+        .invoice-container {
+            box-shadow: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        .btn {
+            display: none !important;
+        }
+
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-container">
+
+        <div class="text-end mb-4 no-print">
+            <button onclick="window.print()" class="btn btn-primary">
+                🖨️ Yazdır / PDF Kaydet
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary">
+                Kapat
+            </button>
+        </div>
+
+        <div class="invoice-header d-flex justify-content-between align-items-center">
+            <div>
+                <div class="invoice-logo">@ViewBag.ShopName</div>
+
+                <div class="text-muted small mt-2">
+                    <i class="bi bi-geo-alt-fill me-1"></i> @ViewBag.ShopAddress<br>
+
+                    <i class="bi bi-telephone-fill me-1"></i> @ViewBag.ShopPhone
+
+                    @if (ViewBag.TaxInfo != null)
+                    {
+                        <br>
+                        <span class="fw-bold">VD/No:</span>
+ 
+                        @ViewBag.TaxInfo
+                    }
+                </div>
+            </div>
+
+            <div class="text-end">
+                <h4 class="mb-0">SERVİS FİŞİ</h4>
+                <div class="text-muted">Fiş No: #@Model.Id</div>
+                <div class="fw-bold">Tarih: @(Model.CompletedDate?.ToString("dd.MM.yyyy") ?? DateTime.Now.ToString("dd.MM.yyyy"))</div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-6">
+                <h6 class="fw-bold text-uppercase text-secondary mb-2">Müşteri Bilgileri</h6>
+                <div class="p-3 border rounded bg-light">
+                    <strong>@Model.Vehicle.Client.Name</strong><br>
+                    Tel: @Model.Vehicle.Client.PhoneNumber<br>
+                    @(Model.Vehicle.Client.Balance > 0
+                                        ? $"Cari Borç:{Model.Vehicle.Client.Balance:N2} ₺" : $"Cari Hesap Durumu: {@Math.Abs(Model.Vehicle.Client.Balance)} Alacaklı")
+                </div>
+            </div>
+            <div class="col-6">
+                <h6 class="fw-bold text-uppercase text-secondary mb-2">Araç Bilgileri</h6>
+                <div class="p-3 border rounded bg-light">
+                    <div class="d-flex justify-content-between">
+                        <span>Plaka:</span>
+                        <strong class="fs-5">@Model.Vehicle.Plate</strong>
+                    </div>
+                    <div>Marka/Model: @Model.Vehicle.Brand @Model.Vehicle.Model</div>
+                    <div>Yıl: @Model.Vehicle.Year</div>
+                  
+                </div>
+            </div>
+        </div>
+
+        <h6 class="fw-bold text-secondary mb-2">YAPILAN İŞLEMLER VE PARÇALAR</h6>
+        <table class="table table-bordered mb-4">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>İşlem / Parça Adı</th>
+                    <th>Açıklama</th>
+                    <th class="text-end" style="width: 150px;">Tutar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.SymptomList != null && Model.SymptomList.Any())
+                {
+                    int i = 1;
+                    foreach (var item in Model.SymptomList)
+                    {
+                        <tr>
+                            <td class="text-center">@(i++)</td>
+                            <td class="fw-bold">@item.Name</td>
+                            <td class="small text-muted">@item.Description</td>
+                            <td class="text-end">@item.EstimatedCost.ToString("N2") ₺</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4" class="text-center text-muted">Kayıtlı işlem yok.</td></tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-7">
+                <div class="small text-muted mt-2">
+                    <strong>Notlar:</strong><br>
+                    Bu belge servis hizmeti karşılığında düzenlenmiştir.
+                    Yapılan işlemler ve değişen parçalar 1 yıl garantilidir.
+                </div>
+            </div>
+            <div class="col-5">
+                <div class="total-section">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Ara Toplam:</span>
+                        <span>@Model.SymptomList?.Sum(x => x.EstimatedCost).ToString("N2") ₺</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>KDV (%20):</span>
+                        <span>@((Model.SymptomList?.Sum(x => x.EstimatedCost) * 0.20m)?.ToString("N2")) ₺</span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold fs-5 text-dark">
+                        <span>GENEL TOPLAM:</span>
+                        <span>@((Model.SymptomList?.Sum(x => x.EstimatedCost) * 1.20m)?.ToString("N2")) ₺</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 pt-4">
+            <div class="col-6 text-center">
+                <div class="border-top w-75 mx-auto pt-2">Teslim Eden (Servis)</div>
+            </div>
+            <div class="col-6 text-center">
+                <div class="border-top w-75 mx-auto pt-2">Teslim Alan (Müşteri)</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // İstersen bunu açabilirsin, sayfa açılınca direkt yazıcı penceresi gelir.
+         window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>

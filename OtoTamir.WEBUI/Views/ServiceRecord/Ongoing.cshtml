@@ -9,9 +9,9 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Devam Eden Servis Kayıtları</h2>
 
-        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkCompleteModal">
-            <i class="bi bi-check-circle"></i> Toplu Tamamlama
-        </a>
+        <button type="button" class="btn btn-primary" onclick="submitBulkForm()">
+            <i class="bi bi-check-all"></i> Seçilenleri Toplu Tamamla
+        </button>
     </div>
 
 
@@ -51,7 +51,7 @@
             </div>
         </form>
     </div>
-
+    <form id="bulkForm" asp-action="BulkComplete" method="post"> 
     <div class="table-responsive shadow rounded">
         <table class="table table-striped table-hover align-middle">
             <thead class="table-primary">
@@ -171,6 +171,7 @@
                                         class="btn-sm btn btn-outline-secondary">
                                     <span class="bi bi-person" style="font-size: 12px;"></span>
                                 </button>
+                                    <input type="checkbox" name="selectedIds" value="@record.Id" class="form-check-input record-checkbox">
                             </td>
                             <td>
 
@@ -209,6 +210,9 @@
                                             İptal
                                         </button>
                                     }
+                                        <a href="/ServiceRecord/Print/@record.Id" target="_blank" class="btn btn-secondary btn-sm" title="Yazdır">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
                                 </div>
 
                                 <!-- Detay Modal -->
@@ -241,7 +245,9 @@
                 }
             </tbody>
         </table>
+        
     </div>
+        </form>
     <partial name="_Pagination" model="ViewBag.PagedResult" />
 </div>
 
@@ -269,5 +275,28 @@
                 if (row) row.remove();
             }
         });
+
+       
+        function toggleAll(source) {
+            checkboxes = document.getElementsByName('selectedIds');
+            for(var i=0, n=checkboxes.length;i<n;i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+
+        // Formu Gönder (Kontrollü)
+        function submitBulkForm() {
+            // Hiçbir şey seçili değilse uyar
+            var checkboxes = document.querySelectorAll('input[name="selectedIds"]:checked');
+            if (checkboxes.length === 0) {
+                alert("Lütfen en az bir kayıt seçiniz.");
+                return;
+            }
+
+            if (confirm(checkboxes.length + " adet kaydı tamamlamak ve ücretlerini yansıtmak istediğinize emin misiniz?")) {
+                document.getElementById('bulkForm').submit();
+            }
+        }
     </script>
+    
 }
