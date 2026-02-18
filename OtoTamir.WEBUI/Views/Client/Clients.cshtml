@@ -112,7 +112,7 @@
                                 
                                 <td>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-width: 240px;">
-                                        <!-- Detay butonu -->
+                                        
                                         <a class="btn btn-sm btn-info"
                                            asp-controller="Client"
                                            asp-action="ClientDetails"
@@ -120,7 +120,7 @@
                                             Detay
                                         </a>
 
-                                        <!-- Düzenle butonu ve modal -->
+                                       
                                         <button class="btn btn-sm btn-warning"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editClientModal-@item.Id">
@@ -130,7 +130,7 @@
                                             @await Component.InvokeAsync("_EditClientViewComponentPartial", item)
                                         </div>
 
-                                        <!-- Ödeme butonu -->
+                                        
                                         <a class="btn btn-sm btn-success"
                                            asp-controller="Client"
                                            asp-action="FinancialHistory"
@@ -138,7 +138,7 @@
                                             Ödeme Ekle
                                         </a>
 
-                                        <!-- Sil butonu -->
+                                        
                                         <button type="button"
                                                 class="btn btn-sm btn-danger confirm-button"
                                                 data-confirm-message="Bu müşteriyi silmek istediğinize emin misiniz?"

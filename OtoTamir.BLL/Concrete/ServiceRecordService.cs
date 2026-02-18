@@ -29,6 +29,13 @@ namespace OtoTamir.BLL.Concrete
             return await _serviceRecordDal.AnyAsync(filter);
         }
 
+       
+        public Task<int> CountByStatusAsync(string mechanicId, ServiceStatus? status,DateTime? date=null)
+        {
+            
+            return _serviceRecordDal.CountByStatusAsync(mechanicId,status,date);
+        }
+
         public async Task<int> CreateAsync(ServiceRecord entity)
         {
             return await _serviceRecordDal.CreateAsync(entity);
@@ -50,11 +57,26 @@ namespace OtoTamir.BLL.Concrete
             return await _serviceRecordDal.GetAllAsync(mechanicId, includeVehicle, includeClient, includeSymptoms, filter);
         }
 
+        public async Task<List<ServiceRecord>> GetLastRecordsAsync(string mechanicId,int count)
+        {
+            return await _serviceRecordDal.GetLastRecordsAsync(mechanicId, count);
+        }
+
         public async Task<ServiceRecord> GetOneAsync(int id, string mechanicId, bool includeVehicle, bool includeSymptoms)
         {
             return await _serviceRecordDal.GetOneAsync(id, mechanicId, includeVehicle, includeSymptoms);
         }
 
+        public async Task<decimal> GetTotalIncomeAsync(string mechanicId, string period)
+        {
+            DateTime startDate = DateTime.MinValue;
+
+            if (period == "today") startDate = DateTime.Today;
+            else if (period == "month") startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            else if (period == "year") startDate = new DateTime(DateTime.Today.Year, 1, 1);
+
+            return await _serviceRecordDal.GetTotalIncomeAsync(mechanicId, startDate);
+        }
 
         public async Task<int> UpdateAsync()
         {

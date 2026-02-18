@@ -1,14 +1,7 @@
 ﻿
 @model PaymentModalViewModel
 
-<div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header bg-success">
-            <h4 class="modal-title"><i class="fas fa-hand-holding-usd mr-2"></i>Tahsilat Yap</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
+
 
         <form asp-controller="Client" asp-action="MakePayment" method="post" id="paymentForm">
             <div class="modal-body">
@@ -86,14 +79,13 @@
                 </div>
             </div>
             <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-default" data-bs-dismiss="modal">İptal</button>
                 <button type="submit" class="btn btn-success font-weight-bold">
                     <i class="fas fa-check mr-1"></i> Ödemeyi Onayla
                 </button>
             </div>
         </form>
-    </div>
-</div>
+    
 
 <script>
     function togglePaymentFields() {

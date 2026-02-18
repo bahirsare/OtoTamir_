@@ -4,13 +4,20 @@ namespace OtoTamir.WEBUI.Models
 {
     public class DashboardViewModel
     {
-        public int ActiveVehicleCount { get; set; }      // İçerideki Araç Sayısı
-        public int PendingJobCount { get; set; }         // Bekleyen (Sıra Bekleyen) İşler
-        public decimal TodayIncome { get; set; }         // Bugünün Cirosu (Nakit + Kart)
-        public decimal MonthlyIncome { get; set; }       // Bu Ayın Cirosu
-        public decimal TotalDebt { get; set; }           // Toplam Alacak (Veresiye)
+        public int ActiveVehicleCount { get; set; }    
+        public int TodayJobCount{ get; set; }     
+        public int CompletedJobCount { get; set; }         
+        public int CancelledJobCount { get; set; }   
+        public decimal TodayIncome { get; set; }     
+        public decimal MonthlyIncome { get; set; }   
+        public decimal YearlyIncome { get; set; }   
+        public decimal CashBalance { get; set; }   
+        public decimal BankBalance { get; set; }   
 
-        // Tablolar İçin Listeler
+                                                     
+        public decimal TotalDebt { get; set; }       
+
+
         public List<ServiceRecord> RecentServices { get; set; }
     }
 }

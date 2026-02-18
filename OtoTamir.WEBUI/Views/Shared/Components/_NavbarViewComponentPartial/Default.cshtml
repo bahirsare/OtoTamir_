@@ -1,194 +1,108 @@
 ﻿@model OtoTamir.CORE.Identity.Mechanic
+@{
+    var tarih = DateTime.Now.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"));
+    var gun = DateTime.Now.ToString("dddd", new System.Globalization.CultureInfo("tr-TR"));
+}
 
-
-<nav class="app-header navbar navbar-expand bg-body">
-    <!--begin::Container-->
+<nav class="app-header navbar navbar-expand bg-body shadow-sm position-relative" style="height: 60px;">
     <div class="container-fluid">
-        <!--begin::Start Navbar Links-->
-        <ul class="navbar-nav">
+
+        <ul class="navbar-nav align-items-center">
             <li class="nav-item">
-                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
-                    <i class="bi bi-list"></i>
+                <a class="nav-link text-secondary" data-lte-toggle="sidebar" href="#" role="button">
+                    <i class="bi bi-list fs-4"></i>
                 </a>
             </li>
-            
         </ul>
-        <!--end::Start Navbar Links-->
-        <!--begin::End Navbar Links-->
+
+        <div class="position-absolute start-50 translate-middle-x d-none d-md-flex align-items-center text-secondary">
+            <i class="bi bi-clock-history me-2 text-primary fs-5"></i>
+            <div style="line-height: 1.1;" class="text-center">
+                <span  class="d-block fw-bold text-dark" style="font-size: 0.9rem;">
+                    @DateTime.Now.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))
+                </span>
+                <span id="liveClock" class="d-block text-muted text-uppercase fw-semibold" style="font-size: 0.7rem;">
+                   
+                </span>
+            </div>
+        </div>
+
         <ul class="navbar-nav ms-auto">
-            <!--begin::Navbar Search-->
-            <li class="nav-item">
-                <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                    <i class="bi bi-search"></i>
-                </a>
-            </li>
-            <!--end::Navbar Search-->
-            <!--begin::Messages Dropdown Menu-->
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-bs-toggle="dropdown" href="#">
-                    <i class="bi bi-chat-text"></i>
-                    <span class="navbar-badge badge text-bg-danger">3</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                    <a href="#" class="dropdown-item">
-                        <!--begin::Message-->
-                        <div class="d-flex">
-                            <div class="flex-shrink-0">
-                                <img src="~/assets/img/user1-128x128.jpg"
-                                     alt="User Avatar"
-                                     class="img-size-50 rounded-circle me-3" />
-                            </div>
-                            <div class="flex-grow-1">
-                                <h3 class="dropdown-item-title">
-                                    Brad Diesel
-                                    <span class="float-end fs-7 text-danger">
-                                        <i class="bi bi-star-fill"></i>
-                                    </span>
-                                </h3>
-                                <p class="fs-7">Call me whenever you can...</p>
-                                <p class="fs-7 text-secondary">
-                                    <i class="bi bi-clock-fill me-1"></i> 4 Hours Ago
-                                </p>
-                            </div>
-                        </div>
-                        <!--end::Message-->
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <!--begin::Message-->
-                        <div class="d-flex">
-                            <div class="flex-shrink-0">
-                                <img src="~/assets/img/user8-128x128.jpg"
-                                     alt="User Avatar"
-                                     class="img-size-50 rounded-circle me-3" />
-                            </div>
-                            <div class="flex-grow-1">
-                                <h3 class="dropdown-item-title">
-                                    John Pierce
-                                    <span class="float-end fs-7 text-secondary">
-                                        <i class="bi bi-star-fill"></i>
-                                    </span>
-                                </h3>
-                                <p class="fs-7">I got your message bro</p>
-                                <p class="fs-7 text-secondary">
-                                    <i class="bi bi-clock-fill me-1"></i> 4 Hours Ago
-                                </p>
-                            </div>
-                        </div>
-                        <!--end::Message-->
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <!--begin::Message-->
-                        <div class="d-flex">
-                            <div class="flex-shrink-0">
-                                <img src="~/assets/img/user3-128x128.jpg"
-                                     alt="User Avatar"
-                                     class="img-size-50 rounded-circle me-3" />
-                            </div>
-                            <div class="flex-grow-1">
-                                <h3 class="dropdown-item-title">
-                                    Nora Silvester
-                                    <span class="float-end fs-7 text-warning">
-                                        <i class="bi bi-star-fill"></i>
-                                    </span>
-                                </h3>
-                                <p class="fs-7">The subject goes here</p>
-                                <p class="fs-7 text-secondary">
-                                    <i class="bi bi-clock-fill me-1"></i> 4 Hours Ago
-                                </p>
-                            </div>
-                        </div>
-                        <!--end::Message-->
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                </div>
-            </li>
-            <!--end::Messages Dropdown Menu-->
-            <!--begin::Notifications Dropdown Menu-->
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-bs-toggle="dropdown" href="#">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="navbar-badge badge text-bg-warning">15</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                    <span class="dropdown-item dropdown-header">15 Notifications</span>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="bi bi-envelope me-2"></i> 4 new messages
-                        <span class="float-end text-secondary fs-7">3 mins</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="bi bi-people-fill me-2"></i> 8 friend requests
-                        <span class="float-end text-secondary fs-7">12 hours</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="bi bi-file-earmark-fill me-2"></i> 3 new reports
-                        <span class="float-end text-secondary fs-7">2 days</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item dropdown-footer"> See All Notifications </a>
-                </div>
-            </li>
-            <!--end::Notifications Dropdown Menu-->
-            <!--begin::Fullscreen Toggle-->
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-lte-toggle="fullscreen">
+
+            <li class="nav-item d-none d-md-block me-2">
+                <a class="nav-link text-secondary" href="#" data-lte-toggle="fullscreen" title="Tam Ekran">
                     <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i>
                     <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none"></i>
                 </a>
             </li>
-            <!--end::Fullscreen Toggle-->
-            <!--begin::User Menu Dropdown-->
-            @if (Model != null) // Sonradan kaldırılacak navbara zaten loginsiz erişim olmamalı
+
+            @if (Model != null)
             {
                 <li class="nav-item dropdown user-menu">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                        
-                        <img src="~/images/@Model.ImageUrl" 
-                         class="user-image rounded-circle shadow" />
-                    <span class="d-none d-md-inline">@User.Identity.Name</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                    <!--begin::User Image-->
-                    <li class="user-header text-bg-primary">
-                            <img src="~/images/@Model.ImageUrl"
-                             class="user-image rounded-circle shadow" />
-                        <p>
-                            @User.Identity.Name - @Model.Skills
-                            <small>@Model.CreatedDate</small>
-                        </p>
-                    </li>
-                    <!--end::User Image-->
-                    <!--begin::Menu Body-->
-                    <li class="user-body">
-                        <!--begin::Row-->
-                        <div class="row">
-                            <div class="col-4 text-center"><a href="#">Followers</a></div>
-                            <div class="col-4 text-center"><a href="#">Sales</a></div>
-                            <div class="col-4 text-center"><a href="#">Friends</a></div>
-                        </div>
-                        <!--end::Row-->
-                    </li>
-                    <!--end::Menu Body-->
-                    <!--begin::Menu Footer-->
-                    <li class="user-footer">
-                        <a href="/account/profile" class="btn btn-default btn-flat">Profile</a>
-                        <a asp-controller="Account" asp-action="Logout" class="btn btn-default btn-flat float-end">Sign out</a>
-                    </li>
-                    <!--end::Menu Footer-->
-                </ul>
+                    <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="/Images/@Model.ImageUrl" class="user-image rounded-circle shadow-sm border" alt="User Image" style="width:32px; height:32px; object-fit:cover;">
+                        }
+                        else
+                        {
+                            <div class="rounded-circle bg-light border text-primary d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
+                                <span class="fw-bold small">@Model.UserName.Substring(0, 1).ToUpper()</span>
+                            </div>
+                        }
+                        <span class="d-none d-md-inline ms-2 fw-semibold text-dark">@Model.StoreName</span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end border-0 shadow mt-2">
+                        <li class="user-header bg-primary text-white bg-gradient">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="/Images/@Model.ImageUrl" class="rounded-circle border border-3 border-white shadow" alt="User Image" style="object-fit:cover;">
+                            }
+                            else
+                            {
+                                <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center mx-auto mb-2 border border-3 border-white" style="width: 90px; height: 90px; font-size: 2rem;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            }
+                            <p class="mt-2 mb-0 fw-bold">
+                                @Model.UserName
+                                <small class="d-block opacity-75 fw-normal mt-1">@Model.Skills</small>
+                            </p>
+                            <small class="opacity-50" style="font-size: 0.7rem;">Kayıt: @Model.CreatedDate.ToString("dd.MM.yyyy")</small>
+                        </li>
+
+                        <li class="user-footer bg-light p-2">
+                            <div class="d-flex justify-content-between gap-2">
+                                <a href="/Account/Profile" class="btn btn-outline-secondary btn-flat flex-grow-1 border-0 shadow-sm bg-white">
+                                    <i class="bi bi-person-gear me-1"></i> Profil
+                                </a>
+                                <a asp-controller="Account" asp-action="Logout" class="btn btn-danger btn-flat flex-grow-1 shadow-sm text-white">
+                                    <i class="bi bi-power me-1"></i> Çıkış
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
                 </li>
-            }else
-            {
-                <li class="nav-item d-none d-md-block"><a href="/Account/Login" class="nav-link">Login</a></li>
             }
-            <!--end::User Menu Dropdown-->
+            else
+            {
+                <li class="nav-item">
+                    <a href="/Account/Login" class="btn btn-primary btn-sm mt-1 px-3 shadow-sm">Giriş Yap</a>
+                </li>
+            }
         </ul>
-        <!--end::End Navbar Links-->
     </div>
-    <!--end::Container-->
 </nav>
+<span id="liveClock" class="d-block text-muted text-uppercase fw-semibold" style="font-size: 0.7rem;">
+    @DateTime.Now.ToString("dddd HH:mm")
+</span>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        const options = { weekday: 'long', hour: '2-digit', minute: '2-digit' };
+        document.getElementById('liveClock').innerText = now.toLocaleTimeString('tr-TR', options);
+    }
+    setInterval(updateClock, 1000); // Her saniye güncelle
+</script>

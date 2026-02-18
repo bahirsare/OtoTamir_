@@ -13,6 +13,7 @@ namespace OtoTamir.CORE.DTOs.TreasuryDTOs
         public string Description { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
 
+        public string Author { get; set; }
         
         public PaymentSource PaymentSource { get; set; } 
 

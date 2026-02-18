@@ -54,7 +54,9 @@ namespace OtoTamir.DAL.Abstract
         /// <summary>
         /// Counts records by status for a specific mechanic
         /// </summary>
-        Task<int> CountByStatusAsync(string mechanicId, ServiceStatus status);
+        Task<int> CountByStatusAsync(string mechanicId, ServiceStatus? status,DateTime? time = null);
         Task UpdateStatusAsync(int id, string mechanicId);
+        Task<decimal> GetTotalIncomeAsync(string mechanicId, DateTime startDate);
+        Task<List<ServiceRecord>> GetLastRecordsAsync(string mechanicId, int count);
     }
 }

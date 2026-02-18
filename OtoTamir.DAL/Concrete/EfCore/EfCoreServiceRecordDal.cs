@@ -101,13 +101,33 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         return await query.ToListAsync();
     }
 
-    public async Task<int> CountByStatusAsync(string mechanicId, ServiceStatus status)
+
+    public async Task<int> CountByStatusAsync(string mechanicId, ServiceStatus? status, DateTime? date = null)
     {
-        return await _context.ServiceRecords
-            .CountAsync(sr => sr.Status == status &&
-                            sr.Vehicle != null &&
-                            sr.Vehicle.Client != null &&
-                            sr.Vehicle.Client.MechanicId == mechanicId);
+        var query = _context.ServiceRecords
+          .Where(sr => sr.Vehicle != null &&
+                       sr.Vehicle.Client != null &&
+                       sr.Vehicle.Client.MechanicId == mechanicId);
+       
+        if (status.HasValue)
+        {
+            query = query.Where(sr => sr.Status == status);
+        }
+        else if (date.HasValue)
+        {
+            query = query.Where(sr => sr.CreatedDate >date);
+        }
+        if (date.HasValue)
+        {
+            var startDate = date.Value.Date;
+            var endDate = startDate.AddDays(1);
+            query = query.Where(sr =>
+                (sr.CompletedDate >= startDate && sr.CompletedDate < endDate) ||
+                (sr.DeletedDate >= startDate && sr.DeletedDate < endDate)
+            );
+        }
+
+        return await query.CountAsync();
     }
     public async Task UpdateStatusAsync(int id, string mechanicId)
     {
@@ -126,18 +146,41 @@ public class EfCoreServiceRecordDal : EfCoreGenericRepositoryDal<ServiceRecord, 
         {
             record.Status = ServiceStatus.Completed;
             record.CompletedDate = DateTime.Now;
-            
+
         }
         else
         {
             record.Status = ServiceStatus.Cancelled;
             record.CompletedDate = DateTime.Now;
         }
-        
+
         await UpdateAsync();
+
+    }
+
+    public async Task<decimal> GetTotalIncomeAsync(string mechanicId, DateTime startDate)
+    {
+        return await _context.ServiceRecords
+            .Where(sr => sr.Status == ServiceStatus.Completed &&
+                         sr.CompletedDate >= startDate &&
+                         sr.Vehicle != null &&
+                         sr.Vehicle.Client != null &&
+                         sr.Vehicle.Client.MechanicId == mechanicId)
+            .SumAsync(sr => sr.Price);
     }
 
 
+    public async Task<List<ServiceRecord>> GetLastRecordsAsync(string mechanicId, int count)
+    {
+        return await _context.ServiceRecords
+            .Include(sr => sr.Vehicle).ThenInclude(v => v.Client)
+            .Where(sr => sr.Vehicle != null &&
+                         sr.Vehicle.Client != null &&
+                         sr.Vehicle.Client.MechanicId == mechanicId)
+            .OrderByDescending(sr => sr.CreatedDate)
+            .Take(count)
+            .ToListAsync();
+    }
 
 
 }

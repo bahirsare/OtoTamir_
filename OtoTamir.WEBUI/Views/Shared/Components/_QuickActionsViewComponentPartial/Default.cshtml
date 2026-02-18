@@ -37,17 +37,21 @@
 
                 <div class="tab-pane fade show active" id="tab-expense" role="tabpanel">
                     <form asp-action="AddExpense" asp-controller="Treasury" method="post" class="row g-3 align-items-end">
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <label class="form-label small fw-bold text-muted">Tutar</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-danger">₺</span>
-                                <input type="number" step="0.01" name="Amount" class="form-control border-start-0 fw-bold text-danger" placeholder="0.00" required>
+                                <input type="number" step="1" name="Amount" class="form-control border-start-0 fw-bold text-danger" placeholder="0" required>
                             </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted">Kullanıcı</label>
+                            <input type="text" name="Author" class="form-control" placeholder="Kullanıcı" required>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label small fw-bold text-muted">Kategori</label>
                             <select name="CategoryId" class="form-select">
-                                <option value="">Seçiniz...</option>
+                                <option value="">Genel Gider</option>
                                 @if (ViewBag.Categories != null)
                                 {
                                     foreach (var item in (List<TransactionCategory>)ViewBag.Categories)
@@ -56,12 +60,14 @@
                                     }
                                 }
                             </select>
+
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted">Açıklama</label>
                             <input type="text" name="Description" class="form-control" placeholder="Örn: Fatura, Yemek..." required>
                         </div>
-                        <div class="col-md-2">
+                       
+                        <div class="col-md-1">
                             <label class="form-label small fw-bold text-muted">Kaynak</label>
                             <select name="PaymentSource" id="expenseSrcSelect" class="form-select" onchange="toggleSourceInline('expenseSrcSelect', 'expenseBankDiv', 'expenseCardDiv')">
                                 <option value="0">💵 Nakit</option>
@@ -69,13 +75,16 @@
                                 <option value="3">💳 Kredi K.</option>
                             </select>
                         </div>
+
                         <div class="col-md-2 d-none" id="expenseBankDiv">
                             <label class="form-label small fw-bold text-muted text-primary">Hangi Banka?</label>
                             <select name="BankId" class="form-select"><option value="">Seç...</option>@if (ViewBag.Banks != null) { foreach (var item in (List<Bank>)ViewBag.Banks) {
                             <option value="@item.Id">@item.BankName</option>
                                                         } }
 </select>
+                            
                         </div>
+
                         <div class="col-md-2 d-none" id="expenseCardDiv">
                             <label class="form-label small fw-bold text-muted text-danger">Hangi Kart?</label>
                             <select name="BankCardId" class="form-select"><option value="">Seç...</option>@if (ViewBag.BankCards != null) { foreach (var item in (List<BankCard>)ViewBag.BankCards) {
@@ -92,12 +101,16 @@
 
                 <div class="tab-pane fade" id="tab-income" role="tabpanel">
                     <form asp-action="AddIncome" asp-controller="Treasury" method="post" class="row g-3 align-items-end">
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <label class="form-label small fw-bold text-muted">Tutar</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-success">₺</span>
-                                <input type="number" step="0.01" name="Amount" class="form-control border-start-0 fw-bold text-success" placeholder="0.00" required>
+                                <input type="number" step="1" name="Amount" class="form-control border-start-0 fw-bold text-success" placeholder="0" required>
                             </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted">Kullanıcı</label>
+                            <input type="text" name="Author" class="form-control" placeholder="Kullanıcı" required>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label small fw-bold text-muted">Kategori</label>
@@ -116,7 +129,7 @@
                             <label class="form-label small fw-bold text-muted">Açıklama</label>
                             <input type="text" name="Description" class="form-control" placeholder="Örn: Hurda satışı..." required>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <label class="form-label small fw-bold text-muted">Hedef</label>
                             <select name="PaymentSource" id="incomeSrcSelect" class="form-select" onchange="toggleSourceInline('incomeSrcSelect', 'incomeBankDiv', null)">
                                 <option value="0">💵 Kasaya</option>
@@ -164,7 +177,7 @@
                             <label class="form-label small fw-bold text-muted">Tutar</label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text bg-white border-end-0 text-primary">₺</span>
-                                <input type="number" step="0.01" name="Amount" class="form-control border-start-0 fw-bold text-primary" placeholder="0.00" required>
+                                <input type="number" step="1" name="Amount" class="form-control border-start-0 fw-bold text-primary" placeholder="0" required>
                             </div>
                         </div>
 
@@ -195,7 +208,10 @@
                                 }
                             </select>
                         </div>
-
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted">Kullanıcı</label>
+                            <input type="text" name="Author" class="form-control form-control-sm" placeholder="Kullanıcı">
+                        </div>
                         <div class="col">
                             <label class="form-label small fw-bold text-muted">Açıklama</label>
                             <input type="text" name="Description" class="form-control form-control-sm" placeholder="Opsiyonel">
