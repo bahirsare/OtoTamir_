@@ -81,16 +81,26 @@
                             <select name="BankId" class="form-select"><option value="">Seç...</option>@if (ViewBag.Banks != null) { foreach (var item in (List<Bank>)ViewBag.Banks) {
                             <option value="@item.Id">@item.BankName</option>
                                                         } }
-</select>
+                            </select>
                             
                         </div>
 
                         <div class="col-md-2 d-none" id="expenseCardDiv">
                             <label class="form-label small fw-bold text-muted text-danger">Hangi Kart?</label>
-                            <select name="BankCardId" class="form-select"><option value="">Seç...</option>@if (ViewBag.BankCards != null) { foreach (var item in (List<BankCard>)ViewBag.BankCards) {
-                            <option value="@item.Id">@item.CardName</option>
-                                                        } }
-</select>
+                            <select name="BankCardId" id="creditCardSelect" class="form-control">
+                                <option value="">Kart Seçiniz...</option>
+                                @foreach (var card in ViewBag.BankCards)
+                                {
+                                    var availableLimit = card.Limit - card.Debt;
+                                    <option value="@card.Id" data-limit="@availableLimit.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)">
+                                        @card.CardName (Kullanılabilir: @availableLimit.ToString("N2") ₺)
+                                    </option>
+                                }
+                            </select>
+
+                            <small id="expenseLimitWarning" class="text-danger fw-bold mt-1" style="display:none;">
+                                <i class="bi bi-exclamation-triangle"></i> Yetersiz Kart Limiti!
+                            </small>
                         </div>
 
                         <div class="col-md-auto ms-auto">
@@ -104,9 +114,12 @@
                         <div class="col-md-1">
                             <label class="form-label small fw-bold text-muted">Tutar</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 text-success">₺</span>
-                                <input type="number" step="1" name="Amount" class="form-control border-start-0 fw-bold text-success" placeholder="0" required>
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">₺</span>
+                                </div>
+                                <input type="text" id="paymentAmount" name="amount" class="form-control" placeholder="0,00" >
                             </div>
+                            
                         </div>
                         <div class="col-md-2">
                             <label class="form-label small fw-bold text-muted">Kullanıcı</label>
@@ -276,4 +289,38 @@
     document.addEventListener("DOMContentLoaded", function() {
         updateTransferUI();
     });
+    
+    document.getElementById('expenseAmount').addEventListener('input', checkCardLimit);
+    document.getElementById('creditCardSelect').addEventListener('change', checkCardLimit);
+
+    function checkCardLimit() {
+        var cardSelect = document.getElementById('creditCardSelect');
+        var amountInput = document.getElementById('expenseAmount');
+        var warningText = document.getElementById('expenseLimitWarning');
+        var submitBtn = document.getElementById('submitExpenseBtn');
+
+        // Eğer kredi kartı seçiliyse
+        if (cardSelect.selectedIndex > 0 && cardSelect.options[cardSelect.selectedIndex].value !== "") {
+            var selectedOption = cardSelect.options[cardSelect.selectedIndex];
+            var limit = parseFloat(selectedOption.getAttribute('data-limit'));
+
+            var enteredValue = amountInput.value.replace(',', '.');
+            var amount = parseFloat(enteredValue) || 0;
+
+            if (amount > limit) {
+                warningText.style.display = 'block';
+                submitBtn.disabled = true; // Butonu kilitle
+                amountInput.classList.add('is-invalid');
+            } else {
+                warningText.style.display = 'none';
+                submitBtn.disabled = false; // Kilidi aç
+                amountInput.classList.remove('is-invalid');
+            }
+        } else {
+            // Nakit veya başka bir yöntem seçiliyse uyarıları kaldır
+            warningText.style.display = 'none';
+            submitBtn.disabled = false;
+            amountInput.classList.remove('is-invalid');
+        }
+    }
 </script>

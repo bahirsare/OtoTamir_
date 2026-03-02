@@ -137,7 +137,6 @@ namespace OtoTamir.BLL.Managers
                 int? finalBankId = null;
                 string extraDescription = "";
 
-                // 1. Ödeme Yöntemi Kontrolleri
                 if (paymentSource == PaymentSource.CreditCard)
                 {
                     if (posTerminalId == null) throw new Exception("Lütfen bir POS cihazı seçiniz!");
@@ -165,7 +164,7 @@ namespace OtoTamir.BLL.Managers
                     maturityDate = DateTime.Now;
                 }
 
-                // 2. Tahsilat Kaydı (Incoming Transaction)
+                
                 var incomingTrx = new TreasuryTransaction
                 {
                     TreasuryId = (int)user.TreasuryId,
@@ -192,8 +191,6 @@ namespace OtoTamir.BLL.Managers
                 {
                     await _bankService.UpdateBalanceAsync((int)finalBankId, mechanicId, amount);
                 }
-
-                // 4. Komisyon Kesintisi (Varsa) - (Outgoing Transaction)
                 if (commissionAmount > 0)
                 {
                     var expenseTrx = new TreasuryTransaction
@@ -202,10 +199,10 @@ namespace OtoTamir.BLL.Managers
                         ClientId = null,
                         Amount = commissionAmount,
                         Description = $"POS Komisyon Kesintisi {extraDescription}",
-                        TransactionDate = maturityDate, // Vade günü kesilir
+                        TransactionDate = maturityDate,
                         MaturityDate = maturityDate,
-                        TransactionType = TransactionType.Outgoing, // Gider
-                        PaymentSource = PaymentSource.Bank, // Bankadan düşer
+                        TransactionType = TransactionType.Outgoing, 
+                        PaymentSource = PaymentSource.Bank, 
                         BankId = finalBankId,
                         PosTerminalId = posTerminalId,
                         AuthorName = "Sistem"
@@ -213,12 +210,10 @@ namespace OtoTamir.BLL.Managers
                     await _treasuryTransactionService.CreateAsync(expenseTrx);
                 }
 
-                // 5. Müşteri Bakiyesini Düş
+              
                 await _clientService.UpdateBalanceAsync(mechanicId, clientId, -amount);
 
-                // FİNAL: Commit İşlemi
-                // Eğer transaction'ı biz başlattıysak (localTransaction doluysa), biz bitirelim.
-                // Eğer dışarıdan geldiyse (CompleteServiceProcessAsync), dokunmayalım; dışarısı bitirsin.
+               
                 if (localTransaction != null)
                 {
                     await localTransaction.CommitAsync();
@@ -226,12 +221,12 @@ namespace OtoTamir.BLL.Managers
             }
             catch (Exception)
             {
-                // Hata olursa ve transaction'ı biz açtıysak geri alalım.
+               
                 if (localTransaction != null)
                 {
                     await localTransaction.RollbackAsync();
                 }
-                throw; // Hatayı yukarı fırlat ki dışarıdaki metot da bilsin
+                throw; 
             }
             finally
             {

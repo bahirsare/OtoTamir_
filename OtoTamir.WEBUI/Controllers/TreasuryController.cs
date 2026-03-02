@@ -277,7 +277,9 @@ namespace OtoTamir.WEBUI.Controllers
             string bankName = linkedBank != null ? linkedBank.BankName : "Diğer";
 
             var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            var end = endDate ?? DateTime.Today.AddDays(1).AddSeconds(-1);
+            var end = endDate.HasValue
+    ? endDate.Value.Date.AddDays(1).AddSeconds(-1)
+    : DateTime.Today.AddDays(1).AddSeconds(-1);
 
             ViewBag.StartDate = start;
             ViewBag.EndDate = end;
@@ -293,14 +295,14 @@ namespace OtoTamir.WEBUI.Controllers
 
             if (typeId.HasValue)
             {
-                if (typeId.Value == 1) // KULLANICI "HARCAMALAR" SEKMESİNİ SEÇTİ
+                if (typeId.Value == 1) 
                 {
-                    // Sadece Kredi Kartı ile yapılanları getir (Borç Artıranlar)
+                   
                     filter = filter.AndAlso(x => x.PaymentSource == PaymentSource.CreditCard);
                 }
-                else if (typeId.Value == 0) // KULLANICI "ÖDEMELER" SEKMESİNİ SEÇTİ
+                else if (typeId.Value == 0) 
                 {
-                    // Kredi Kartı OLMAYANLARI getir (Nakit veya Bankadan Karta ödenenler)
+                   
                     filter = filter.AndAlso(x => x.PaymentSource != PaymentSource.CreditCard);
                 }
             }
@@ -321,18 +323,46 @@ namespace OtoTamir.WEBUI.Controllers
             
             if (pagedResult == null) pagedResult = new PagedResult<TreasuryTransaction> { Results = new List<TreasuryTransaction>() };
 
+
+            decimal startDebtForPage = card.Debt; 
+
            
-            decimal startDebtForPage = card.Debt;
-            if (page > 1)
+            var transactionsAfterFilter = await _transactionService.GetAllAsync(
+                user.Id,
+                user.TreasuryId,
+                x => x.BankCardId == id && x.TransactionDate > end
+            );
+
+            if (transactionsAfterFilter != null && transactionsAfterFilter.Any())
             {
-                var newerTransactions = allTransactions.OrderByDescending(x => x.TransactionDate).Take((page - 1) * pageSize).ToList();
-                foreach (var t in newerTransactions)
+                foreach (var t in transactionsAfterFilter)
                 {
-                    if (t.TransactionType == TransactionType.Outgoing) startDebtForPage -= t.Amount;
-                    else startDebtForPage += t.Amount;
+                    
+                    if (t.TransactionType == TransactionType.Outgoing)
+                        startDebtForPage -= t.Amount;
+                   
+                    else
+                        startDebtForPage += t.Amount;
                 }
             }
-            ViewBag.StartingDebt = startDebtForPage;
+
+            if (page > 1)
+            {
+                var skippedTransactions = allTransactions
+                    .OrderByDescending(x => x.TransactionDate)
+                    .Take((page - 1) * pageSize)
+                    .ToList();
+
+                foreach (var t in skippedTransactions)
+                {
+                    if (t.TransactionType == TransactionType.Outgoing)
+                        startDebtForPage -= t.Amount;
+                    else
+                        startDebtForPage += t.Amount;
+                }
+            }
+
+
             ViewBag.PagedResult = pagedResult;
 
             var today = DateTime.Today;
@@ -368,7 +398,7 @@ namespace OtoTamir.WEBUI.Controllers
             model.CutOffDay = nextCutOffDate;
             model.NextPaymentDate = nextPaymentDate;
             model.DaysLeftToCutOff = daysLeft < 0 ? 0 : daysLeft; // Negatif çıkarsa 0 yaz
-
+            model.Debt = startDebtForPage;
             model.Transactions = pagedResult.Results.ToList();
             return View(model);
         }
@@ -443,7 +473,7 @@ namespace OtoTamir.WEBUI.Controllers
 
             return RedirectToAction("Index");
         }
-        [HttpPost]
+        
 
         [HttpPost]
         public async Task<IActionResult> PayCardDebt(int CardId, decimal Amount, int SourceType, int? SourceBankId, string Description)

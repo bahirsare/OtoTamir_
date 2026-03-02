@@ -14,8 +14,8 @@ namespace OtoTamir.CORE.DTOs.TreasuryDTOs
 
         public string Last4Digit { get; set; }
         public decimal Limit { get; set; }
-        public decimal CurrentDebt { get; set; }
-        public decimal AvailableLimit => Limit - CurrentDebt;
+        public decimal Debt { get; set; }
+        public decimal AvailableLimit => Limit - Debt;
 
         public DateTime CutOffDay { get; set; }
         public int DueDay { get; set; }

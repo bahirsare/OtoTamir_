@@ -145,7 +145,10 @@
                                     </td>
                                     <td class="align-middle text-center">
                                         <div class="d-flex gap-1 justify-content-center">
-                                            <button type="button" class="btn btn-success btn-sm..." onclick="setPayModal('@card.Id', '@card.CardName')">
+                                            <button type="button" class="btn btn-success btn-sm shadow-sm py-1 px-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#payCardModal"
+                                                    onclick="setPayModal('@card.Id', '@card.CardName')">
                                                 <i class="bi bi-wallet2"></i>
                                             </button>
                                             <a asp-action="CardTransactions" asp-route-id="@card.Id" class="btn btn-info text-white btn-sm...">
@@ -398,13 +401,13 @@
 }
    
 
-    <script>
+  <script>
         function setPayModal(id, name) {
             document.getElementById('payCardId').value = id;
             document.getElementById('payCardNameDisplay').innerText = name;
         }
-    </script>
-<script>
+   
+
     function toggleExpenseFields() {
         var source = document.getElementById("expenseSourceSelect").value;
         var bankDiv = document.getElementById("bankSelectDiv");
