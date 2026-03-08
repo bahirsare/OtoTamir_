@@ -51,7 +51,9 @@
                                             <small><i class="bi bi-clock-history me-1"></i>İşlem Geçmişi - @vehicle.Plate</small>
                                         </div>
                                         <div class="card-body p-0">
-                                            @await Component.InvokeAsync("_ListServiceRecordbyVehicleIdViewComponentPartial", vehicle.Id)
+                                           @await Component.InvokeAsync("_ListServiceRecordbyVehicleIdViewComponentPartial",
+                                              new { vehicleId = vehicle.Id, page = Context.Request.Query["page"].FirstOrDefault() != null
+                                              ? int.Parse(Context.Request.Query["page"]) : 1 })
                                         </div>
                                     </div>
                                 </td>
@@ -79,21 +81,5 @@
     </div>
 </div>
 
-<script>
-    // Bir collapse açıldığında diğerlerini kapatma mantığı (AutoCollapse.js varsa gerek yok)
-    // Ama buraya minik bir fix ekleyebiliriz çakışmaları önlemek için.
-    document.querySelectorAll('.collapse').forEach(collapse => {
-        collapse.addEventListener('show.bs.collapse', function () {
-            // Açılanın ID'si
-            var openedId = this.id;
-            // Diğer açık olanları bul ve kapat
-            document.querySelectorAll('.collapse.show').forEach(other => {
-                if (other.id !== openedId) {
-                    var bsCollapse = bootstrap.Collapse.getInstance(other);
-                    if (bsCollapse) bsCollapse.hide();
-                }
-            });
-        });
-    });
-</script>
+
 <script src="~/js/AutoCollapse.js" defer></script>

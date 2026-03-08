@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.DTOs.TreasuryDTOs;
 using OtoTamir.CORE.Entities;
+using OtoTamir.CORE.Exceptions;
 using OtoTamir.CORE.Repositories;
 using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
@@ -188,256 +189,257 @@ namespace OtoTamir.BLL.Concrete
         }
         public async Task ProcessExpenseAsync(AddExpenseDTO model, string mechanicId, int treasuryId)
         {
-            var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId);
-            if (treasury == null) throw new Exception("Kasa bulunamadı.");
+            var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId)
+                ?? throw new NotFoundException("Kasa");
+
+            if (model.Amount <= 0)
+                throw new BusinessRuleException("Harcama tutarı sıfırdan büyük olmalıdır.");
 
             var trx = new TreasuryTransaction
             {
                 TreasuryId = treasuryId,
                 Amount = model.Amount,
                 Description = model.Description,
-                TransactionDate = model.Date,
+                TransactionDate = DateTime.Now,
                 TransactionType = TransactionType.Outgoing,
-                PaymentSource = model.PaymentSource,
-                AuthorName = model.Author
+                PaymentSource = (PaymentSource)model.PaymentSource,
+                AuthorName = "Yönetici",
+                TransactionCategoryId = model.CategoryId
             };
 
-            switch (model.PaymentSource)
+            switch ((PaymentSource)model.PaymentSource)
             {
                 case PaymentSource.Cash:
                     if (treasury.CashBalance < model.Amount)
-                        throw new Exception($"Kasada yeterli nakit yok! Mevcut: {treasury.CashBalance:N2} ₺");
+                        throw new BusinessRuleException(
+                            $"Kasada yeterli nakit yok! Mevcut: {treasury.CashBalance:C2}");
 
                     treasury.CashBalance -= model.Amount;
-                    await _treasuryDal.UpdateAsync(); 
+                    await _treasuryDal.UpdateAsync();
                     break;
 
                 case PaymentSource.Bank:
-                    if (model.BankId == null) throw new Exception("Banka seçimi zorunludur.");
-                    trx.BankId = model.BankId;
+                    if (model.BankId == null)
+                        throw new BusinessRuleException("Harcama işlemi için banka seçilmedi.");
 
-                    var bank = await _bankDal.GetOneAsync((int)model.BankId, mechanicId);
-                    if (bank == null) throw new Exception("Banka bulunamadı.");
+                    var bank = await _bankDal.GetOneAsync((int)model.BankId, mechanicId)
+                        ?? throw new NotFoundException("Seçilen banka");
 
                     if (bank.Balance < model.Amount)
-                        throw new Exception($"Banka hesabında yeterli bakiye yok! Mevcut: {bank.Balance:N2} ₺");
+                        throw new BusinessRuleException(
+                            $"{bank.BankName} hesabında yeterli bakiye yok! Mevcut: {bank.Balance:C2}");
 
+                    trx.BankId = bank.Id;
                     bank.Balance -= model.Amount;
                     await _bankDal.UpdateAsync();
                     break;
 
-                case PaymentSource.CreditCard:
-                    if (model.BankCardId == null) throw new Exception("Kredi kartı seçimi zorunludur.");
-
-                    trx.BankCardId = model.BankCardId;
-                   
-                    trx.Description += $" (Kart ID: {model.BankCardId})";
-
-                    var card = await _bankCardDal.GetOneAsync((int)model.BankCardId, mechanicId);
-                    if (card == null) throw new Exception("Kredi kartı bulunamadı.");
-
-                    decimal availableLimit = card.Limit - card.Debt; 
-
-                    if (model.Amount > availableLimit)
-                    {
-                        throw new Exception($"İşlem reddedildi! Seçili kartın kullanılabilir limiti yetersiz. (Kullanılabilir Bakiye: {availableLimit:N2} ₺)");
-                    }
-                  
-
-                    card.Debt += model.Amount;
-                    await _bankCardDal.UpdateAsync();
-                    break;
+                default:
+                    throw new BusinessRuleException("Geçersiz ödeme kaynağı.");
             }
 
             await _transactionDal.CreateAsync(trx);
         }
-        public async Task ProcessCardPaymentAsync(string mechanicId, int treasuryId, int cardId, decimal amount, int sourceType, int? sourceBankId, string description)
+        public async Task ProcessCardPaymentAsync(
+             string mechanicId, int treasuryId, int cardId,
+             decimal amount, int sourceType, int? sourceBankId, string description)
         {
-            
-            var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId);
-            if (treasury == null)
-                throw new Exception("Kasa bulunamadı.");
+            var treasury = await _treasuryDal.GetOneAsync((int)treasuryId, mechanicId)
+                ?? throw new NotFoundException("Kasa");
 
-            var card = await _bankCardDal.GetOneAsync(cardId, mechanicId);
-            if (card == null)
-                throw new Exception("Ödeme yapılacak kredi kartı bulunamadı.");
+            var card = await _bankCardDal.GetOneAsync(cardId, mechanicId)
+                ?? throw new NotFoundException("Kart", cardId);
 
             if (amount > card.Debt)
-            {
-                throw new Exception($"İşlem reddedildi! Ödeme tutarı ({amount:N2} ₺), güncel kart borcundan ({card.Debt:N2} ₺) fazla olamaz.");
-            }
+                throw new BusinessRuleException(
+                    $"Ödeme tutarı ({amount:C2}), güncel kart borcundan ({card.Debt:C2}) fazla olamaz!");
 
-            
             var trx = new TreasuryTransaction
             {
-                TreasuryId = treasuryId,
+                TreasuryId = (int)treasuryId,
                 Amount = amount,
-                Description = string.IsNullOrWhiteSpace(description) ? $"{card.CardName} Kredi Kartı Ekstre Ödemesi" : description,
+                Description = string.IsNullOrEmpty(description)
+                    ? $"{card.CardName} Borç Ödemesi"
+                    : description,
                 TransactionDate = DateTime.Now,
-                TransactionType = TransactionType.Outgoing, 
+                TransactionType = TransactionType.Outgoing,
                 PaymentSource = (PaymentSource)sourceType,
                 AuthorName = "Yönetici",
                 BankCardId = cardId
             };
 
-
             switch ((PaymentSource)sourceType)
             {
                 case PaymentSource.Cash:
-                  
                     if (treasury.CashBalance < amount)
-                        throw new Exception($"Kasada yeterli nakit bulunmuyor! Mevcut Nakit: {treasury.CashBalance:N2} ₺");
+                        throw new BusinessRuleException(
+                            $"Kasada yeterli nakit yok! Mevcut: {treasury.CashBalance:C2}");
 
                     treasury.CashBalance -= amount;
                     await _treasuryDal.UpdateAsync();
                     break;
 
                 case PaymentSource.Bank:
-                    if (!sourceBankId.HasValue)
-                        throw new Exception("Ödemenin yapılacağı banka hesabı seçilmedi.");
+                    if (sourceBankId == null)
+                        throw new BusinessRuleException("Ödeme yapılacak banka seçilmedi.");
 
-                    var bank = await _bankDal.GetOneAsync(sourceBankId.Value, mechanicId);
-                    if (bank == null)
-                        throw new Exception("Seçilen banka hesabı bulunamadı.");
+                    var bank = await _bankDal.GetOneAsync((int)sourceBankId, mechanicId)
+                        ?? throw new NotFoundException("Seçilen banka");
 
                     if (bank.Balance < amount)
-                        throw new Exception($"{bank.BankName} hesabında yeterli bakiye yok! Mevcut Bakiye: {bank.Balance:N2} ₺");
+                        throw new BusinessRuleException(
+                            $"{bank.BankName} hesabında yeterli bakiye yok! Mevcut: {bank.Balance:C2}");
 
-                    trx.BankId = bank.Id; 
+                    trx.BankId = bank.Id;
                     bank.Balance -= amount;
                     await _bankDal.UpdateAsync();
                     break;
 
                 default:
-                    throw new Exception("Geçersiz ödeme kaynağı seçildi.");
+                    throw new BusinessRuleException("Geçersiz ödeme kaynağı.");
             }
 
-            
             card.Debt -= amount;
-
-            // Matematiksel garanti (Zaten yukarıda kontrol ettik ama double-check her zaman iyidir)
             if (card.Debt < 0) card.Debt = 0;
 
-            // 5. Değişiklikleri Veritabanına Kaydet
             await _bankCardDal.UpdateAsync();
             await _transactionDal.CreateAsync(trx);
         }
+
         public async Task ProcessIncomeAsync(AddExpenseDTO model, string mechanicId, int treasuryId)
         {
-            // Mantık Gider (Expense) ile aynıdır, sadece parayı ARTIRIR ve Type = Incoming olur.
-            var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId);
-            if (treasury == null) throw new Exception("Kasa bulunamadı.");
+            var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId)
+                ?? throw new NotFoundException("Kasa");
+
+            // Tutar kontrolü
+            if (model.Amount <= 0)
+                throw new BusinessRuleException("Gelir tutarı sıfırdan büyük olmalıdır.");
 
             var trx = new TreasuryTransaction
             {
                 TreasuryId = treasuryId,
                 Amount = model.Amount,
                 Description = model.Description,
-                TransactionDate = model.Date,
-                TransactionType = TransactionType.Incoming, // <-- FARK BURADA
-                PaymentSource = model.PaymentSource,
+                TransactionDate = DateTime.Now,
+                TransactionType = TransactionType.Incoming,
+                PaymentSource = (PaymentSource)model.PaymentSource,
                 AuthorName = "Yönetici",
                 TransactionCategoryId = model.CategoryId
             };
 
-            switch (model.PaymentSource)
+            switch ((PaymentSource)model.PaymentSource)
             {
                 case PaymentSource.Cash:
-                    treasury.CashBalance += model.Amount; // <-- EKLİYORUZ
+                    treasury.CashBalance += model.Amount;
                     await _treasuryDal.UpdateAsync();
                     break;
 
                 case PaymentSource.Bank:
-                    if (model.BankId == null) throw new Exception("Banka seçimi zorunludur.");
-                    trx.BankId = model.BankId;
-                    var bank = await _bankDal.GetOneAsync((int)model.BankId, mechanicId);
-                    if (bank == null) throw new Exception("Banka bulunamadı.");
+                    if (model.BankId == null)
+                        throw new BusinessRuleException("Gelir işlemi için banka seçilmedi.");
 
-                    bank.Balance += model.Amount; // <-- EKLİYORUZ
+                    var bank = await _bankDal.GetOneAsync((int)model.BankId, mechanicId)
+                        ?? throw new NotFoundException("Seçilen banka");
+
+                    trx.BankId = bank.Id;
+                    bank.Balance += model.Amount;
                     await _bankDal.UpdateAsync();
                     break;
-                    // Kredi Kartına doğrudan nakit girişi genelde olmaz (Borç ödemesi hariç), o yüzden geçiyorum.
+
+                default:
+                    throw new BusinessRuleException("Geçersiz ödeme kaynağı.");
             }
+
             await _transactionDal.CreateAsync(trx);
         }
 
-        
-        public async Task ProcessTransferAsync(string mechanicId, int treasuryId, decimal amount, string direction, int? sourceBankId, int? targetBankId, string description)
+
+        public async Task ProcessTransferAsync(
+            string mechanicId, int treasuryId, decimal amount,
+            string direction, int? sourceBankId, int? targetBankId, string description)
         {
-           
+            if (amount <= 0)
+                throw new BusinessRuleException("Transfer tutarı sıfırdan büyük olmalıdır.");
 
-            var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId);
-            if (treasury == null) throw new Exception("Kasa bulunamadı.");
+            var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId)
+                ?? throw new NotFoundException("Kasa");
 
-            var trx = new TreasuryTransaction
+            // direction: "CashToBank" | "BankToCash" | "BankToBank"
+            switch (direction)
+            {
+                case "CashToBank":
+                    if (treasury.CashBalance < amount)
+                        throw new BusinessRuleException(
+                            $"Kasada yeterli nakit yok! Mevcut: {treasury.CashBalance:C2}");
+
+                    if (targetBankId == null)
+                        throw new BusinessRuleException("Hedef banka seçilmedi.");
+
+                    var targetBank = await _bankDal.GetOneAsync((int)targetBankId, mechanicId)
+                        ?? throw new NotFoundException("Hedef banka");
+
+                    treasury.CashBalance -= amount;
+                    targetBank.Balance += amount;
+                    await _treasuryDal.UpdateAsync();
+                    await _bankDal.UpdateAsync();
+                    break;
+
+                case "BankToCash":
+                    if (sourceBankId == null)
+                        throw new BusinessRuleException("Kaynak banka seçilmedi.");
+
+                    var sourceBank = await _bankDal.GetOneAsync((int)sourceBankId, mechanicId)
+                        ?? throw new NotFoundException("Kaynak banka");
+
+                    if (sourceBank.Balance < amount)
+                        throw new BusinessRuleException(
+                            $"{sourceBank.BankName} hesabında yeterli bakiye yok! Mevcut: {sourceBank.Balance:C2}");
+
+                    sourceBank.Balance -= amount;
+                    treasury.CashBalance += amount;
+                    await _bankDal.UpdateAsync();
+                    await _treasuryDal.UpdateAsync();
+                    break;
+
+                case "BankToBank":
+                    if (sourceBankId == null || targetBankId == null)
+                        throw new BusinessRuleException("Kaynak ve hedef banka seçilmedi.");
+
+                    if (sourceBankId == targetBankId)
+                        throw new BusinessRuleException("Kaynak ve hedef banka aynı olamaz.");
+
+                    var fromBank = await _bankDal.GetOneAsync((int)sourceBankId, mechanicId)
+                        ?? throw new NotFoundException("Kaynak banka");
+
+                    var toBank = await _bankDal.GetOneAsync((int)targetBankId, mechanicId)
+                        ?? throw new NotFoundException("Hedef banka");
+
+                    if (fromBank.Balance < amount)
+                        throw new BusinessRuleException(
+                            $"{fromBank.BankName} hesabında yeterli bakiye yok! Mevcut: {fromBank.Balance:C2}");
+
+                    fromBank.Balance -= amount;
+                    toBank.Balance += amount;
+                    await _bankDal.UpdateAsync();
+                    break;
+
+                default:
+                    throw new BusinessRuleException($"Geçersiz transfer yönü: {direction}");
+            }
+
+            // Transfer log kaydı
+            await _transactionDal.CreateAsync(new TreasuryTransaction
             {
                 TreasuryId = treasuryId,
                 Amount = amount,
+                Description = string.IsNullOrEmpty(description) ? $"Transfer ({direction})" : description,
                 TransactionDate = DateTime.Now,
-                AuthorName = "Yönetici (Transfer)",
-                Description = description
-            };
-
-            if (direction == "ToBank") 
-            {
-                if (targetBankId == null) throw new Exception("Yatırılacak banka seçilmedi.");
-                var bank = await _bankDal.GetOneAsync((int)targetBankId, mechanicId);
-                if (bank == null) throw new Exception("Banka bulunamadı.");
-
-                if (treasury.CashBalance < amount) throw new Exception("Kasada yeterli nakit yok.");
-
-                treasury.CashBalance -= amount;
-                bank.Balance += amount;
-
-                trx.TransactionType = TransactionType.Outgoing; 
-                trx.PaymentSource = PaymentSource.Cash;
-                trx.BankId = targetBankId;
-                trx.Description = string.IsNullOrEmpty(description) ? $"{bank.BankName} hesabına yatırılan" : description;
-            }
-            else if (direction == "ToCash")
-            {
-                if (sourceBankId == null) throw new Exception("Çekilecek banka seçilmedi.");
-                var bank = await _bankDal.GetOneAsync((int)sourceBankId, mechanicId);
-                if (bank == null) throw new Exception("Banka bulunamadı.");
-
-                if (bank.Balance < amount) throw new Exception($"{bank.BankName} hesabında yeterli bakiye yok.");
-
-                bank.Balance -= amount;
-                treasury.CashBalance += amount;
-
-                trx.TransactionType = TransactionType.Incoming; 
-                trx.PaymentSource = PaymentSource.Bank;
-                trx.BankId = sourceBankId;
-                trx.Description = string.IsNullOrEmpty(description) ? $"{bank.BankName} hesabından çekilen" : description;
-            }
-            else if (direction == "BankToBank") 
-            {
-                if (sourceBankId == null || targetBankId == null) throw new Exception("Kaynak veya hedef banka seçilmedi.");
-                if (sourceBankId == targetBankId) throw new Exception("Aynı bankaya transfer yapılamaz.");
-
-                var sourceBank = await _bankDal.GetOneAsync((int)sourceBankId, mechanicId);
-                var targetBank = await _bankDal.GetOneAsync((int)targetBankId, mechanicId);
-
-                if (sourceBank == null || targetBank == null) throw new Exception("Banka hesapları bulunamadı.");
-                if (sourceBank.Balance < amount) throw new Exception($"{sourceBank.BankName} hesabında yeterli bakiye yok.");
-
-              
-                sourceBank.Balance -= amount;
-                targetBank.Balance += amount;
-
-               
-                trx.TransactionType = TransactionType.Outgoing;
-                trx.PaymentSource = PaymentSource.Bank;
-                trx.BankId = sourceBankId;
-                trx.Description = string.IsNullOrEmpty(description) ? $"{sourceBank.BankName} -> {targetBank.BankName} Transfer" : description;
-
-                
-            }
-
-            await _treasuryDal.UpdateAsync(); 
-            await _bankDal.UpdateAsync();    
-            await _transactionDal.CreateAsync(trx);
+                TransactionType = TransactionType.Outgoing,
+                PaymentSource = PaymentSource.Bank,
+                AuthorName = "Yönetici"
+            });
         }
+
         Task<PagedResult<TreasuryTransaction>> IRepositoryService<TreasuryTransaction>.GetPagedAsync(Expression<Func<TreasuryTransaction, bool>> filter, Func<IQueryable<TreasuryTransaction>, IOrderedQueryable<TreasuryTransaction>> orderBy, int page, int pageSize, params Expression<Func<TreasuryTransaction, object>>[] includes)
         {
             return _transactionDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);

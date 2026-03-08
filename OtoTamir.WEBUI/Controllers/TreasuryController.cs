@@ -89,7 +89,7 @@ namespace OtoTamir.WEBUI.Controllers
 
             model.Transactions = pagedResult.Results;
 
-            ViewBag.PagedResult = pagedResult;
+            ViewBag.PagedResult = PagedResultMeta.From(pagedResult);
 
             ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
@@ -250,7 +250,7 @@ namespace OtoTamir.WEBUI.Controllers
             {
                 pagedResult = new PagedResult<TreasuryTransaction> { Results = new List<TreasuryTransaction>() };
             }
-            ViewBag.PagedResult = pagedResult;
+            ViewBag.PagedResult = PagedResultMeta.From(pagedResult);
 
             var model = _mapper.Map<BankDetailsDTO>(bank);
 
@@ -362,8 +362,7 @@ namespace OtoTamir.WEBUI.Controllers
                 }
             }
 
-
-            ViewBag.PagedResult = pagedResult;
+            ViewBag.PagedResult = PagedResultMeta.From(pagedResult);
 
             var today = DateTime.Today;
             DateTime GetNextValidDate(int targetDay)

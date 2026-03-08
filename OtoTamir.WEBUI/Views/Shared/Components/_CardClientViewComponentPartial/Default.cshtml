@@ -1,9 +1,9 @@
 ﻿@model Client
+
 <div class="card shadow-sm border-0 h-100">
 
     <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
         <h6 class="mb-0 fw-bold"><i class="bi bi-person-badge me-2"></i>Müşteri Bilgileri</h6>
-               
     </div>
 
     <div class="card-body">
@@ -24,7 +24,10 @@
                         <span class="fs-5 fw-bold @(Model.Balance > 0 ? "text-danger" : "text-success") me-2">
                             @Model.Balance.ToString("C2")
                         </span>
-                        <button class="btn btn-outline-secondary btn-sm py-0 px-2 rounded-pill" style="font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#balanceLogModal">
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-2 rounded-pill"
+                                style="font-size: 0.75rem;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#balanceLogModal">
                             <i class="bi bi-clock-history"></i>
                         </button>
                     </div>
@@ -40,11 +43,6 @@
                     <label class="small text-muted fw-bold d-block mb-0">Son İşlem</label>
                     <span class="small">@(Model.ModifiedDate.ToString("dd.MM.yyyy") ?? "-")</span>
                 </div>
-                <div class="mt-2">
-
-
-                </div>
-                
             </div>
         </div>
 
@@ -54,7 +52,6 @@
                     <div class="fw-bold text-dark">@Model.Vehicles?.Count()</div>
                     <span class="text-muted" style="font-size: 0.7rem">Araç</span>
                 </div>
-
                 <div class="col-3 border-end">
                     <div class="fw-bold text-primary">@Model.Vehicles?.Sum(v => v.ServiceRecords?.Count() ?? 0)</div>
                     <span class="text-muted" style="font-size: 0.7rem">İşlem</span>
@@ -68,8 +65,8 @@
                     <span class="text-muted" style="font-size: 0.7rem">Biten</span>
                 </div>
             </div>
-
         </div>
+
         <div class="d-flex justify-content-end mb-3">
             <button class="btn btn-outline-primary btn-sm fw-bold shadow-sm"
                     data-bs-toggle="modal"
@@ -81,10 +78,11 @@
         <form asp-action="UpdateNotes" asp-controller="Client" method="post">
             <input type="hidden" name="clientId" value="@Model.Id" />
             <input type="hidden" name="returnUrl" value="ServiceRecord/Index" />
-
             <label class="form-label small fw-bold text-muted mb-1">Müşteri Notu</label>
             <div class="input-group">
-                <textarea name="note" class="form-control form-control-sm bg-light" placeholder="Not ekle..." style="height: 50px; resize: none;">@Model.Notes</textarea>
+                <textarea name="note" class="form-control form-control-sm bg-light"
+                          placeholder="Not ekle..."
+                          style="height: 50px; resize: none;">@Model.Notes</textarea>
                 <button type="submit" class="btn btn-success btn-sm">
                     <i class="bi bi-check-lg"></i>
                 </button>
@@ -94,10 +92,14 @@
     </div>
 </div>
 
+
 <div class="modal fade" id="balanceLogModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Ödeme Geçmişi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header">
+                <h5 class="modal-title">Ödeme Geçmişi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
             <div class="modal-body">
                 @await Component.InvokeAsync("_ClientLastTransactionsViewComponentPartial", new { clientId = Model.Id })
             </div>
@@ -106,9 +108,17 @@
 </div>
 
 <div class="modal fade" id="createVehicleModal-@Model.Id" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      
-            @await Component.InvokeAsync("_CreateVehicleViewComponentPartial", new CreateVehicleDTO { ClientId = Model.Id, ReturnUrl = "/Client/ClientDetails" })
-        
-    </div>
+    @await Component.InvokeAsync("_CreateVehicleViewComponentPartial",
+    new CreateVehicleDTO { ClientId = Model.Id, ReturnUrl = "/Client/ClientDetails" })
 </div>
+
+<script>
+    (function () {
+        ['balanceLogModal', 'createVehicleModal-@Model.Id'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && el.parentElement !== document.body) {
+                document.body.appendChild(el);
+            }
+        });
+    })();
+</script>

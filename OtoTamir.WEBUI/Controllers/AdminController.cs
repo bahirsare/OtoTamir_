@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.Identity;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.WEBUI.Services;
+using System.Linq.Expressions;
 
 
 namespace OtoTamir.WEBUI.Controllers
@@ -22,11 +25,28 @@ namespace OtoTamir.WEBUI.Controllers
         {
             return View();
         }
-        public async Task<IActionResult> MechanicAsync()
+        public async Task<IActionResult> Mechanic(string search, int page = 1)  
         {
-           var mechanics =await _mechanicService.GetAllAsync(includeClient:true,includeVehicle:true);
-            return View(mechanics);
+            Expression<Func<Mechanic, bool>> filter = null;
+
+            if (!string.IsNullOrWhiteSpace(search))
+                filter = m => m.StoreName.Contains(search) || m.UserName.Contains(search);
+
+            var pagedResult = await _mechanicService.GetPagedAsync(
+                filter: filter,
+                orderBy: q => q.OrderBy(m => m.StoreName),
+                page: page,
+                pageSize: 20
+            
+            );
+
+            ViewBag.PagedResult = PagedResultMeta.From(pagedResult);
+            ViewBag.Search = search;
+
+            return View(pagedResult.Results);
         }
+
+
         [HttpPost]
         public async Task<IActionResult> Create(string storeName)
         {

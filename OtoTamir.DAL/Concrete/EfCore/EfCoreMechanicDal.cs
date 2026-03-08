@@ -84,8 +84,9 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 ModifiedDate = DateTime.Now,
                 IsProfileCompleted = false,
                 ImageUrl = "avatar.png",
-
+                
             };
+            
 
             var result = await _userManager.CreateAsync(mechanic, password);
 

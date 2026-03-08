@@ -2,14 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
-using OtoTamir.BLL.Managers;
 using OtoTamir.CORE.DTOs.ClientDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
-using OtoTamir.DAL.Abstract;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.WEBUI.Services;
 using System.Linq.Expressions;
-using System.Security.Permissions;
 
 namespace OtoTamir.WEBUI.Controllers
 {
@@ -30,11 +28,11 @@ namespace OtoTamir.WEBUI.Controllers
         }
         public async Task<IActionResult> Clients(string sortOrder, string searchString, int page = 1)
         {
-          
+
             ViewBag.CurrentSort = sortOrder;
             ViewBag.Search = searchString;
 
-            
+
             var mechanic = await _userManager.GetUserAsync(User);
             if (!mechanic.IsProfileCompleted)
             {
@@ -42,18 +40,18 @@ namespace OtoTamir.WEBUI.Controllers
                 return RedirectToAction("Profile", "Account");
             }
 
-           
+
             Expression<Func<Client, bool>> filter = x => x.MechanicId == mechanic.Id;
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                
+
                 filter = filter.AndAlso(c =>
                     c.Name.Contains(searchString) ||
                     c.PhoneNumber.Contains(searchString));
             }
 
-          
+
             Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy = sortOrder switch
             {
                 "name_desc" => q => q.OrderByDescending(c => c.Name),
@@ -66,17 +64,16 @@ namespace OtoTamir.WEBUI.Controllers
                 _ => q => q.OrderBy(c => c.Name)
             };
 
-            
+
             var pagedResult = await _clientService.GetPagedAsync(
                 filter: filter,
                 orderBy: orderBy,
                 page: page,
-                pageSize: 15, 
-                includes: x => x.Vehicles 
+                pageSize: 15,
+                includes: x => x.Vehicles
             );
 
-            // 4. VIEW'A GÖNDERME
-            ViewBag.PagedResult = pagedResult; 
+            ViewBag.PagedResult = PagedResultMeta.From(pagedResult);
 
             return View(pagedResult.Results);
         }
@@ -213,33 +210,48 @@ namespace OtoTamir.WEBUI.Controllers
 
         }
         [HttpGet]
-        public async Task<IActionResult> FinancialHistory(int clientId)
+        public async Task<IActionResult> FinancialHistory(int clientId, int page = 1)
         {
-            
             var user = await _userManager.GetUserAsync(User);
 
-           
-            
-
             var statement = await _clientService.GetClientStatementAsync(clientId, user.Id, user.TreasuryId);
-
             if (statement == null)
-            {
                 return RedirectToAction("Clients");
-            }
+
+
+            int pageSize = 20;
+            int rowCount = statement.Transactions.Count;
+            int pageCount = (int)Math.Ceiling((double)rowCount / pageSize);
+
+
+            var pagedTransactions = statement.Transactions
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            statement.Transactions = pagedTransactions;
+
+            ViewBag.PagedResult = new PagedResultMeta
+            {
+                CurrentPage = page,
+                PageCount = pageCount,
+                PageSize = pageSize,
+                RowCount = rowCount
+            };
 
             return View(statement);
         }
+
+
         [HttpPost]
         public async Task<IActionResult> MakePayment(
-        int clientId,
+        int Id,
         decimal amount,
         string description,
         string paymentSource,
-        string returnUrl,
         string authorName,
-        int? posTerminalId, 
-        int? targetBankId  
+        int? posTerminalId,
+        int? targetBankId
 )
         {
             var user = await _userManager.GetUserAsync(User);
@@ -248,10 +260,10 @@ namespace OtoTamir.WEBUI.Controllers
             {
                 var sourceEnum = (PaymentSource)Enum.Parse(typeof(PaymentSource), paymentSource);
 
-                
+
 
                 await _serviceProcessManager.ReceivePaymentAsync(
-                    clientId, amount, description, sourceEnum, user.Id, authorName, posTerminalId,targetBankId
+                    Id, amount, description, sourceEnum, user.Id, authorName, posTerminalId, targetBankId
                 );
 
                 TempData["SuccessMessage"] = "Ödeme alındı.";
@@ -261,8 +273,7 @@ namespace OtoTamir.WEBUI.Controllers
                 TempData["ErrorMessage"] = "Hata: " + ex.Message;
             }
 
-            if (!string.IsNullOrEmpty(returnUrl)) return Redirect(returnUrl);
-            return RedirectToAction("FinancialHistory", new { id = clientId });
+            return RedirectToAction("FinancialHistory", new { clientId = Id });
         }
     }
 }

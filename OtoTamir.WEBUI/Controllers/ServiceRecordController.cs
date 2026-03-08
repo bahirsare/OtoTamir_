@@ -11,6 +11,7 @@ using OtoTamir.CORE.DTOs.ServiceRecordDTOs;
 using OtoTamir.CORE.DTOs.SymptomDTOs;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
+using OtoTamir.CORE.Utilities;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.WEBUI.Services;
 using System.Linq.Expressions;
@@ -380,8 +381,8 @@ public class ServiceRecordController : Controller
         
         model.Records = pagedResult.Results;
 
-        
-        ViewBag.PagedResult = pagedResult;
+
+        ViewBag.PagedResult = PagedResultMeta.From(pagedResult);
 
         return View(model);
     }
@@ -430,7 +431,13 @@ public class ServiceRecordController : Controller
         var mechanic = await _userManager.GetUserAsync(User);
         return View(model);
     }
-
+    [HttpGet]
+    public async Task<IActionResult> GetServiceHistory(int vehicleId, int page = 1)
+    {
+        
+        return  ViewComponent("_ListServiceRecordbyVehicleIdViewComponentPartial",
+            new { vehicleId, page });
+    }
     [HttpPost]
     public async Task<IActionResult> CompleteService(int serviceId, PaymentSource paymentMethod, int? bankId)
     {

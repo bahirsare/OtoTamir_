@@ -156,6 +156,7 @@
                                     </tr>
                                 </tfoot>
                             </table>
+                            <partial name="_Pagination" model="ViewBag.PagedResult" />
                         </div>
                     </div>
 
@@ -175,34 +176,33 @@
 </section>
 
 <style media="print">
-    /* 1. ÖNCE HER ŞEYİ GİZLE */
+    
     body * {
         visibility: hidden;
     }
 
-    /* 2. SADECE BİZİM ALANI GÖSTER */
     #printableArea, #printableArea * {
         visibility: visible;
     }
 
-    /* 3. ALANI KAĞIDIN TEPESİNE ÇİVİLE (Absolute yerine FIXED kullanıyoruz) */
+   
     #printableArea {
-        position: fixed; /* En önemli kısım burası! */
+        position: fixed; 
         left: 0;
         top: 0;
         width: 100%;
         margin: 0;
         padding: 20px;
-        background-color: white; /* Arka plan beyaz olsun */
-        z-index: 9999; /* En üstte durduğundan emin olalım */
+        background-color: white; 
+        z-index: 9999; 
     }
 
-    /* 4. Linklerin yanındaki URL yazılarını kapat */
+    
     a[href]:after {
         content: none !important;
     }
 
-    /* 5. Badge renklerini yazdırmada görünür kıl (Bootstrap print modunda renkleri kapatır, geri açıyoruz) */
+   
     .badge {
         border: 1px solid #000 !important;
         color: #000 !important;
@@ -211,17 +211,16 @@
         -webkit-print-color-adjust: exact;
     }
     
-    /* Renkli alanları zorla bastır */
     .callout-danger { border-left-color: red !important; }
     .callout-success { border-left-color: green !important; }
 
-    /* Flex yapılarını yazdırma modunda çalıştır */
+  
     .d-print-flex {
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
     }
     
-    /* Gereksiz boşlukları sıfırla */
+    
     
 </style>
