@@ -51,9 +51,19 @@ namespace OtoTamir.BLL.Concrete
             return await _posTerminalDal.UpdateAsync();
         }
 
-        Task<PagedResult<PosTerminal>> IRepositoryService<PosTerminal>.GetPagedAsync(Expression<Func<PosTerminal, bool>> filter, Func<IQueryable<PosTerminal>, IOrderedQueryable<PosTerminal>> orderBy, int page, int pageSize, params Expression<Func<PosTerminal, object>>[] includes)
+        async Task<PagedResult<PosTerminal>> IRepositoryService<PosTerminal>.GetDeletedPagedAsync(Expression<Func<PosTerminal, bool>> filter, Func<IQueryable<PosTerminal>, IOrderedQueryable<PosTerminal>> orderBy, int page, int pageSize, params Expression<Func<PosTerminal, object>>[] includes)
         {
-            return _posTerminalDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _posTerminalDal.GetDeletedPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<PagedResult<PosTerminal>> IRepositoryService<PosTerminal>.GetPagedAsync(Expression<Func<PosTerminal, bool>> filter, Func<IQueryable<PosTerminal>, IOrderedQueryable<PosTerminal>> orderBy, int page, int pageSize, params Expression<Func<PosTerminal, object>>[] includes)
+        {
+            return await _posTerminalDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<int> IRepositoryService<PosTerminal>.RestoreAsync(int id)
+        {
+            return await _posTerminalDal.RestoreAsync(id);
         }
     }
     }

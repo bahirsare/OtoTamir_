@@ -13,14 +13,11 @@ namespace OtoTamir.BLL.Concrete
     public class ServiceRecordService : IServiceRecordService
     {
         private readonly IServiceRecordDal _serviceRecordDal;
-        private readonly ITreasuryTransactionService _treasuryTransactionService;
-        private readonly IMechanicService _mechanicService;
         private readonly ILogger<ServiceRecordService> _logger;
         public ServiceRecordService(IServiceRecordDal serviceRecordDal, ITreasuryTransactionService treasuryTransactionService, IMechanicService mechanicService, ILogger<ServiceRecordService> logger)
         {
             _serviceRecordDal = serviceRecordDal;
-            _treasuryTransactionService = treasuryTransactionService;
-            _mechanicService = mechanicService;
+           
             _logger = logger;
         }
 
@@ -119,9 +116,19 @@ namespace OtoTamir.BLL.Concrete
             }
         }
 
-        Task<PagedResult<ServiceRecord>> IRepositoryService<ServiceRecord>.GetPagedAsync(Expression<Func<ServiceRecord, bool>> filter, Func<IQueryable<ServiceRecord>, IOrderedQueryable<ServiceRecord>> orderBy, int page, int pageSize, params Expression<Func<ServiceRecord, object>>[] includes)
+        async Task<PagedResult<ServiceRecord>> IRepositoryService<ServiceRecord>.GetDeletedPagedAsync(Expression<Func<ServiceRecord, bool>> filter, Func<IQueryable<ServiceRecord>, IOrderedQueryable<ServiceRecord>> orderBy, int page, int pageSize, params Expression<Func<ServiceRecord, object>>[] includes)
         {
-           return _serviceRecordDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _serviceRecordDal.GetDeletedPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+       async Task<PagedResult<ServiceRecord>> IRepositoryService<ServiceRecord>.GetPagedAsync(Expression<Func<ServiceRecord, bool>> filter, Func<IQueryable<ServiceRecord>, IOrderedQueryable<ServiceRecord>> orderBy, int page, int pageSize, params Expression<Func<ServiceRecord, object>>[] includes)
+        {
+           return await _serviceRecordDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<int> IRepositoryService<ServiceRecord>.RestoreAsync(int id)
+        {
+            return await _serviceRecordDal.RestoreAsync(id);
         }
     }
 }

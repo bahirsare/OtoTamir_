@@ -19,7 +19,7 @@ namespace OtoTamir.CORE.Repositories
         Task<int> UpdateAsync();
 
         /// <summary>
-        /// Deletes the entity with the specified ID from the database.
+        /// Softdeletes the entity with the specified ID from the database.
         /// </summary>
         /// <param name="id">The ID of the entity to delete.</param>
         /// <returns>The number of state entries written to the database.</returns>
@@ -51,5 +51,14 @@ namespace OtoTamir.CORE.Repositories
         /// İstenen sayfadaki kayıtları (<c>Results</c>) ve toplam kayıt bilgisini (<c>RowCount</c>) içeren <see cref="PagedResult{T}"/> nesnesi döner.
         /// </returns>
         Task<PagedResult<T>> GetPagedAsync(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, int page = 1, int pageSize = 10, params Expression<Func<T, object>>[] includes);
+        /// <summary>
+        /// Silinmiş (IsDeleted = true) olan bir kaydı tekrar aktif hale getirir.
+        /// </summary>
+        Task<int> RestoreAsync(int id);
+
+        /// <summary>
+        /// SADECE silinmiş olan (IsDeleted = true) kayıtları sayfalamalı olarak getirir.
+        /// </summary>
+        Task<PagedResult<T>> GetDeletedPagedAsync(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, int page = 1, int pageSize = 10, params Expression<Func<T, object>>[] includes);
     }
 }

@@ -13,13 +13,15 @@ namespace OtoTamir.DAL.Concrete.EfCore
         private readonly DataContext _context;
         private readonly UserManager<Mechanic> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ITreasuryDal _treasuryDal;
 
-        public EfCoreMechanicDal(DataContext context, UserManager<Mechanic> userManager, RoleManager<IdentityRole> roleManager)
+        public EfCoreMechanicDal(DataContext context, UserManager<Mechanic> userManager, RoleManager<IdentityRole> roleManager, ITreasuryDal treasuryDal)
             : base(context)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _treasuryDal = treasuryDal;
         }
 
         public async Task<Mechanic> GetOneAsync(string id)
@@ -76,38 +78,68 @@ namespace OtoTamir.DAL.Concrete.EfCore
         {
             var password = GenerateRandomPassword();
 
+            // 1. USTAYI SADECE HAFIZADA OLUŞTUR (Henüz veritabanına kaydetmiyoruz)
             var mechanic = new Mechanic
             {
+                // Not: Identity burada mechanic.Id değerini arka planda otomatik olarak üretti bile!
                 UserName = storeName.ToLower().Replace(" ", ""),
                 StoreName = storeName,
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now,
                 IsProfileCompleted = false,
-                ImageUrl = "avatar.png",
-                
+                ImageUrl = "avatar.png"
             };
-            
+
+            // 2. ÖNCE KASAYI OLUŞTUR VE VERİTABANINA KAYDET (Çünkü Usta Kasaya muhtaç)
+            var newTreasury = new Treasury
+            {
+                CashBalance = 0,
+                ReceivablesBalance = 0,
+                CreatedDate = DateTime.Now,
+                MechanicId = mechanic.Id // Hafızadaki ustanın ID'sini Kasaya verdik
+            };
+
+            // Kasayı kaydediyoruz. Artık Kasa veritabanında var ve bir ID'ye (newTreasury.Id) sahip!
+            await _treasuryDal.CreateAsync(newTreasury);
+
+            // 3. KASANIN ID'SİNİ USTAYA BAĞLA VE ŞİMDİ USTAYI KAYDET
+            mechanic.TreasuryId = newTreasury.Id;
 
             var result = await _userManager.CreateAsync(mechanic, password);
 
             if (result.Succeeded)
             {
-                mechanic.Treasury = new Treasury
-                {
-                   
-                    CashBalance = 0,
-                    ReceivablesBalance = 0,
-                    CreatedDate = DateTime.Now,
-                    MechanicId = mechanic.Id  
-                };
-                
                 return (true, password, new List<string>());
             }
+
+            // 4. (GÜVENLİK) Eğer şifre kuralı vb. yüzünden Usta oluşturulamazsa, 
+            // Boşuna açtığımız yetim Kasayı siliyoruz ki veritabanı kirlenmesin.
+            await _treasuryDal.DeleteAsync(newTreasury.Id);
 
             var errors = result.Errors.Select(e => e.Description).ToList();
             return (false, password, errors);
         }
+        public async Task<List<Mechanic>> GetDeletedMechanicsAsync()
+        {
+            // Kalkanı indir ve sadece silinen ustaları getir
+            return await _context.Users
+                .IgnoreQueryFilters()
+                .Where(m => m.IsDeleted == true)
+                .ToListAsync();
+        }
 
+        public async Task<bool> RestoreMechanicAsync(string id)
+        {
+            var mechanic = await _context.Users.IgnoreQueryFilters().FirstOrDefaultAsync(m => m.Id == id);
+            if (mechanic != null)
+            {
+                mechanic.IsDeleted = false;
+                _context.Users.Update(mechanic);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
         public string GenerateRandomPassword()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

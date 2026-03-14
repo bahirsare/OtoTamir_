@@ -1,0 +1,108 @@
+﻿@{
+    ViewData["Title"] = "Çöp Kutusu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid pt-3">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-danger card-outline card-outline-tabs shadow-sm">
+                <div class="card-header p-0 border-bottom-0">
+                    <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active text-danger" id="tabs-clients-tab" data-bs-toggle="pill" href="#tabs-clients" role="tab" aria-selected="true">
+                                <i class="bi bi-people-fill me-1"></i> Müşteriler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" id="tabs-vehicles-tab" data-bs-toggle="pill" href="#tabs-vehicles" role="tab" aria-selected="false">
+                                <i class="bi bi-car-front-fill me-1"></i> Araçlar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" id="tabs-services-tab" data-bs-toggle="pill" href="#tabs-services" role="tab" aria-selected="false">
+                                <i class="bi bi-tools me-1"></i> Servis Kayıtları
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="tab-content" id="custom-tabs-four-tabContent">
+
+                        <div class="tab-pane fade show active" id="tabs-clients" role="tabpanel">
+                            <table class="table table-hover table-striped mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Ad Soyad</th>
+                                        <th>Telefon</th>
+                                        <th class="text-end">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var client in ViewBag.DeletedClients)
+                                    {
+                                        <tr>
+                                            <td class="align-middle text-muted"><del>@client.Name</del></td>
+                                            <td class="align-middle text-muted">@client.PhoneNumber</td>
+                                            <td class="text-end">
+                                                <form asp-controller="RecycleBin" asp-action="RestoreClient" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@client.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success shadow-sm">
+                                                        <i class="bi bi-arrow-counterclockwise"></i> Geri Yükle
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (ViewBag.DeletedClients.Count == 0)
+                                    {
+                                        <tr><td colspan="3" class="text-center text-muted py-4">Silinmiş müşteri bulunmuyor.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabs-vehicles" role="tabpanel">
+                            <table class="table table-hover table-striped mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Plaka</th>
+                                        <th>Marka/Model</th>
+                                        <th class="text-end">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var vehicle in ViewBag.DeletedVehicles)
+                                    {
+                                        <tr>
+                                            <td class="align-middle fw-bold text-muted"><del>@vehicle.Plate</del></td>
+                                            <td class="align-middle text-muted">@vehicle.Brand @vehicle.Model</td>
+                                            <td class="text-end">
+                                                <form asp-controller="RecycleBin" asp-action="RestoreVehicle" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@vehicle.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success shadow-sm">
+                                                        <i class="bi bi-arrow-counterclockwise"></i> Geri Yükle
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (ViewBag.DeletedVehicles.Count == 0)
+                                    {
+                                        <tr><td colspan="3" class="text-center text-muted py-4">Silinmiş araç bulunmuyor.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabs-services" role="tabpanel">
+                            <div class="p-4 text-center text-muted">Servis tablosu buraya gelecek...</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

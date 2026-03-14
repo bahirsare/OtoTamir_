@@ -94,9 +94,24 @@ namespace OtoTamir.BLL.Concrete
             return await _mechanicDal.AnyAsync(filter);
         }
 
-        Task<PagedResult<Mechanic>> IRepositoryService<Mechanic>.GetPagedAsync(Expression<Func<Mechanic, bool>> filter, Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy, int page, int pageSize, params Expression<Func<Mechanic, object>>[] includes)
+        async Task<PagedResult<Mechanic>> IRepositoryService<Mechanic>.GetPagedAsync(Expression<Func<Mechanic, bool>> filter, Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy, int page, int pageSize, params Expression<Func<Mechanic, object>>[] includes)
         {
-            return _mechanicDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _mechanicDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        public async Task<bool> RestoreMechanicAsync(string id)
+        {
+            return await _mechanicDal.RestoreMechanicAsync(id);
+        }
+
+        async Task<PagedResult<Mechanic>> IRepositoryService<Mechanic>.GetDeletedPagedAsync(Expression<Func<Mechanic, bool>> filter, Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy, int page, int pageSize, params Expression<Func<Mechanic, object>>[] includes)
+        {
+            return await _mechanicDal.GetDeletedPagedAsync(filter,orderBy,page, pageSize, includes);
+        }
+
+        Task<int> IRepositoryService<Mechanic>.RestoreAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

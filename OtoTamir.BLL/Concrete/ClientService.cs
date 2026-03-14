@@ -103,9 +103,19 @@ namespace OtoTamir.BLL.Concrete
             return await _clientDal.UpdateBalanceAsync(mechanicId, clientId, amount);
         }
 
-        Task<PagedResult<Client>> IRepositoryService<Client>.GetPagedAsync(Expression<Func<Client, bool>> filter, Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy, int page, int pageSize, params Expression<Func<Client, object>>[] includes)
+       async Task<PagedResult<Client>> IRepositoryService<Client>.GetPagedAsync(Expression<Func<Client, bool>> filter, Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy, int page, int pageSize, params Expression<Func<Client, object>>[] includes)
         {
-           return _clientDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+           return await _clientDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<int> IRepositoryService<Client>.RestoreAsync(int id)
+        {
+           return await _clientDal.RestoreAsync(id);
+        }
+
+        async Task<PagedResult<Client>> IRepositoryService<Client>.GetDeletedPagedAsync(Expression<Func<Client, bool>> filter, Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy, int page, int pageSize, params Expression<Func<Client, object>>[] includes)
+        {
+            return await _clientDal.GetDeletedPagedAsync(filter,orderBy,page, pageSize, includes);
         }
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.BLL.Concrete;
 using OtoTamir.BLL.Managers;
@@ -33,7 +34,7 @@ namespace OtoTamir.WEBUI
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<DataContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Laptop")));
 
             builder.Services.AddIdentity<Mechanic, IdentityRole>()
                           .AddEntityFrameworkStores<DataContext>()
@@ -98,14 +99,13 @@ namespace OtoTamir.WEBUI
                 {
                     HttpOnly = true,
                     Name = "OtoTamir.Security.Cookie",
-                    SameSite = SameSiteMode.Strict //Oturumu serverdan kullanýcý browserina taþýr
+                    SameSite = SameSiteMode.Strict 
                 };
             });
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
-
+            builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>(), typeof(MappingProfile).Assembly);
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllersWithViews(options =>
             {
-                // Akýllý dönüþtürücüyü en baþa ekle
                 options.ModelBinderProviders.Insert(0, new OtoTamir.WEBUI.Services.SmartDecimalModelBinderProvider());
             });
             var app = builder.Build();
@@ -113,7 +113,6 @@ namespace OtoTamir.WEBUI
             var defaultDateCulture = "tr-TR";
             var ci = new CultureInfo(defaultDateCulture);
 
-            // Sayý formatýný zorla Türkçe yap (Virgül kuruþ, Nokta binlik)
             ci.NumberFormat.NumberDecimalSeparator = ",";
             ci.NumberFormat.CurrencyDecimalSeparator = ",";
 

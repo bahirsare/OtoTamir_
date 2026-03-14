@@ -192,9 +192,19 @@ namespace OtoTamir.BLL.Concrete
             await _treasuryDal.UpdateCashBalanceAsync(treasuryId, mechanicId, amount);
         }
 
-        Task<PagedResult<Treasury>> IRepositoryService<Treasury>.GetPagedAsync(Expression<Func<Treasury, bool>> filter, Func<IQueryable<Treasury>, IOrderedQueryable<Treasury>> orderBy, int page, int pageSize, params Expression<Func<Treasury, object>>[] includes)
+        async Task<PagedResult<Treasury>> IRepositoryService<Treasury>.GetPagedAsync(Expression<Func<Treasury, bool>> filter, Func<IQueryable<Treasury>, IOrderedQueryable<Treasury>> orderBy, int page, int pageSize, params Expression<Func<Treasury, object>>[] includes)
         {
-            return _treasuryDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _treasuryDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<int> IRepositoryService<Treasury>.RestoreAsync(int id)
+        {
+           return await _treasuryDal.RestoreAsync(id);
+        }
+
+        async Task<PagedResult<Treasury>> IRepositoryService<Treasury>.GetDeletedPagedAsync(Expression<Func<Treasury, bool>> filter, Func<IQueryable<Treasury>, IOrderedQueryable<Treasury>> orderBy, int page, int pageSize, params Expression<Func<Treasury, object>>[] includes)
+        {
+            return await _treasuryDal.GetDeletedPagedAsync(filter,orderBy, page, pageSize, includes);
         }
     }
 }

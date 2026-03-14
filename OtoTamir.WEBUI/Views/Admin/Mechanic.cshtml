@@ -1,84 +1,245 @@
-﻿@model List<OtoTamir.CORE.Identity.Mechanic>
+﻿@model OtoTamir.CORE.Utilities.PagedResult<Mechanic>
 @{
+    ViewData["Title"] = "Admin Paneli - Tamirciler";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
-<h2>Admin Paneli - Tamirciler</h2>
 
-<div class="container mt-4">
+<div class="container-fluid pt-4">
 
-    <!-- Yeni Tamirci Ekleme Formu -->
-    <h3>Yeni Tamirci Ekle</h3>
-    <div class="col-4">
-        <form asp-action="Create" method="post">
-            <div class="form-group">
-                <label for="StoreName">Kullanıcı Adı</label>
-                <input type="text" class="form-control" id="StoreName" name="storeName" required />
-            </div>
-            <div class="row m-2"></div>
-            <button type="submit" class="btn btn-primary">Ekle</button>
-        </form>
+    <div class="mb-4">
+        <button class="btn btn-primary px-4 shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAddMechanic" aria-expanded="false" aria-controls="collapseAddMechanic">
+            <i class="bi bi-person-plus-fill me-2"></i> Yeni Tamirci Ekle
+        </button>
     </div>
 
+    <div class="collapse mb-4" id="collapseAddMechanic">
+        <div class="card card-body border-0 shadow-sm border-top border-3 border-primary">
+            <form asp-action="Create" method="post" class="row align-items-end">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <label for="StoreName" class="form-label text-muted fw-bold">Kullanıcı Adı <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-person text-primary"></i></span>
+                        <input type="text" class="form-control" id="StoreName" name="storeName" placeholder="Örn: ahmet_usta" required />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100 shadow-sm">
+                        <i class="bi bi-check-circle-fill me-1"></i> Tamirci Ekle
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <div class="row m-3"></div>
+    <div class="card card-outline card-info shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+            <h3 class="card-title fw-bold mb-0">
+                <i class="bi bi-tools me-2 text-info"></i>Mevcut Tamirciler
+            </h3>
 
-    <!-- Tamircileri Listeleme -->
-    <h3>Mevcut Tamirciler</h3>
-    <form method="get" class="mb-3 d-flex gap-2">
-           <input type="text" name="search" value="@ViewBag.Search"
-                    class="form-control form-control-sm" placeholder="İsim veya kullanıcı adı ara..." style="max-width:300px" />
-           <button type="submit" class="btn btn-sm btn-primary">Ara</button>
-      
-    </form>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Kullanıcı Adı</th>
-                <th>E-mail Adresi</th>
-                <th>Telefon</th>
-                <th>Adres</th>
-                <th>Durum</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var mechanic in Model)
-            {
-                <tr>
-                    <td>@mechanic.UserName</td>
-                    <td>@mechanic.Email</td>
-                    <td>@mechanic.PhoneNumber</td>
-                    <td>@mechanic.Adress</td>
-                    <td>@(mechanic.Status ? "Aktif" : "Pasif")</td>
-                    <td>
-                        <!-- Durum Değiştir Butonu -->
-                        <button type="button"
-                                class="btn btn-warning confirm-button"
-                                data-confirm-message="Bu tamircinin durumunu değiştirmek istiyor musunuz?"
-                                data-form-action="/Admin/EditStatus?id=@mechanic.Id&status=@(mechanic.Status ? "false" : "true")">
-                            @(mechanic.Status ? "Pasif Yap" : "Aktif Yap")
+            <div class="card-tools">
+                <form method="get" class="input-group input-group-sm" style="width: 250px;">
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control float-right border-end-0" placeholder="İsim, Dükkan, Vergi No...">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-default border-start-0">
+                            <i class="fas fa-search text-muted"></i>
                         </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-                        <!-- Silme Butonu -->
-                        <button type="button"
-                                class="btn btn-danger confirm-button"
-                                data-confirm-message="Bu tamirciyi silmek istediğinize emin misiniz?"
-                                data-form-action="/Admin/Delete/@mechanic.Id"
-                                data-form-method="post">
-                            Sil
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <partial name="_Pagination" model="ViewBag.PagedResult" />
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="bg-light text-muted">
+                        <tr>
+                            <th>Dükkan / Kullanıcı Adı</th>
+                            <th>İletişim Bilgileri</th>
+                            <th>Vergi Bilgisi</th>
+                            <th class="text-center">Müşteri</th>
+                            <th class="text-center">Profil Durumu</th>
+                            <th class="text-end">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Results != null && Model.Results.Any())
+                        {
+                            foreach (var mechanic in Model.Results)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-dark">@(string.IsNullOrEmpty(mechanic.StoreName) ? "Girilmedi" : mechanic.StoreName)</div>
+                                        <div class="text-muted small">&#64;@mechanic.UserName</div>
+                                    </td>
+
+                                    <td>
+                                        <div><i class="bi bi-telephone-fill text-muted me-1 small"></i> @(mechanic.PhoneNumber ?? "-")</div>
+                                        <div class="text-muted small"><i class="bi bi-envelope-fill text-muted me-1"></i> @(mechanic.Email ?? "-")</div>
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(mechanic.TaxNumber))
+                                        {
+                                            <div class="fw-bold" style="font-size:0.9rem;">@mechanic.TaxNumber</div>
+                                            <div class="text-muted small">@mechanic.TaxOffice</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-secondary">Girmedi</span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="badge bg-info rounded-pill px-3 py-2">
+                                            <i class="bi bi-people-fill me-1"></i> @(mechanic.Clients?.Count ?? 0)
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (mechanic.Status)
+                                        {
+                                            <span class="badge bg-success mb-1 d-block"><i class="bi bi-check-circle me-1"></i>Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger mb-1 d-block"><i class="bi bi-x-circle me-1"></i>Pasif</span>
+                                        }
+
+                                        @if (mechanic.IsProfileCompleted)
+                                        {
+                                            <span class="badge border border-success text-success d-block small">Profil Tam</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge border border-warning text-warning d-block small">Profil Eksik</span>
+                                        }
+                                    </td>
+
+                                    <td class="text-end">
+                                        <form asp-controller="Admin" asp-action="ResetPassword" method="post" class="d-inline form-reset-pw">
+                                            <input type="hidden" name="mechanicId" value="@mechanic.Id" />
+
+                                            <button type="button" class="btn btn-sm btn-outline-info shadow-sm mb-1 btn-reset-trigger" title="Şifresini Sıfırla">
+                                                <i class="bi bi-key-fill"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-controller="Admin" asp-action="LoginAsMechanic" method="post" class="d-inline form-login-as">
+                                            <input type="hidden" name="mechanicId" value="@mechanic.Id" />
+                                            <button type="button" class="btn btn-sm btn-outline-dark shadow-sm mb-1 btn-login-as-trigger" title="Bu Usta Olarak Giriş Yap">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                        </form>
+                                        <button type="button"
+                                                class="btn btn-sm @(mechanic.Status ? "btn-outline-warning" : "btn-outline-success") confirm-button shadow-sm mb-1"
+                                                data-confirm-message="Bu tamircinin durumunu değiştirmek istiyor musunuz?"
+                                                data-form-action="/Admin/EditStatus?id=@mechanic.Id&status=@(mechanic.Status ? "false" : "true")">
+                                            <i class="bi @(mechanic.Status ? "bi-pause-circle" : "bi-play-circle")"></i>
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger confirm-button shadow-sm mb-1"
+                                                data-confirm-message="Bu tamirciyi silmek istediğinize emin misiniz?"
+                                                data-form-action="/Admin/Delete/@mechanic.Id"
+                                                data-form-method="post">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="bi bi-search fs-3 d-block mb-2"></i>
+                                    Kayıtlı tamirci bulunamadı.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if (Model.PageCount > 1)
+        {
+            <div class="card-footer bg-white clearfix">
+                <ul class="pagination pagination-sm m-0 float-end">
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.CurrentPage - 1, search = ViewBag.Search })">«</a>
+                    </li>
+
+                    @for (int i = 1; i <= Model.PageCount; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i, search = ViewBag.Search })">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.CurrentPage == Model.PageCount ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.CurrentPage + 1, search = ViewBag.Search })">»</a>
+                    </li>
+                </ul>
+            </div>
+        }
+    </div>
+
 </div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sınıfı 'btn-reset-trigger' olan tüm butonları yakala
+            const resetButtons = document.querySelectorAll('.btn-reset-trigger');
 
+            resetButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    // Tıklanan butonun içindeki bulunduğu formu bul
+                    const form = this.closest('.form-reset-pw');
 
- @await Html.PartialAsync("_ConfirmModalPartial") 
+                    // SweetAlert ile onay sor
+                    Swal.fire({
+                        title: 'Emin misiniz?',
+                        text: "Bu tamircinin şifresi sıfırlanacaktır. E-mail adresi varsa otomatik bildirim gidecektir.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#17a2b8', // Info rengi
+                        cancelButtonColor: '#6c757d', // İptal rengi
+                        confirmButtonText: '<i class="bi bi-check-circle"></i> Evet, Sıfırla',
+                        cancelButtonText: 'İptal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Admin evet derse, formu arka planda POST et
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
 
+       
+        const loginAsButtons = document.querySelectorAll('.btn-login-as-trigger');
 
+        loginAsButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const form = this.closest('.form-login-as');
 
-
-
+                Swal.fire({
+                    title: 'Gölge Giriş',
+                    text: "Kendi admin oturumunuz kapatılacak ve bu kullanıcının paneline yönlendirileceksiniz. Onaylıyor musunuz?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#343a40', // Dark rengi
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="bi bi-box-arrow-in-right"></i> Evet, Giriş Yap',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+                        </script>
+}
+@await Html.PartialAsync("_ConfirmModalPartial")

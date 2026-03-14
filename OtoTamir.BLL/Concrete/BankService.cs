@@ -55,9 +55,19 @@ namespace OtoTamir.BLL.Concrete
             await _bankDal.UpdateBalanceAsync(bankId, mechanicId, amount);
         }
 
-        Task<PagedResult<Bank>> IRepositoryService<Bank>.GetPagedAsync(Expression<Func<Bank, bool>> filter, Func<IQueryable<Bank>, IOrderedQueryable<Bank>> orderBy, int page, int pageSize, params Expression<Func<Bank, object>>[] includes)
+         async Task<PagedResult<Bank>> IRepositoryService<Bank>.GetDeletedPagedAsync(Expression<Func<Bank, bool>> filter, Func<IQueryable<Bank>, IOrderedQueryable<Bank>> orderBy, int page, int pageSize, params Expression<Func<Bank, object>>[] includes)
         {
-            return _bankDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _bankDal.GetDeletedPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+         async Task<PagedResult<Bank>> IRepositoryService<Bank>.GetPagedAsync(Expression<Func<Bank, bool>> filter, Func<IQueryable<Bank>, IOrderedQueryable<Bank>> orderBy, int page, int pageSize, params Expression<Func<Bank, object>>[] includes)
+        {
+            return await _bankDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+         async Task<int> IRepositoryService<Bank>.RestoreAsync(int id)
+        {
+           return await _bankDal.RestoreAsync(id);
         }
     }
 }

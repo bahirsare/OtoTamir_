@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.CORE.Entities
 {
-    public class TransactionCategory
+    public class TransactionCategory :BaseEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

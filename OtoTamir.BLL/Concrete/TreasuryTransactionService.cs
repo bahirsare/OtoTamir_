@@ -173,9 +173,9 @@ namespace OtoTamir.BLL.Concrete
             return await _transactionDal.GetByPaymentSourceAsync(treasuryId, mechanicId, source);
         }
 
-        public Task<TreasuryTransaction> GetOneAsync(int id, string mechanicId)
+        public async Task<TreasuryTransaction> GetOneAsync(int id, string mechanicId)
         {
-            return _transactionDal.GetOneAsync(id, mechanicId);
+            return await _transactionDal.GetOneAsync(id, mechanicId);
         }
 
         public async Task<decimal> GetTotalBalanceAsync(int treasuryId)
@@ -440,9 +440,19 @@ namespace OtoTamir.BLL.Concrete
             });
         }
 
-        Task<PagedResult<TreasuryTransaction>> IRepositoryService<TreasuryTransaction>.GetPagedAsync(Expression<Func<TreasuryTransaction, bool>> filter, Func<IQueryable<TreasuryTransaction>, IOrderedQueryable<TreasuryTransaction>> orderBy, int page, int pageSize, params Expression<Func<TreasuryTransaction, object>>[] includes)
+        async Task<PagedResult<TreasuryTransaction>> IRepositoryService<TreasuryTransaction>.GetPagedAsync(Expression<Func<TreasuryTransaction, bool>> filter, Func<IQueryable<TreasuryTransaction>, IOrderedQueryable<TreasuryTransaction>> orderBy, int page, int pageSize, params Expression<Func<TreasuryTransaction, object>>[] includes)
         {
-            return _transactionDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _transactionDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<int> IRepositoryService<TreasuryTransaction>.RestoreAsync(int id)
+        {
+            return await _transactionDal.RestoreAsync(id);
+        }
+
+        async Task<PagedResult<TreasuryTransaction>> IRepositoryService<TreasuryTransaction>.GetDeletedPagedAsync(Expression<Func<TreasuryTransaction, bool>> filter, Func<IQueryable<TreasuryTransaction>, IOrderedQueryable<TreasuryTransaction>> orderBy, int page, int pageSize, params Expression<Func<TreasuryTransaction, object>>[] includes)
+        {
+            return await _transactionDal.GetDeletedPagedAsync(filter,orderBy,page, pageSize, includes);
         }
     }
 }

@@ -53,9 +53,19 @@ namespace OtoTamir.BLL.Concrete
             return await _vehicleDal.UpdateAsync();
         }
 
-        Task<PagedResult<Vehicle>> IRepositoryService<Vehicle>.GetPagedAsync(Expression<Func<Vehicle, bool>> filter, Func<IQueryable<Vehicle>, IOrderedQueryable<Vehicle>> orderBy, int page, int pageSize, params Expression<Func<Vehicle, object>>[] includes)
+        async Task<PagedResult<Vehicle>> IRepositoryService<Vehicle>.GetDeletedPagedAsync(Expression<Func<Vehicle, bool>> filter, Func<IQueryable<Vehicle>, IOrderedQueryable<Vehicle>> orderBy, int page, int pageSize, params Expression<Func<Vehicle, object>>[] includes)
         {
-           return _vehicleDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _vehicleDal.GetDeletedPagedAsync(filter,orderBy, page, pageSize, includes);
+        }
+
+       async Task<PagedResult<Vehicle>> IRepositoryService<Vehicle>.GetPagedAsync(Expression<Func<Vehicle, bool>> filter, Func<IQueryable<Vehicle>, IOrderedQueryable<Vehicle>> orderBy, int page, int pageSize, params Expression<Func<Vehicle, object>>[] includes)
+        {
+           return await _vehicleDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<int> IRepositoryService<Vehicle>.RestoreAsync(int id)
+        {
+            return await _vehicleDal.RestoreAsync(id);
         }
     }
 }

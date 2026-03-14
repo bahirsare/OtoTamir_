@@ -52,9 +52,19 @@ namespace OtoTamir.BLL.Concrete
             return await _symptomDal.UpdateAsync();
         }
 
-        Task<PagedResult<Symptom>> IRepositoryService<Symptom>.GetPagedAsync(Expression<Func<Symptom, bool>> filter, Func<IQueryable<Symptom>, IOrderedQueryable<Symptom>> orderBy, int page, int pageSize, params Expression<Func<Symptom, object>>[] includes)
+       async Task<PagedResult<Symptom>> IRepositoryService<Symptom>.GetPagedAsync(Expression<Func<Symptom, bool>> filter, Func<IQueryable<Symptom>, IOrderedQueryable<Symptom>> orderBy, int page, int pageSize, params Expression<Func<Symptom, object>>[] includes)
         {
-            return _symptomDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _symptomDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<int> IRepositoryService<Symptom>.RestoreAsync(int id)
+        {
+            return await _symptomDal.RestoreAsync(id);
+        }
+
+        async Task<PagedResult<Symptom>> IRepositoryService<Symptom>.GetDeletedPagedAsync(Expression<Func<Symptom, bool>> filter, Func<IQueryable<Symptom>, IOrderedQueryable<Symptom>> orderBy, int page, int pageSize, params Expression<Func<Symptom, object>>[] includes)
+        {
+            return await _symptomDal.GetDeletedPagedAsync(filter,orderBy,page,pageSize, includes);
         }
     }
 }

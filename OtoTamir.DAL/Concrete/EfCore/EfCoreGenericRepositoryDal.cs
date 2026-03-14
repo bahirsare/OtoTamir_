@@ -95,6 +95,68 @@ namespace OtoTamir.DAL.Concrete.EfCore
                 RowCount = rowCount
             };
         }
+
+        public async Task<int> RestoreAsync(int id)
+        {
+            var entity = await _context.Set<T>()
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+
+            if (entity != null)
+            {
+                _context.Entry(entity).Property("IsDeleted").CurrentValue = false;
+                _context.Entry(entity).State = EntityState.Modified;
+
+                return await _context.SaveChangesAsync();
+            }
+            return 0;
+        }
+
+        public async Task<PagedResult<T>> GetDeletedPagedAsync(
+            Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            int page = 1,
+            int pageSize = 10,
+            params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _context.Set<T>()
+                .IgnoreQueryFilters()
+                .Where(e => EF.Property<bool>(e, "IsDeleted") == true);
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            var rowCount = await query.CountAsync();
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            var pageCount = (double)rowCount / pageSize;
+            int pageCountInt = (int)Math.Ceiling(pageCount);
+            var skip = (page - 1) * pageSize;
+            var results = await query.Skip(skip).Take(pageSize).ToListAsync();
+
+            return new PagedResult<T>
+            {
+                Results = results,
+                CurrentPage = page,
+                PageCount = pageCountInt,
+                PageSize = pageSize,
+                RowCount = rowCount
+            };
+        }
     }
 }
 

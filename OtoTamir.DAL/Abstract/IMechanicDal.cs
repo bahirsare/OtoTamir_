@@ -68,6 +68,7 @@ namespace OtoTamir.DAL.Abstract
             bool includeVehicle,
             Func<IQueryable<Mechanic>, IOrderedQueryable<Mechanic>> orderBy,
             Expression<Func<Mechanic, bool>> filter = null);
+        Task<bool> RestoreMechanicAsync(string id);
 
     }
 }

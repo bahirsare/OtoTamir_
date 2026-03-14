@@ -67,9 +67,19 @@ namespace OtoTamir.BLL.Concrete
             return await _transactionCategoryDal.AnyAsync(filter);
         }
 
-        Task<PagedResult<TransactionCategory>> IRepositoryService<TransactionCategory>.GetPagedAsync(Expression<Func<TransactionCategory, bool>> filter, Func<IQueryable<TransactionCategory>, IOrderedQueryable<TransactionCategory>> orderBy, int page, int pageSize, params Expression<Func<TransactionCategory, object>>[] includes)
+        async Task<PagedResult<TransactionCategory>> IRepositoryService<TransactionCategory>.GetPagedAsync(Expression<Func<TransactionCategory, bool>> filter, Func<IQueryable<TransactionCategory>, IOrderedQueryable<TransactionCategory>> orderBy, int page, int pageSize, params Expression<Func<TransactionCategory, object>>[] includes)
         {
-            return _transactionCategoryDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+            return await _transactionCategoryDal.GetPagedAsync(filter, orderBy, page, pageSize, includes);
+        }
+
+        async Task<int> IRepositoryService<TransactionCategory>.RestoreAsync(int id)
+        {
+            return await _transactionCategoryDal.RestoreAsync(id);
+        }
+
+        async Task<PagedResult<TransactionCategory>> IRepositoryService<TransactionCategory>.GetDeletedPagedAsync(Expression<Func<TransactionCategory, bool>> filter, Func<IQueryable<TransactionCategory>, IOrderedQueryable<TransactionCategory>> orderBy, int page, int pageSize, params Expression<Func<TransactionCategory, object>>[] includes)
+        {
+            return await _transactionCategoryDal.GetDeletedPagedAsync(filter,orderBy,page,pageSize, includes);
         }
     }
 }

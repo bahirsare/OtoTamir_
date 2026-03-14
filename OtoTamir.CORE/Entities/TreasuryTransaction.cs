@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace OtoTamir.CORE.Entities
 {
-    public class TreasuryTransaction
+    public class TreasuryTransaction: BaseEntity
     {
-        public int Id { get; set; }
         public DateTime TransactionDate { get; set; } = DateTime.Now;
         public string AuthorName { get; set; }
         public string Description { get; set; }                     
