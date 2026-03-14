@@ -1,0 +1,113 @@
+﻿@model OtoTamir.CORE.Utilities.PagedResult<Announcement>
+@{
+    ViewData["Title"] = "Duyuru Yönetimi";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid pt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card card-primary card-outline shadow-sm">
+                <div class="card-header"><h3 class="card-title fw-bold"><i class="bi bi-megaphone"></i> Yeni Duyuru Yayınla</h3></div>
+                <div class="card-body">
+                    <form asp-action="CreateAnnouncement" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Başlık</label>
+                            <input type="text" name="title" class="form-control" placeholder="Örn: Sistem Bakımı" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mesaj</label>
+                            <textarea name="message" class="form-control" rows="3" placeholder="Tüm ustalar bu mesajı görecek..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Renk/Tema</label>
+                            <select name="type" class="form-select">
+                                <option value="info">Mavi (Bilgilendirme)</option>
+                                <option value="warning">Sarı (Uyarı)</option>
+                                <option value="danger">Kırmızı (Acil/Kritik)</option>
+                                <option value="success">Yeşil (Müjde/Başarı)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-send-fill"></i> Hemen Yayınla</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header"><h3 class="card-title fw-bold">Duyuru Geçmişi</h3></div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Başlık</th>
+                                <th>Tarih</th>
+                                <th>Durum</th>
+                                <th class="text-end">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Results != null && Model.Results.Any())
+                            {
+                                foreach (var item in Model.Results)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">@item.Title</div>
+                                            <div class="text-muted small text-truncate" style="max-width: 300px;">@item.Message</div>
+                                        </td>
+                                        <td>@item.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td>
+                                            @if (item.IsActive) { <span class="badge bg-success">Yayında</span> }
+                                            else { <span class="badge bg-secondary">Kapalı</span> }
+                                        </td>
+                                        <td class="text-end">
+                                            <form asp-action="ToggleAnnouncement" method="post">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                @if (item.IsActive)
+                                                {
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm">Yayından Kaldır</button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="btn btn-sm btn-outline-success shadow-sm">Tekrar Yayınla</button>
+                                                }
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">Henüz duyuru yayınlanmamış.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (Model.PageCount > 1)
+                {
+                    <div class="card-footer bg-white clearfix">
+                        <ul class="pagination pagination-sm m-0 float-end">
+                            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Announcements", new { page = Model.CurrentPage - 1 })">«</a>
+                            </li>
+                            @for (int i = 1; i <= Model.PageCount; i++)
+                            {
+                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Announcements", new { page = i })">@i</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.CurrentPage == Model.PageCount ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Announcements", new { page = Model.CurrentPage + 1 })">»</a>
+                            </li>
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

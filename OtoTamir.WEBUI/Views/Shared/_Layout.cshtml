@@ -1,5 +1,11 @@
 ﻿<!doctype html>
 <html lang="tr">
+@inject OtoTamir.BLL.Abstract.IAnnouncementService _announcementService
+@{
+        // GetPagedAsync ile IsActive=true olan kaydı getiriyoruz
+        var pagedActive = await _announcementService.GetPagedAsync(filter: x => x.IsActive, page: 1, pageSize: 1);
+        var activeAnnouncement = pagedActive.Results?.FirstOrDefault();
+}
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>OtoTamir | Atölye Yönetimi</title>
@@ -104,6 +110,18 @@
 
         <main class="app-main">
             <div class="container-fluid mt-3">
+                @if (activeAnnouncement != null)
+                {
+                    <div class="container-fluid pt-3 px-3">
+                        <div class="alert alert-@activeAnnouncement.Type alert-dismissible shadow-sm fade show mb-0" role="alert">
+                            <h5 class="alert-heading fw-bold mb-1">
+                                <i class="bi bi-megaphone-fill me-2"></i> @activeAnnouncement.Title
+                            </h5>
+                            <p class="mb-0">@activeAnnouncement.Message</p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                }
                 @if (TempData["SuccessMessage"] != null)
                 {
                     <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">

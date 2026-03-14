@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OtoTamir.BLL.Abstract;
+using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
 using OtoTamir.CORE.Utilities;
 using OtoTamir.WEBUI.Services;
@@ -17,16 +18,18 @@ namespace OtoTamir.WEBUI.Controllers
         private SignInManager<Mechanic> _signInManager;
         private readonly IMechanicService _mechanicService;
         private readonly IMailHelper _mailHelper;
+        private readonly IAnnouncementService _announcementService;
         private UserManager<Mechanic> _userManager;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(SignInManager<Mechanic> signInManager,IMechanicService mechanicService, ILogger<AdminController> logger,IMailHelper mailHelper,UserManager<Mechanic> userManager)
+        public AdminController(SignInManager<Mechanic> signInManager,IMechanicService mechanicService, ILogger<AdminController> logger,IMailHelper mailHelper,UserManager<Mechanic> userManager, IAnnouncementService announcementService)
         {
             _signInManager = signInManager;
             _mechanicService = mechanicService;
             _logger = logger;
             _userManager = userManager;
             _mailHelper = mailHelper;
+            _announcementService = announcementService;
         }
         
         public IActionResult Index()
@@ -206,6 +209,70 @@ namespace OtoTamir.WEBUI.Controllers
             TempData["ErrorMessage"] = "Giriş yapılacak usta bulunamadı!";
             return RedirectToAction("Mechanic");
         }
+        
+        public async Task<IActionResult> Announcements(int page = 1)
+        {
+            var pagedAnnouncements = await _announcementService.GetPagedAsync(
+                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                page: page,
+                pageSize: 10
+            );
 
+            return View(pagedAnnouncements);
+        }
+
+        
+        [HttpPost]
+        public async Task<IActionResult> CreateAnnouncement(string title, string message, string type)
+        {
+           
+            var activeAnnouncements = await _announcementService.GetPagedAsync(
+                filter: x => x.IsActive,
+                page: 1,
+                pageSize: 50
+            );
+
+            
+            if (activeAnnouncements.Results != null && activeAnnouncements.Results.Any())
+            {
+                foreach (var item in activeAnnouncements.Results)
+                {
+                    item.IsActive = false;
+                }
+                await _announcementService.UpdateAsync(); 
+            }
+
+            
+            var newAnnouncement = new Announcement
+            {
+                Title = title,
+                Message = message,
+                Type = type,
+                IsActive = true
+            };
+
+            
+            await _announcementService.CreateAsync(newAnnouncement);
+
+            TempData["SuccessMessage"] = "Duyuru başarıyla yayınlandı ve tüm ustaların ekranına düştü!";
+            return RedirectToAction("Announcements");
+        }
+
+        
+        [HttpPost]
+        public async Task<IActionResult> ToggleAnnouncement(int id)
+        {
+            
+            var result = await _announcementService.GetPagedAsync(filter: x => x.Id == id, page: 1, pageSize: 1);
+            var announcement = result.Results?.FirstOrDefault();
+
+            if (announcement != null)
+            {
+                announcement.IsActive = !announcement.IsActive;
+                await _announcementService.UpdateAsync(); 
+            }
+
+            return RedirectToAction("Announcements");
+        }
     }
 }

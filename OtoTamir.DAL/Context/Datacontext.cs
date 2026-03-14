@@ -105,7 +105,7 @@ namespace OtoTamir.DAL.Context
         public DbSet<PurchaseDetail> PurchaseDetails { get; set; }
         public DbSet<RepairComment> RepairComments { get; set; }
         public DbSet<SparePart> SpareParts { get; set; }
-        
+        public DbSet<Announcement> Announcements { get; set; }
         public DbSet<Bank> Banks { get; set; }
         public DbSet<BankCard> BankCards { get; set; }
         public DbSet<TransactionCategory> TransactionCategories  { get; set; }

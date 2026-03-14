@@ -72,7 +72,8 @@ namespace OtoTamir.WEBUI
 
             builder.Services.AddScoped<IPosTerminalDal,EfCorePosTerminalDal>();
             builder.Services.AddScoped<IPosTerminalService,PosTerminalService>();
-
+            builder.Services.AddScoped<IAnnouncementDal, EfCoreAnnouncementDal>();
+            builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
             builder.Services.AddScoped<IServiceProcessManager, ServiceProcessManager>();
             builder.Services.AddScoped<Services.MailHelper.IMailHelper, Services.MailHelper.MailHelper>();
             builder.Services.Configure<IdentityOptions>(options =>
