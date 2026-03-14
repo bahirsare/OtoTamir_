@@ -1,57 +1,110 @@
 ﻿@model LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Giriş Yap";
     Layout = "~/Views/Shared/_LayoutAccount.cshtml";
 }
-<body class ="layout-fixed sidebar-expand-lg bg-body-tertiary">
-<div class="login-box">
-    <div class="login-logo">
-        <a href="/home/Index"><b>Oto</b>Tamir</a>
-    </div>
-    <!-- /.login-logo -->
-     
-    <div class="card">
-        <div class="card-body login-card-body">
-            <p class="login-box-msg">Sign in to start your session</p>
-            <form asp-action="Login" method="post">
-                <div class="input-group mb-3">
-                    <input asp-for="UserName" class="form-control" placeholder="Username" />
-                    <div class="input-group-text"><span class="bi bi-envelope"></span></div>
-                </div>
-                <div class="input-group mb-3">
-                    <input asp-for="Password" class="form-control" placeholder="Password" />
-                    <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
-                </div>
-                <!--begin::Row-->
-                <div class="row">
-                    <div class="col-8">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                            <label class="form-check-label" for="flexCheckDefault"> Remember Me </label>
-                        </div>
-                    </div>
-                    <!-- /.col -->
-                    <div class="col-4">
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Sign In</button>
-                        </div>
-                    </div>
-                    <!-- /.col -->
-                </div>
-                <!--end::Row-->
-            </form>
-            
-            <!-- /.social-auth-links -->
-                <p class="mb-1">
-                    <button class="btn btn-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Şifremi unuttum</button>
-                    @* <a href="/Account/ForgotPassword">I forgot my password</a> *@
-                </p>
-            <p class="mb-0">
-                <a href="/Account/Register" class="text-center"> Register a new membership </a>
-            </p>
+
+<body class="login-page bg-light">
+    <div class="login-box" style="width: 400px;">
+        <div class="login-logo mb-4 text-center">
+            <a href="/" class="text-decoration-none d-flex flex-column align-items-center">
+                <img src="~/images/logo.png"
+                     alt="OtoTamir Logo"
+                     class="mb-2 shadow-sm"
+                     style="height: 100px; width: auto; border-radius: 12px; object-fit: contain;" />
+
+                <span class="fs-2 text-dark" style="letter-spacing: -1px;">
+                    Oto<span class="fw-bold text-primary">Tamir</span>
+                </span>
+                <p class="text-muted small fw-normal mt-1">Atölye Yönetim Sistemi</p>
+            </a>
         </div>
-        <!-- /.login-card-body -->
+
+        <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-body login-card-body p-4">
+                <p class="login-box-msg fw-bold text-secondary">Hesabınıza giriş yapın</p>
+
+                <form asp-action="Login" method="post">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Kullanıcı Adı</label>
+                        <div class="input-group">
+                            <input asp-for="UserName" class="form-control border-end-0 bg-light" placeholder="Kullanıcı adınız" required />
+                            <span class="input-group-text bg-light border-start-0 text-muted">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Şifre</label>
+                        <div class="input-group">
+                            <input asp-for="Password" type="password" class="form-control border-end-0 bg-light" placeholder="Şifreniz" required />
+                            <span class="input-group-text bg-light border-start-0 text-muted">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mt-4">
+                        <div class="col-7">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe" />
+                                <label class="form-check-label small text-muted" for="rememberMe"> Beni Hatırla </label>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <button type="submit" class="btn btn-primary w-100 shadow-sm fw-bold py-2">
+                                Giriş Yap <i class="bi bi-box-arrow-in-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <hr class="my-4 opacity-25">
+
+                <div class="text-center">
+                    <p class="mb-1">
+                        <button class="btn btn-link btn-sm text-decoration-none text-muted" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
+                            <i class="bi bi-question-circle me-1"></i> Şifremi Unuttum
+                        </button>
+                    </p>
+                    <p class="mb-0 small text-muted">
+                        Henüz hesabınız yok mu?
+                        <a href="/Account/Register" class="text-primary fw-bold text-decoration-none">Şimdi Kaydolun</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center text-muted mt-4 small">
+            &copy; @DateTime.Now.Year <strong>OtoTamir Sistemleri</strong>
+        </p>
     </div>
-</div>
+
+    @await Html.PartialAsync("_ForgotPasswordPartial")
 </body>
-@await Html.PartialAsync("_ForgotPasswordPartial")
+
+<style>
+    /* Daha yumuşak geçişler ve modern görünüm için ekstra dokunuşlar */
+    .login-page {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .form-control:focus {
+        background-color: #fff !important;
+        border-color: #0d6efd;
+        box-shadow: none;
+    }
+
+    .card {
+        transition: transform 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+</style>

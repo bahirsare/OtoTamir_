@@ -7,28 +7,30 @@ namespace OtoTamir.CORE.Identity
     {
 
 
-            public string StoreName { get; set; }
-            public string? Skills { get; set; }
-            public bool Status { get; set; }
-            public string? Adress { get; set; }
-            public string ImageUrl { get; set; }
-            public bool IsProfileCompleted { get; set; }
-            public Treasury Treasury { get; set; }
-            public int TreasuryId { get; set; }
-            public DateTime CreatedDate { get; set; }
-            public DateTime? DeletedDate { get; set; }
-            public DateTime ModifiedDate { get; set; }
-            public List<Client> Clients { get; set; }
-            public List<Bank> Banks { get; set; }
-            public string? TaxNumber { get; set; } // Vergi No
-            public string? TaxOffice { get; set; } // Vergi Dairesi
-            public bool IsDeleted { get; set; } = false;
+        public string StoreName { get; set; }
+        public string? Skills { get; set; }
+        public bool Status { get; set; }
+        public string? Adress { get; set; }
+        public string ImageUrl { get; set; }
+        public bool IsProfileCompleted { get; set; }
+        public Treasury Treasury { get; set; }
+        public int TreasuryId { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        public List<Client> Clients { get; set; }
+        public List<Bank> Banks { get; set; }
+        public string? TaxNumber { get; set; } // Vergi No
+        public string? TaxOffice { get; set; } // Vergi Dairesi
+        public bool IsDeleted { get; set; } = false;
+        public DateTime SubscriptionStartDate { get; set; } = DateTime.Now;
+        public DateTime SubscriptionEndDate { get; set; } = DateTime.Now.AddDays(14);
         public Mechanic()
         {
             Clients = new List<Client>();
             Banks = new List<Bank>();
-            
-          
+
+
         }
     }
 }

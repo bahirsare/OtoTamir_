@@ -10,6 +10,7 @@ using OtoTamir.CORE.Mapping;
 using OtoTamir.DAL.Abstract;
 using OtoTamir.DAL.Concrete.EfCore;
 using OtoTamir.DAL.Context;
+using OtoTamir.WEBUI.Services.Filters;
 using Serilog;
 using System.Globalization;
 
@@ -107,7 +108,8 @@ namespace OtoTamir.WEBUI
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllersWithViews(options =>
             {
-                options.ModelBinderProviders.Insert(0, new OtoTamir.WEBUI.Services.SmartDecimalModelBinderProvider());
+                options.ModelBinderProviders.Insert(0, new Services.SmartDecimalModelBinderProvider());
+                options.Filters.Add<SubscriptionCheckFilter>();
             });
             var app = builder.Build();
 

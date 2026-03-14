@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OtoTamir.BLL.Abstract;
 using OtoTamir.CORE.Entities;
 using OtoTamir.CORE.Identity;
@@ -21,8 +22,8 @@ namespace OtoTamir.WEBUI.Controllers
         private readonly IAnnouncementService _announcementService;
         private UserManager<Mechanic> _userManager;
         private readonly ILogger<AdminController> _logger;
-
-        public AdminController(SignInManager<Mechanic> signInManager,IMechanicService mechanicService, ILogger<AdminController> logger,IMailHelper mailHelper,UserManager<Mechanic> userManager, IAnnouncementService announcementService)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public AdminController(SignInManager<Mechanic> signInManager,IMechanicService mechanicService, ILogger<AdminController> logger,IMailHelper mailHelper,UserManager<Mechanic> userManager, IAnnouncementService announcementService,RoleManager<IdentityRole> roleManager)
         {
             _signInManager = signInManager;
             _mechanicService = mechanicService;
@@ -30,10 +31,44 @@ namespace OtoTamir.WEBUI.Controllers
             _userManager = userManager;
             _mailHelper = mailHelper;
             _announcementService = announcementService;
+            _roleManager = roleManager;
         }
-        
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
+            // 1. Sistemdeki silinmemiş tüm ustaları (Müşterileriyle birlikte) çekiyoruz
+            var allMechanics = await _userManager.Users
+                .Include(m => m.Clients)
+                .Where(m => !m.IsDeleted)
+                .ToListAsync();
+
+            // --- TEPE KUTULARI İÇİN İSTATİSTİKLER ---
+            // Toplam Usta Sayısı
+            ViewBag.TotalMechanics = allMechanics.Count;
+
+            // Aktif (Sistemi kullanan) Usta Sayısı
+            ViewBag.ActiveMechanics = allMechanics.Count(m => m.Status);
+
+            // Ustaların sisteme eklediği TOPLAM Müşteri/Araç sayısı (Sistemin büyüklüğünü gösterir)
+            ViewBag.TotalClients = allMechanics.Sum(m => m.Clients?.Count ?? 0);
+
+            // Lisansı bitmiş veya bitmesine 7 günden az kalmış usta sayısı
+            ViewBag.ExpiringCount = allMechanics.Count(m => m.SubscriptionEndDate <= DateTime.Now.AddDays(7));
+
+            // --- ALT TABLOLAR İÇİN LİSTELER ---
+            // Son kayıt olan 5 usta (Yeni müşteriler)
+            ViewBag.LatestMechanics = allMechanics
+                .OrderByDescending(m => m.CreatedDate)
+                .Take(5)
+                .ToList();
+
+            // Lisansı bitmek üzere olan veya bitmiş 5 usta (Para tahsil edilecekler listesi!)
+            ViewBag.ExpiringMechanics = allMechanics
+                .Where(m => m.SubscriptionEndDate <= DateTime.Now.AddDays(7))
+                .OrderBy(m => m.SubscriptionEndDate)
+                .Take(5)
+                .ToList();
+
             return View();
         }
         public async Task<IActionResult> Mechanic(string search = null, int page = 1)
@@ -47,8 +82,11 @@ namespace OtoTamir.WEBUI.Controllers
                 pageSize: 10,
                 includes: x => x.Clients 
             );
+            var adminUsers = await _userManager.GetUsersInRoleAsync("Admin");
+            ViewBag.AdminIds = adminUsers.Select(x => x.Id).ToList();
 
             return View(pagedMechanics);
+            
         }
 
         [HttpPost]
@@ -203,7 +241,7 @@ namespace OtoTamir.WEBUI.Controllers
                 await _signInManager.SignInAsync(mechanic, isPersistent: false);
 
                 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Mechanic", "Home");
             }
 
             TempData["ErrorMessage"] = "Giriş yapılacak usta bulunamadı!";
@@ -274,5 +312,69 @@ namespace OtoTamir.WEBUI.Controllers
 
             return RedirectToAction("Announcements");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ExtendSubscription([FromForm] string mechanicId, [FromForm] int months)
+        {
+            var mechanic = await _userManager.FindByIdAsync(mechanicId);
+            if (mechanic == null)
+            {
+                TempData["ErrorMessage"] = "Usta bulunamadı!";
+                return RedirectToAction("Mechanic");
+            }
+
+            if (mechanic.SubscriptionEndDate < DateTime.Now)
+            {
+                mechanic.SubscriptionEndDate = DateTime.Now;
+            }
+
+            mechanic.SubscriptionEndDate = mechanic.SubscriptionEndDate.AddMonths(months);
+            var result = await _userManager.UpdateAsync(mechanic);
+
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = $"<strong>{mechanic.StoreName}</strong> adlı ustanın lisans süresi <strong>{months} ay</strong> uzatıldı.<br>Yeni bitiş tarihi: <strong>{mechanic.SubscriptionEndDate:dd.MM.yyyy}</strong>";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Süre uzatılırken bir hata oluştu.";
+            }
+
+            return RedirectToAction("Mechanic");
+        }
+
+        public async Task<IActionResult> ToggleAdminRole([FromForm] string mechanicId, [FromForm] bool isGranted)
+        {
+            var mechanic = await _userManager.FindByIdAsync(mechanicId);
+            if (mechanic == null) return RedirectToAction("Index");
+
+            // 1. GÜVENLİK: Eğer veritabanında "Admin" diye bir rol hiç oluşturulmadıysa, önce onu yarat.
+            if (!await _roleManager.RoleExistsAsync("Admin"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            // 2. Yetki veriliyorsa
+            if (isGranted)
+            {
+                if (!await _userManager.IsInRoleAsync(mechanic, "Admin"))
+                {
+                    await _userManager.AddToRoleAsync(mechanic, "Admin");
+                }
+                TempData["SuccessMessage"] = $"<i class='bi bi-star-fill text-warning'></i> <b>{mechanic.StoreName}</b> hesabına <b>Admin</b> yetkisi verildi!";
+            }
+            // 3. Yetki alınıyorsa
+            else
+            {
+                if (await _userManager.IsInRoleAsync(mechanic, "Admin"))
+                {
+                    await _userManager.RemoveFromRoleAsync(mechanic, "Admin");
+                }
+                TempData["SuccessMessage"] = $"<b>{mechanic.StoreName}</b> hesabının Admin yetkisi geri alındı.";
+            }
+
+            return RedirectToAction("Mechanic");
+        }
+
     }
 }

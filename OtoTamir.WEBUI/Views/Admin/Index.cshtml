@@ -1,6 +1,180 @@
-﻿
-@{
- 
+﻿@{
+    ViewData["Title"] = "Patron Paneli (Dashboard)";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    // ViewBagle gelen listeleri alalım
+    var latestMechanics = ViewBag.LatestMechanics as List<OtoTamir.CORE.Identity.Mechanic>;
+    var expiringMechanics = ViewBag.ExpiringMechanics as List<OtoTamir.CORE.Identity.Mechanic>;
 }
-<h2>Admin Paneli - Tamirciler</h2>
+
+<div class="container-fluid pt-4">
+    <div class="row mb-4">
+        <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-info shadow-sm">
+                <div class="inner">
+                    <h3>@ViewBag.TotalMechanics</h3>
+                    <p>Toplam Kayıtlı Usta</p>
+                </div>
+                <div class="small-box-icon">
+                    <i class="bi bi-tools text-dark opacity-25"></i>
+                </div>
+                <a href="/Admin/Mechanic" class="small-box-footer link-light link-underline-opacity-0">
+                    Detayları Gör <i class="bi bi-arrow-right-circle"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-success shadow-sm">
+                <div class="inner">
+                    <h3>@ViewBag.ActiveMechanics</h3>
+                    <p>Aktif / Çalışan Dükkan</p>
+                </div>
+                <div class="small-box-icon">
+                    <i class="bi bi-check-circle-fill text-dark opacity-25"></i>
+                </div>
+                <a href="/Admin/Mechanic" class="small-box-footer link-light link-underline-opacity-0">
+                    Detayları Gör <i class="bi bi-arrow-right-circle"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-warning shadow-sm">
+                <div class="inner">
+                    <h3>@ViewBag.TotalClients</h3>
+                    <p>Sistemdeki Toplam Müşteri</p>
+                </div>
+                <div class="small-box-icon">
+                    <i class="bi bi-people-fill text-dark opacity-25"></i>
+                </div>
+                <a href="#" class="small-box-footer link-dark link-underline-opacity-0">
+                    Tüm Araç/Müşteri Hacmi <i class="bi bi-graph-up"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-danger shadow-sm">
+                <div class="inner">
+                    <h3>@ViewBag.ExpiringCount</h3>
+                    <p>Lisansı Biten / Yaklaşan</p>
+                </div>
+                <div class="small-box-icon">
+                    <i class="bi bi-shield-x text-dark opacity-25"></i>
+                </div>
+                <a href="#expiringSection" class="small-box-footer link-light link-underline-opacity-0">
+                    Aşağıdan İncele <i class="bi bi-arrow-down-circle"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="card card-outline card-primary shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h3 class="card-title fw-bold"><i class="bi bi-person-plus-fill text-primary me-2"></i> Yeni Katılan Ustalar</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped table-hover mb-0 align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Dükkan Adı</th>
+                                <th>Kayıt Tarihi</th>
+                                <th class="text-center">Profil</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (latestMechanics != null && latestMechanics.Any())
+                            {
+                                foreach (var mechanic in latestMechanics)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@mechanic.StoreName <br> <span class="text-muted small fw-normal">&#64;@mechanic.UserName</span></td>
+                                        <td>@mechanic.CreatedDate.ToString("dd.MM.yyyy")</td>
+                                        <td class="text-center">
+                                            @if (mechanic.IsProfileCompleted)
+                                            {
+                                                <span class="badge bg-success">Tam</span>
+                                            }
+                                            else
+                                            {
+
+                                                <span class="badge bg-warning text-dark">Eksik</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="3" class="text-center text-muted py-3">Henüz kayıtlı usta yok.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a href="/Admin/Mechanic" class="text-decoration-none">Tüm Ustaları Gör</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6" id="expiringSection">
+            <div class="card card-outline card-danger shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h3 class="card-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i> Lisans Uyarısı (Tahsilat Bekleyenler)</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped table-hover mb-0 align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Dükkan Adı</th>
+                                <th>Telefon</th>
+                                <th class="text-end">Kalan Süre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (expiringMechanics != null && expiringMechanics.Any())
+                            {
+                                foreach (var mechanic in expiringMechanics)
+                                {
+                                    var remainingDays = Math.Ceiling((mechanic.SubscriptionEndDate - DateTime.Now).TotalDays);
+                                    <tr>
+                                        <td class="fw-bold">@mechanic.StoreName</td>
+                                        <td><i class="bi bi-telephone-fill text-muted small me-1"></i> @(mechanic.PhoneNumber ?? "-")</td>
+                                        <td class="text-end">
+                                            @if (remainingDays < 0)
+                                            {
+                                                <span class="badge bg-danger"><i class="bi bi-shield-x"></i> @(Math.Abs(remainingDays)) Gün Geçti!</span>
+                                            }
+                                            else if (remainingDays == 0)
+                                            {
+                                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-bottom"></i> Bugün Bitiyor</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> @remainingDays Gün Kaldı</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">
+                                        <i class="bi bi-emoji-smile fs-4 d-block mb-2 text-success"></i>
+                                        Şu an için lisansı biten veya yaklaşan usta bulunmuyor.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -57,8 +57,9 @@
                             <th>Dükkan / Kullanıcı Adı</th>
                             <th>İletişim Bilgileri</th>
                             <th>Vergi Bilgisi</th>
-                            <th class="text-center">Müşteri</th>
+                            <th class="text-center">Müşteri</th>                          
                             <th class="text-center">Profil Durumu</th>
+                            <th class="text-center text-primary"><i class="bi bi-shield-lock-fill"></i> Admin</th>
                             <th class="text-end">İşlemler</th>
                         </tr>
                     </thead>
@@ -114,8 +115,43 @@
                                         {
                                             <span class="badge border border-warning text-warning d-block small">Profil Eksik</span>
                                         }
-                                    </td>
+                                        @{
+                                            var remainingDays = (mechanic.SubscriptionEndDate - DateTime.Now).TotalDays;
+                                        }
 
+                                        @if (remainingDays > 10)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success d-block small mt-1">
+                                                <i class="bi bi-shield-check"></i> @Math.Ceiling(remainingDays) Gün Kaldı
+                                            </span>
+                                        }
+                                        else if (remainingDays > 0)
+                                        {
+                                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning d-block small mt-1">
+                                                <i class="bi bi-hourglass-split"></i> @Math.Ceiling(remainingDays) Gün Kaldı
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger d-block small mt-1">
+                                                <i class="bi bi-shield-x"></i> Lisans Bitti!
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @{
+                                            var adminIds = ViewBag.AdminIds as List<string> ?? new List<string>();
+                                            bool isAdmin = adminIds.Contains(mechanic.Id);
+                                        }
+                                        <form asp-controller="Admin" asp-action="ToggleAdminRole" method="post" class="form-toggle-admin m-0">
+                                            <input type="hidden" name="mechanicId" value="@mechanic.Id" />
+                                            <input type="hidden" name="isGranted" value="@(isAdmin ? "false" : "true")" class="input-is-granted" />
+
+                                            <div class="form-check form-switch d-flex justify-content-center m-0 fs-5">
+                                                <input class="form-check-input admin-switch-trigger cursor-pointer" type="checkbox" role="switch" @(isAdmin ? "checked" : "")>
+                                            </div>
+                                        </form>
+                                    </td>
                                     <td class="text-end">
                                         <form asp-controller="Admin" asp-action="ResetPassword" method="post" class="d-inline form-reset-pw">
                                             <input type="hidden" name="mechanicId" value="@mechanic.Id" />
@@ -128,6 +164,14 @@
                                             <input type="hidden" name="mechanicId" value="@mechanic.Id" />
                                             <button type="button" class="btn btn-sm btn-outline-dark shadow-sm mb-1 btn-login-as-trigger" title="Bu Usta Olarak Giriş Yap">
                                                 <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-controller="Admin" asp-action="ExtendSubscription" method="post" class="d-inline form-extend-sub">
+                                            <input type="hidden" name="mechanicId" value="@mechanic.Id" />
+                                            <input type="hidden" name="months" class="input-months" value="1" />
+
+                                            <button type="button" class="btn btn-sm btn-outline-success shadow-sm mb-1 btn-extend-trigger" title="Lisans Süresini Uzat">
+                                                <i class="bi bi-calendar-plus-fill"></i>
                                             </button>
                                         </form>
                                         <button type="button"
@@ -240,6 +284,80 @@
                 });
             });
         });
-                        </script>
+
+                           
+        const extendButtons = document.querySelectorAll('.btn-extend-trigger');
+
+        extendButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const form = this.closest('.form-extend-sub');
+                const monthsInput = form.querySelector('.input-months');
+
+                Swal.fire({
+                    title: 'Lisans Yenileme',
+                    text: "Ustanın sistem kullanım süresini ne kadar uzatmak istiyorsunuz?",
+                    icon: 'info',
+                    input: 'select',
+                    inputOptions: {
+                        '1': '1 Ay Uzat',
+                        '3': '3 Ay Uzat',
+                        '6': '6 Ay Uzat',
+                        '12': '1 Yıl Uzat'
+                    },
+                    inputPlaceholder: 'Süre Seçiniz',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="bi bi-check-circle"></i> Süreyi Uzat',
+                    cancelButtonText: 'İptal',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Lütfen bir süre seçin!'
+                        }
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Seçilen ayı gizli inputa yaz ve formu gönder
+                        monthsInput.value = result.value;
+                        form.submit();
+                    }
+                });
+            });
+        });
+                // ADMİN YETKİSİ SWITCH DİNLEYİCİSİ
+        const adminSwitches = document.querySelectorAll('.admin-switch-trigger');
+
+        adminSwitches.forEach(switchBtn => {
+            switchBtn.addEventListener('change', function (e) {
+                // Switch'in hareketini şimdilik durdur
+                e.preventDefault();
+                const isChecked = this.checked;
+
+                // Kullanıcı onaylayana kadar görseli eski haline getir
+                this.checked = !isChecked;
+
+                const form = this.closest('.form-toggle-admin');
+
+                Swal.fire({
+                    title: 'Yetki Değişikliği',
+                    html: isChecked
+                        ? "Bu kullanıcıya <b>Tam Sistem Yöneticisi (Admin)</b> yetkisi vermek üzeresiniz. Her şeyi görebilecek ve silebilecek. Onaylıyor musunuz?"
+                        : "Bu kullanıcının Admin yetkisini almak üzeresiniz. Onaylıyor musunuz?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: isChecked ? '#28a745' : '#dc3545', // Veriyorsa yeşil, alıyorsa kırmızı
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: isChecked ? '<i class="bi bi-shield-check"></i> Yetki Ver' : '<i class="bi bi-shield-x"></i> Yetkiyi Al',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Onaylanırsa switch'i çevir ve formu post et
+                        this.checked = isChecked;
+                        form.submit();
+                    }
+                });
+            });
+        });
+        </script>
 }
 @await Html.PartialAsync("_ConfirmModalPartial")

@@ -1,11 +1,23 @@
-﻿<!doctype html>
+﻿@inject OtoTamir.BLL.Abstract.IAnnouncementService _announcementService
+@inject Microsoft.AspNetCore.Identity.UserManager<OtoTamir.CORE.Identity.Mechanic> UserManager
+@{
+    // 1. DUYURU KONTROLÜ
+    var pagedActive = await _announcementService.GetPagedAsync(filter: x => x.IsActive, page: 1, pageSize: 1);
+    var activeAnnouncement = pagedActive.Results?.FirstOrDefault();
+
+    // 2. KULLANICI LİSANS KONTROLÜ
+    var currentUser = await UserManager.GetUserAsync(User);
+    bool isAdmin = User.IsInRole("Admin");
+}
+<!doctype html>
 <html lang="tr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>OtoTamir | Admin Paneli</title>
+    <title>OtoTamir | Patron Paneli</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="title" content="OtoTamir | Admin Paneli" />
-    <meta name="description" content="OtoTamir Yönetim Paneli" />
+    <meta name="title" content="OtoTamir Yönetim Paneli" />
+    <meta name="author" content="OtoTamir" />
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/source-sans-3@5.0.12/index.css" integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css" integrity="sha256-tZHrRjVqNSRyWg2wbppGnT833E/Ys0DHWGwT04GiqQg=" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha256-9kPW/n5nn53j4WMRYAxe9c1rCY96Oogo/MKSVdKzPmI=" crossorigin="anonymous" />
@@ -14,33 +26,61 @@
     <link rel="stylesheet" href="~/css/adminlte.css" />
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+
+    @if (currentUser != null && currentUser.SubscriptionEndDate < DateTime.Now)
+    {
+        <div class="alert alert-danger rounded-0 text-center fw-bold mb-0 border-0" style="z-index: 9999;">
+            <i class="bi bi-exclamation-octagon-fill fs-5 me-2"></i>
+            DİKKAT: Lisans süreniz dolmuştur! @(!isAdmin ? "Sistem şu an sadece okuma modundadır. İşlem yapabilmek için yöneticinizle iletişime geçin." : "Lütfen veritabanından kendi sürenizi uzatın.")
+        </div>
+
+        @if (!isAdmin)
+        {
+            <style>
+                button[type="submit"] {
+                    display: none !important;
+                }
+            </style>
+        }
+    }
+
     <div class="app-wrapper">
         @await Component.InvokeAsync("_NavbarViewComponentPartial")
+
         <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-            <div class="sidebar-brand">
-                <a href="/Home/Index" class="brand-link">
-                    <img src="~/assets/img/AdminLTELogo.png" alt="OtoTamir" class="brand-image opacity-75 shadow" />
-                    <span class="brand-text fw-light">OtoTamir</span>
+            <div class="sidebar-brand" style="height: auto; padding: 10px 15px; border-bottom: 1px solid #4b545c;">
+                <a href="/Home/Index" class="brand-link d-flex align-items-center text-decoration-none" style="border: none; padding: 0;">
+
+                    <img src="~/images/logo.png"
+                         alt="OtoTamir Logo"
+                         class="shadow"
+                         style="height: 45px; width: auto; margin-right: 12px; border-radius: 5px; opacity: .9;" />
+
+                    <span class="brand-text fw-light fs-4" style="line-height: 1;">
+                        Oto<span class="fw-bold">Tamir</span>
+
+                        @if (User.IsInRole("Admin")) // Eğer Adminse yanına ufak bir etiket
+                        {
+                            <sup class="text-warning small fw-bold" style="font-size: 60%;">ADMİN</sup>
+                        }
+                    </span>
                 </a>
             </div>
+
             <div class="sidebar-wrapper">
                 <nav class="mt-2">
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-
                         <li class="nav-item">
                             <a href="/Admin/Index" class="nav-link">
-                                <i class="nav-icon bi bi-house-door-fill"></i>
-                                <p>Anasayfa</p>
+                                <i class="nav-icon bi bi-speedometer2"></i>
+                                <p>Genel Bakış (Dashboard)</p>
                             </a>
                         </li>
 
                         <li class="nav-item">
                             <a href="/Admin/Mechanic" class="nav-link">
-                                <i class="nav-icon bi bi-person-fill"></i>
-                                <p>
-                                    Tamirciler
-                                    <span class="nav-badge badge text-bg-secondary me-3">!</span>
-                                </p>
+                                <i class="nav-icon bi bi-people-fill text-info"></i>
+                                <p>Tamirciler</p>
                             </a>
                         </li>
 
@@ -50,64 +90,61 @@
                                 <p>Silinmiş Ustalar</p>
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a href="/Admin/Announcements" class="nav-link">
-                                <i class="nav-icon bi bi-trash3-fill text-danger"></i>
+                                <i class="nav-icon bi bi-megaphone-fill text-warning"></i>
                                 <p>Duyurular</p>
                             </a>
                         </li>
 
-                        <li class="nav-header">FİYATLANDIRMA</li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-tags-fill"></i>
-                                <p>Fiyat Hesaplama</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-pencil-square"></i>
-                                <p>Fiyat Listesi Güncelle</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-header">ARAÇLAR</li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-journal-bookmark-fill"></i>
-                                <p>Servis Verilen Markalar</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-car-front-fill"></i>
-                                <p>Modeller</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-header">ARŞİV</li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-file-earmark"></i>
-                                <p>İşlem Geçmişi</p>
+                        <li class="nav-item mt-3">
+                            <a asp-controller="Account" asp-action="Logout" class="nav-link bg-danger bg-opacity-10 text-danger">
+                                <i class="nav-icon bi bi-box-arrow-right"></i>
+                                <p>Güvenli Çıkış</p>
                             </a>
                         </li>
                     </ul>
                 </nav>
             </div>
         </aside>
+
         <main class="app-main">
-            @RenderBody()
+            @if (activeAnnouncement != null)
+            {
+                <div class="container-fluid pt-3 px-3">
+                    <div class="alert alert-@activeAnnouncement.Type alert-dismissible shadow-sm fade show mb-0" role="alert">
+                        <h5 class="alert-heading fw-bold mb-1">
+                            <i class="bi bi-megaphone-fill me-2"></i> @activeAnnouncement.Title
+                        </h5>
+                        <p class="mb-0">@activeAnnouncement.Message</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            }
+
+            <div class="app-content py-3">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
         </main>
-        <footer class="app-footer">
-            <div class="float-end d-none d-sm-inline">v1.0.0</div>
-            <strong>Copyright &copy; @DateTime.Now.Year <a href="#" class="text-decoration-none">OtoTamir</a>.</strong> Tüm hakları saklıdır.
+
+        <footer class="app-footer bg-white border-top">
+            <div class="float-end d-none d-sm-inline opacity-50 small">
+                OtoTamir v1.0
+            </div>
+            <strong>
+                Copyright &copy; @DateTime.Now.Year
+                <span class="text-primary">OtoTamir Sistemleri</span>.
+            </strong>
+            Tüm hakları saklıdır.
         </footer>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js" integrity="sha256-dghWARbRe2eLlIJ56wNB+b760ywulqK3DzZYEpsg2fQ=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.6/dist/sweetalert2.all.min.js"></script>
 
     <script src="~/js/adminlte.js"></script>
@@ -141,7 +178,6 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'İşlem Başarılı!',
-                    // DİKKAT: Etrafında tırnak yok! Json.Serialize bizim için güvenli string üretiyor.
                     html: @Html.Raw(Json.Serialize(TempData["SuccessMessage"])),
                     confirmButtonText: 'Tamam',
                     confirmButtonColor: '#28a745'
@@ -157,7 +193,6 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Hata!',
-                    // DİKKAT: Etrafında tırnak yok!
                     html: @Html.Raw(Json.Serialize(TempData["ErrorMessage"])),
                     confirmButtonText: 'Kapat',
                     confirmButtonColor: '#dc3545'
