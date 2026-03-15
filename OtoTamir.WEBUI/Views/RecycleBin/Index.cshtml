@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Çöp Kutusu";
+    ViewData["Title"] = "Çöp Kutusu & Geri Kazanım";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -8,96 +8,230 @@
         <div class="col-12">
             <div class="card card-danger card-outline card-outline-tabs shadow-sm">
                 <div class="card-header p-0 border-bottom-0">
-                    <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+                    <ul class="nav nav-tabs" id="recycleTab" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active text-danger" id="tabs-clients-tab" data-bs-toggle="pill" href="#tabs-clients" role="tab" aria-selected="true">
-                                <i class="bi bi-people-fill me-1"></i> Müşteriler
+                            <a class="nav-link active text-danger" id="tab-clients-link" data-bs-toggle="pill" href="#tab-clients" role="tab">
+                                <i class="bi bi-people-fill me-1"></i> Müşteriler (@ViewBag.DeletedClients.Count)
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-danger" id="tabs-vehicles-tab" data-bs-toggle="pill" href="#tabs-vehicles" role="tab" aria-selected="false">
-                                <i class="bi bi-car-front-fill me-1"></i> Araçlar
+                            <a class="nav-link text-danger" id="tab-vehicles-link" data-bs-toggle="pill" href="#tab-vehicles" role="tab">
+                                <i class="bi bi-car-front-fill me-1"></i> Araçlar (@ViewBag.DeletedVehicles.Count)
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-danger" id="tabs-services-tab" data-bs-toggle="pill" href="#tabs-services" role="tab" aria-selected="false">
-                                <i class="bi bi-tools me-1"></i> Servis Kayıtları
+                            <a class="nav-link text-primary" id="tab-banks-link" data-bs-toggle="pill" href="#tab-banks" role="tab">
+                                <i class="bi bi-bank me-1"></i> Bankalar (@ViewBag.DeletedBanks.Count)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-primary" id="tab-cards-link" data-bs-toggle="pill" href="#tab-cards" role="tab">
+                                <i class="bi bi-credit-card-2-front me-1"></i> Kartlar (@ViewBag.DeletedCards.Count)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-purple" id="tab-pos-link" data-bs-toggle="pill" href="#tab-pos" role="tab" style="color: #6f42c1;">
+                                <i class="bi bi-calculator me-1"></i> POS Cihazları (@ViewBag.DeletedPos.Count)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-secondary" id="tab-services-link" data-bs-toggle="pill" href="#tab-services" role="tab">
+                                <i class="bi bi-tools me-1"></i> Servis Kayıtları (@ViewBag.DeletedServices.Count)
                             </a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="card-body p-0">
-                    <div class="tab-content" id="custom-tabs-four-tabContent">
+                    <div class="tab-content" id="recycleTabContent">
 
-                        <div class="tab-pane fade show active" id="tabs-clients" role="tabpanel">
-                            <table class="table table-hover table-striped mb-0">
-                                <thead class="bg-light">
+                        <div class="tab-pane fade show active" id="tab-clients" role="tabpanel">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="bg-light text-muted small">
                                     <tr>
                                         <th>Ad Soyad</th>
                                         <th>Telefon</th>
-                                        <th class="text-end">İşlem</th>
+                                        <th class="text-end px-4">İşlem</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var client in ViewBag.DeletedClients)
+                                    @foreach (var item in ViewBag.DeletedClients)
                                     {
                                         <tr>
-                                            <td class="align-middle text-muted"><del>@client.Name</del></td>
-                                            <td class="align-middle text-muted">@client.PhoneNumber</td>
-                                            <td class="text-end">
-                                                <form asp-controller="RecycleBin" asp-action="RestoreClient" method="post" class="d-inline">
-                                                    <input type="hidden" name="id" value="@client.Id" />
-                                                    <button type="submit" class="btn btn-sm btn-success shadow-sm">
-                                                        <i class="bi bi-arrow-counterclockwise"></i> Geri Yükle
-                                                    </button>
+                                            <td><del class="text-muted">@item.Name</del></td>
+                                            <td>@item.PhoneNumber</td>
+                                            <td class="text-end px-4">
+                                                <form asp-action="RestoreClient" method="post">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-arrow-counterclockwise"></i> Geri Yükle</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     }
                                     @if (ViewBag.DeletedClients.Count == 0)
                                     {
-                                        <tr><td colspan="3" class="text-center text-muted py-4">Silinmiş müşteri bulunmuyor.</td></tr>
+                                        <tr><td colspan="3" class="text-center py-4 text-muted">Silinmiş müşteri bulunmuyor.</td></tr>
                                     }
                                 </tbody>
                             </table>
                         </div>
 
-                        <div class="tab-pane fade" id="tabs-vehicles" role="tabpanel">
-                            <table class="table table-hover table-striped mb-0">
-                                <thead class="bg-light">
+                        <div class="tab-pane fade" id="tab-vehicles" role="tabpanel">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="bg-light text-muted small">
                                     <tr>
                                         <th>Plaka</th>
-                                        <th>Marka/Model</th>
-                                        <th class="text-end">İşlem</th>
+                                        <th>Marka / Model</th>
+                                        <th class="text-end px-4">İşlem</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var vehicle in ViewBag.DeletedVehicles)
+                                    @foreach (var item in ViewBag.DeletedVehicles)
                                     {
                                         <tr>
-                                            <td class="align-middle fw-bold text-muted"><del>@vehicle.Plate</del></td>
-                                            <td class="align-middle text-muted">@vehicle.Brand @vehicle.Model</td>
-                                            <td class="text-end">
-                                                <form asp-controller="RecycleBin" asp-action="RestoreVehicle" method="post" class="d-inline">
-                                                    <input type="hidden" name="id" value="@vehicle.Id" />
-                                                    <button type="submit" class="btn btn-sm btn-success shadow-sm">
-                                                        <i class="bi bi-arrow-counterclockwise"></i> Geri Yükle
-                                                    </button>
+                                            <td class="fw-bold"><del class="text-muted">@item.Plate</del></td>
+                                            <td>@item.Brand @item.Model</td>
+                                            <td class="text-end px-4">
+                                                <form asp-action="RestoreVehicle" method="post">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-arrow-counterclockwise"></i> Geri Yükle</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     }
                                     @if (ViewBag.DeletedVehicles.Count == 0)
                                     {
-                                        <tr><td colspan="3" class="text-center text-muted py-4">Silinmiş araç bulunmuyor.</td></tr>
+                                        <tr><td colspan="3" class="text-center py-4 text-muted">Silinmiş araç bulunmuyor.</td></tr>
                                     }
                                 </tbody>
                             </table>
                         </div>
 
-                        <div class="tab-pane fade" id="tabs-services" role="tabpanel">
-                            <div class="p-4 text-center text-muted">Servis tablosu buraya gelecek...</div>
+                        <div class="tab-pane fade" id="tab-banks" role="tabpanel">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="bg-light text-muted small">
+                                    <tr>
+                                        <th>Banka Adı</th>
+                                        <th>IBAN</th>
+                                        <th class="text-end px-4">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in ViewBag.DeletedBanks)
+                                    {
+                                        <tr>
+                                            <td class="fw-bold text-primary"><del>@item.BankName</del></td>
+                                            <td class="small text-muted">@item.Iban</td>
+                                            <td class="text-end px-4">
+                                                <form asp-action="RestoreBank" method="post">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-arrow-counterclockwise"></i> Geri Yükle</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (ViewBag.DeletedBanks.Count == 0)
+                                    {
+                                        <tr><td colspan="3" class="text-center py-4 text-muted">Silinmiş banka bulunmuyor.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-cards" role="tabpanel">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="bg-light text-muted small">
+                                    <tr>
+                                        <th>Kart Adı</th>
+                                        <th>Bağlı Banka</th>
+                                        <th class="text-end px-4">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in ViewBag.DeletedCards)
+                                    {
+                                        <tr>
+                                            <td class="fw-bold"><del class="text-muted">@item.CardName</del></td>
+                                            <td>@item.BankName</td>
+                                            <td class="text-end px-4">
+                                                <form asp-action="RestoreBankCard" method="post">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-arrow-counterclockwise"></i> Geri Yükle</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (ViewBag.DeletedCards.Count == 0)
+                                    {
+                                        <tr><td colspan="3" class="text-center py-4 text-muted">Silinmiş kredi kartı bulunmuyor.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-pos" role="tabpanel">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="bg-light text-muted small">
+                                    <tr>
+                                        <th>POS Adı</th>
+                                        <th>Komisyon / Vade</th>
+                                        <th class="text-end px-4">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in ViewBag.DeletedPos)
+                                    {
+                                        <tr>
+                                            <td class="fw-bold"><del class="text-muted">@item.Name</del></td>
+                                            <td class="small">%@item.CommissionRate / @item.MaturityDays Gün</td>
+                                            <td class="text-end px-4">
+                                                <form asp-action="RestorePosTerminal" method="post">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-arrow-counterclockwise"></i> Geri Yükle</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (ViewBag.DeletedPos.Count == 0)
+                                    {
+                                        <tr><td colspan="3" class="text-center py-4 text-muted">Silinmiş POS cihazı bulunmuyor.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-services" role="tabpanel">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="bg-light text-muted small">
+                                    <tr>
+                                        <th>Müşteri / Araç</th>
+                                        <th>Kayıt Tarihi</th>
+                                        <th class="text-end px-4">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in ViewBag.DeletedServices)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold text-muted"><del>@item.ClientName</del></div>
+                                                <div class="small text-muted">@item.VehiclePlate</div>
+                                            </td>
+                                            <td class="small">@item.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                            <td class="text-end px-4">
+                                                <form asp-action="RestoreServiceRecord" method="post">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-arrow-counterclockwise"></i> Geri Yükle</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (ViewBag.DeletedServices.Count == 0)
+                                    {
+                                        <tr><td colspan="3" class="text-center py-4 text-muted">Silinmiş servis kaydı bulunmuyor.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
 
                     </div>
@@ -106,3 +240,26 @@
         </div>
     </div>
 </div>
+
+<style>
+    .nav-tabs .nav-link {
+        border-radius: 0;
+        border: none;
+        padding: 12px 20px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .nav-tabs .nav-link.active {
+            border-bottom: 3px solid currentColor !important;
+            background: rgba(0,0,0,0.02);
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: rgba(0,0,0,0.04);
+        }
+
+    del {
+        opacity: 0.6;
+    }
+</style>

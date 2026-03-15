@@ -289,9 +289,13 @@
     document.addEventListener("DOMContentLoaded", function() {
         updateTransferUI();
     });
-    
-    document.getElementById('expenseAmount').addEventListener('input', checkCardLimit);
-    document.getElementById('creditCardSelect').addEventListener('change', checkCardLimit);
+    if (expenseAmountInput) {
+        expenseAmountInput.addEventListener('input', checkCardLimit);
+    }
+
+    if (creditCardSelect) {
+        creditCardSelect.addEventListener('change', checkCardLimit);
+    }
 
     function checkCardLimit() {
         var cardSelect = document.getElementById('creditCardSelect');

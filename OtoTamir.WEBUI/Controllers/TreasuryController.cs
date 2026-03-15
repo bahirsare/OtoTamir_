@@ -95,9 +95,13 @@ namespace OtoTamir.WEBUI.Controllers
             ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
             ViewBag.SelectedType = typeId;
             ViewBag.SelectedSource = sourceId;
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TransactionTablePartial", model);
+            }
             return View(model);
         }
+       
         [HttpPost]
         public async Task<IActionResult> AddBank(AddBankDTO model)
         {
