@@ -36,33 +36,30 @@ namespace OtoTamir.WEBUI.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // 1. Sistemdeki silinmemiş tüm ustaları (Müşterileriyle birlikte) çekiyoruz
+            
             var allMechanics = await _userManager.Users
                 .Include(m => m.Clients)
                 .Where(m => !m.IsDeleted)
                 .ToListAsync();
 
-            // --- TEPE KUTULARI İÇİN İSTATİSTİKLER ---
-            // Toplam Usta Sayısı
+            
             ViewBag.TotalMechanics = allMechanics.Count;
 
-            // Aktif (Sistemi kullanan) Usta Sayısı
+           
             ViewBag.ActiveMechanics = allMechanics.Count(m => m.Status);
 
-            // Ustaların sisteme eklediği TOPLAM Müşteri/Araç sayısı (Sistemin büyüklüğünü gösterir)
+            
             ViewBag.TotalClients = allMechanics.Sum(m => m.Clients?.Count ?? 0);
 
-            // Lisansı bitmiş veya bitmesine 7 günden az kalmış usta sayısı
+            
             ViewBag.ExpiringCount = allMechanics.Count(m => m.SubscriptionEndDate <= DateTime.Now.AddDays(7));
 
-            // --- ALT TABLOLAR İÇİN LİSTELER ---
-            // Son kayıt olan 5 usta (Yeni müşteriler)
+            
             ViewBag.LatestMechanics = allMechanics
                 .OrderByDescending(m => m.CreatedDate)
                 .Take(5)
                 .ToList();
 
-            // Lisansı bitmek üzere olan veya bitmiş 5 usta (Para tahsil edilecekler listesi!)
             ViewBag.ExpiringMechanics = allMechanics
                 .Where(m => m.SubscriptionEndDate <= DateTime.Now.AddDays(7))
                 .OrderBy(m => m.SubscriptionEndDate)
@@ -76,7 +73,7 @@ namespace OtoTamir.WEBUI.Controllers
             ViewBag.Search = search;
 
             var pagedMechanics = await _mechanicService.GetPagedAsync(
-                filter: string.IsNullOrEmpty(search) ? null : x => x.UserName.Contains(search) || x.StoreName.Contains(search),
+                filter: string.IsNullOrEmpty(search) ? null : x => x.UserName.Contains(search) || x.StoreName.Contains(search) && !x.IsDeleted,
                 orderBy: q => q.OrderByDescending(x => x.CreatedDate),
                 page: page,
                 pageSize: 10,

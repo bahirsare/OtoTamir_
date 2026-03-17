@@ -10,7 +10,7 @@ namespace OtoTamir.CORE.DTOs.SymptomDTOs
     public class ServiceWorkflowLogDTO
     { 
         public string? Title { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
         public string AuthorName { get; set; }
         public int SymptomId { get; set; }
         public decimal? AdditionalCost { get; set; }

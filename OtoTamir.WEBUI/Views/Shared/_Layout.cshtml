@@ -2,7 +2,7 @@
 <html lang="tr">
 @inject OtoTamir.BLL.Abstract.IAnnouncementService _announcementService
 @{
-        // GetPagedAsync ile IsActive=true olan kaydı getiriyoruz
+       
         var pagedActive = await _announcementService.GetPagedAsync(filter: x => x.IsActive, page: 1, pageSize: 1);
         var activeAnnouncement = pagedActive.Results?.FirstOrDefault();
         
@@ -57,7 +57,7 @@
                     <span class="brand-text fw-light fs-4" style="line-height: 1;">
                         Oto<span class="fw-bold">Tamir</span>
 
-                        @if (User.IsInRole("Admin")) // Eğer Adminse yanına ufak bir etiket
+                        @if (User.IsInRole("Admin")) 
                         {
                             <sup class="text-warning small fw-bold" style="font-size: 60%;">ADMİN</sup>
                         }
@@ -243,7 +243,6 @@
             }
         });
 
-        // Alert mesajlarını 5 saniye sonra otomatik kapat (Opsiyonel)
         setTimeout(function() {
             var alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {

@@ -31,18 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\AdminLTE-master\.github\codeql\codeql-config.yml" />
-    <None Include="wwwroot\AdminLTE-master\.github\CONTRIBUTING.md" />
-    <None Include="wwwroot\AdminLTE-master\.github\dependabot.yml" />
-    <None Include="wwwroot\AdminLTE-master\.github\FUNDING.yml" />
-    <None Include="wwwroot\AdminLTE-master\.github\ISSUE_TEMPLATE\bug-report-for-adminlte-v3.1-x.md" />
-    <None Include="wwwroot\AdminLTE-master\.github\ISSUE_TEMPLATE\feature-request-for-adminlte-v4-x.md" />
-    <None Include="wwwroot\AdminLTE-master\.github\workflows\bundlewatch.yml" />
-    <None Include="wwwroot\AdminLTE-master\.github\workflows\codeql.yml" />
-    <None Include="wwwroot\AdminLTE-master\.github\workflows\docs.yml" />
-    <None Include="wwwroot\AdminLTE-master\.github\workflows\lint.yml" />
-    <None Include="wwwroot\AdminLTE-master\.github\workflows\node-sass.yml" />
-    <None Include="wwwroot\AdminLTE-master\.github\workflows\release.yml" />
     <None Include="wwwroot\js\site.js" />
     <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
     <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
@@ -103,6 +91,6 @@
     <Folder Include="Middleware\" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties wwwroot_4adminlte-master_4dist_4css_4adminlte_1css_1map__JsonSchema="" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
