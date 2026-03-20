@@ -199,14 +199,14 @@ namespace OtoTamir.BLL.Concrete
             {
                 TreasuryId = treasuryId,
                 Amount = model.Amount,
-                Description = model.Description,
+                Description = model.Description+"(Masraf)",
                 TransactionDate = DateTime.Now,
                 TransactionType = TransactionType.Outgoing,
                 PaymentSource = (PaymentSource)model.PaymentSource,
-                AuthorName = "Yönetici",
+                AuthorName = model.Author,
                 TransactionCategoryId = model.CategoryId
             };
-
+            
             switch ((PaymentSource)model.PaymentSource)
             {
                 case PaymentSource.Cash:
@@ -233,11 +233,29 @@ namespace OtoTamir.BLL.Concrete
                     bank.Balance -= model.Amount;
                     await _bankDal.UpdateAsync();
                     break;
+                case PaymentSource.CreditCard:
+                    
+                    if (model.BankCardId == null)
+                        throw new BusinessRuleException("Harcama işlemi için kredi kartı seçilmedi.");
 
+                    var creditCard = await _bankCardDal.GetOneAsync((int)model.BankCardId, mechanicId)
+                        ?? throw new NotFoundException("Seçilen kredi kartı");
+
+                 
+                    if (creditCard.Limit < (creditCard.Debt + model.Amount))
+                        throw new BusinessRuleException(
+                            $"{creditCard.CardName} kartının limiti bu harcama için yetersiz!");
+
+                    trx.BankCardId = creditCard.Id;
+                    
+                    creditCard.Debt += model.Amount;
+
+                    await _bankCardDal.UpdateAsync();
+                    break;
                 default:
                     throw new BusinessRuleException("Geçersiz ödeme kaynağı.");
-            }
 
+            }
             await _transactionDal.CreateAsync(trx);
         }
         public async Task ProcessCardPaymentAsync(
@@ -323,7 +341,7 @@ namespace OtoTamir.BLL.Concrete
                 TransactionDate = DateTime.Now,
                 TransactionType = TransactionType.Incoming,
                 PaymentSource = (PaymentSource)model.PaymentSource,
-                AuthorName = "Yönetici",
+                AuthorName = model.Author,
                 TransactionCategoryId = model.CategoryId
             };
 
@@ -356,7 +374,7 @@ namespace OtoTamir.BLL.Concrete
 
         public async Task ProcessTransferAsync(
             string mechanicId, int treasuryId, decimal amount,
-            string direction, int? sourceBankId, int? targetBankId, string description)
+            string direction, int? sourceBankId, int? targetBankId, string description,string author)
         {
             if (amount <= 0)
                 throw new BusinessRuleException("Transfer tutarı sıfırdan büyük olmalıdır.");
@@ -364,10 +382,9 @@ namespace OtoTamir.BLL.Concrete
             var treasury = await _treasuryDal.GetOneAsync(treasuryId, mechanicId)
                 ?? throw new NotFoundException("Kasa");
 
-            // direction: "CashToBank" | "BankToCash" | "BankToBank"
             switch (direction)
             {
-                case "CashToBank":
+                case "ToBank":
                     if (treasury.CashBalance < amount)
                         throw new BusinessRuleException(
                             $"Kasada yeterli nakit yok! Mevcut: {treasury.CashBalance:C2}");
@@ -384,7 +401,7 @@ namespace OtoTamir.BLL.Concrete
                     await _bankDal.UpdateAsync();
                     break;
 
-                case "BankToCash":
+                case "ToCash":
                     if (sourceBankId == null)
                         throw new BusinessRuleException("Kaynak banka seçilmedi.");
 
@@ -427,18 +444,39 @@ namespace OtoTamir.BLL.Concrete
                     throw new BusinessRuleException($"Geçersiz transfer yönü: {direction}");
             }
 
-            // Transfer log kaydı
+            string turkceAciklama = direction switch
+            {
+                "ToBank" => "Kasadan Bankaya Para Yatırma",
+                "ToCash" => "Bankadan Kasaya Para Çekme",
+                "BankToBank" => "Bankalar Arası Virman (Para Transferi)",
+                _ => "Transfer İşlemi"
+            };
+
+            // Eğer kullanıcı formda özel bir açıklama girdiyse, bizim otomatik yazımızı parantez içinde sona ekleyelim 
+            // Örnek: "Ahmet Ustanın maaşı (Kasadan Bankaya Para Yatırma)"
+            string finalDescription = string.IsNullOrWhiteSpace(description)
+                ? turkceAciklama
+                : $"{description} ({turkceAciklama})";
+
+            // 2. Transfer log kaydı
             await _transactionDal.CreateAsync(new TreasuryTransaction
             {
                 TreasuryId = treasuryId,
                 Amount = amount,
-                Description = string.IsNullOrEmpty(description) ? $"Transfer ({direction})" : description,
+                Description = finalDescription, // 🚀 Türkçe Açıklamamız buraya geldi
                 TransactionDate = DateTime.Now,
+
+              
                 TransactionType = TransactionType.Outgoing,
-                PaymentSource = PaymentSource.Bank,
-                AuthorName = "Yönetici"
+
+                // Hangi transfer olduğuna göre kaynağı doğru ayarlayalım:
+                PaymentSource = direction == "ToBank" ? PaymentSource.Cash : PaymentSource.Bank,
+
+                AuthorName = string.IsNullOrWhiteSpace(author) ? "Yönetici" : author
             });
         }
+  
+        
 
         async Task<PagedResult<TreasuryTransaction>> IRepositoryService<TreasuryTransaction>.GetPagedAsync(Expression<Func<TreasuryTransaction, bool>> filter, Func<IQueryable<TreasuryTransaction>, IOrderedQueryable<TreasuryTransaction>> orderBy, int page, int pageSize, params Expression<Func<TreasuryTransaction, object>>[] includes)
         {

@@ -34,7 +34,40 @@
                                 else { <span class="text-muted small">-</span> }
                             </td>
                             <td>
-                                @* Senin mevcut PaymentSource Badge kodların buraya gelecek *@
+                                @switch (item.PaymentSource)
+                                {
+                                    case OtoTamir.CORE.Entities.PaymentSource.Cash:
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                            <i class="bi bi-cash-stack me-1"></i> Nakit Kasa
+                                        </span>
+                                        break;
+
+                                    case OtoTamir.CORE.Entities.PaymentSource.Bank:
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary">
+                                            <i class="bi bi-bank me-1"></i>
+                                            @(item.Bank != null ? item.Bank.BankName +" (Banka)": "Banka Transferi")
+                                        </span>
+                                        break;
+
+                                    case OtoTamir.CORE.Entities.PaymentSource.CreditCard:
+                                        <span class="badge bg-warning bg-opacity-10 text-dark border border-warning">
+                                            <i class="bi bi-credit-card me-1"></i>
+                                            @(item.BankCard != null ? item.BankCard.CardName +" (Kart)": "Kredi Kartı")
+                                        </span>
+                                        break;
+
+                                    case OtoTamir.CORE.Entities.PaymentSource.ClientBalance:
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">
+                                            <i class="bi bi-person-lines-fill me-1"></i> Cari Hesap
+                                        </span>
+                                        break;
+
+                                    default:
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="bi bi-question-circle me-1"></i> Diğer
+                                        </span>
+                                        break;
+                                }
                             </td>
                             <td class="text-right font-weight-bold @(item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming ? "text-success" : "text-danger")">
                                 <i class="bi @(item.TransactionType == OtoTamir.CORE.Entities.TransactionType.Incoming ? "bi-arrow-up" : "bi-arrow-down") small me-1"></i>

@@ -131,34 +131,37 @@ namespace OtoTamir.WEBUI.Controllers
             {
                 TempData["Message"] = "Müşteri Eklenemedi, Lütfen Bilgileri Eksiksiz Doldurun";
 
-                return RedirectToAction(URL[0], URL[1]);
+                return RedirectToAction(URL[2], URL[1]);
             }
             var currentMechanicId = _userManager.GetUserId(User);
-
-            bool mustBeUnique = await _clientService
+            if (model.PhoneNumber != null)
+            {
+                bool mustBeUnique = await _clientService
     .AnyAsync(i => i.PhoneNumber == model.PhoneNumber && i.MechanicId == currentMechanicId);
 
-            if (!mustBeUnique)
-            {
-                model.PhoneNumber = model.PhoneNumber?.Replace(" ", "");
-                Client client = _mapper.Map<Client>(model);
-                client.MechanicId = _userManager.GetUserId(User);
-                var result = await _clientService.CreateAsync(client);
-                if (result == 1)
+                if (!mustBeUnique)
                 {
-                    TempData["Message"] = "Müşteri Eklendi!";
+                    model.PhoneNumber = model.PhoneNumber?.Replace(" ", "");
+                    
                 }
                 else
                 {
-                    TempData["Message"] = "Müşteri Eklenemedi.";
+                    TempData["FailMessage"] = "Aynı telefon numarasına sahip müşteri var!";
+                    return RedirectToAction(URL[2], URL[1]);
                 }
-                return RedirectToAction(URL[0], URL[1]);
+            }
+            Client client = _mapper.Map<Client>(model);
+            client.MechanicId = _userManager.GetUserId(User);
+            var result = await _clientService.CreateAsync(client);
+            if (result == 1)
+            {
+                TempData["Message"] = "Müşteri Eklendi!";
             }
             else
             {
-                TempData["FailMessage"] = "Aynı telefon numarasına sahip müşteri var!";
-                return RedirectToAction(URL[0], URL[1]);
+                TempData["Message"] = "Müşteri Eklenemedi.";
             }
+            return RedirectToAction(URL[2], URL[1]);
         }
         public async Task<IActionResult> DeleteClient(int id)
         {
@@ -218,12 +221,23 @@ namespace OtoTamir.WEBUI.Controllers
             if (statement == null)
                 return RedirectToAction("Clients");
 
+           
+            foreach (var trx in statement.Transactions)
+            {
+                
+                if (trx.Description != null && trx.Description.Contains("Servis Bedeli"))
+                {
+                    trx.Type = "DEBT";    
+                }
+                else
+                {
+                    trx.Type = "PAYMENT"; 
+                }
+            }
 
             int pageSize = 20;
             int rowCount = statement.Transactions.Count;
             int pageCount = (int)Math.Ceiling((double)rowCount / pageSize);
-
-
             var pagedTransactions = statement.Transactions
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -241,7 +255,6 @@ namespace OtoTamir.WEBUI.Controllers
 
             return View(statement);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> MakePayment(

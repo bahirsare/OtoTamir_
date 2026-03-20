@@ -22,7 +22,7 @@ namespace OtoTamir.BLL.Abstract
         Task AddTransactionAsync(TreasuryTransaction transaction,string mechanicId);
         Task ProcessExpenseAsync(AddExpenseDTO model, string mechanicId, int treasuryId);
         Task ProcessCardPaymentAsync(string mechanicId, int treasuryId, int cardId, decimal amount, int sourceType, int? sourceBankId, string description);
-        Task ProcessTransferAsync(string mechanicId, int treasuryId, decimal amount, string direction, int? sourceBankId, int? targetBankId, string description);
+        Task ProcessTransferAsync(string mechanicId, int treasuryId, decimal amount, string direction, int? sourceBankId, int? targetBankId, string description, string author);
         Task ProcessIncomeAsync(AddExpenseDTO model, string mechanicId, int treasuryId);
     }
 }

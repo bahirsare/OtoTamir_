@@ -13,7 +13,8 @@ using System.Linq.Expressions;
 
 namespace OtoTamir.WEBUI.Controllers
 {
-    //[Authorize]
+    
+    [Authorize]
     public class AdminController : Controller
     {
         private SignInManager<Mechanic> _signInManager;
@@ -34,6 +35,7 @@ namespace OtoTamir.WEBUI.Controllers
             _roleManager = roleManager;
         }
 
+        
         public async Task<IActionResult> Index()
         {
             
@@ -68,6 +70,7 @@ namespace OtoTamir.WEBUI.Controllers
 
             return View();
         }
+       
         public async Task<IActionResult> Mechanic(string search = null, int page = 1)
         {
             ViewBag.Search = search;
@@ -87,6 +90,7 @@ namespace OtoTamir.WEBUI.Controllers
         }
 
         [HttpPost]
+      
         public async Task<IActionResult> Create(string storeName)
         {
             if (string.IsNullOrEmpty(storeName))
@@ -107,6 +111,7 @@ namespace OtoTamir.WEBUI.Controllers
             return RedirectToAction("Mechanic", "Admin");
         }
         [HttpPost]
+       
         public async Task<IActionResult> EditStatusAsync(string id)
         {
             var mechanic = await _mechanicService.GetOneAsync(id);
@@ -150,6 +155,7 @@ namespace OtoTamir.WEBUI.Controllers
             }
             return RedirectToAction("RecycleBin");
         }
+        [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
             var mechanic = await _mechanicService.GetOneAsync(id);
@@ -175,7 +181,6 @@ namespace OtoTamir.WEBUI.Controllers
             return RedirectToAction("Mechanic", "Admin");
         }
         [HttpPost]
-        [HttpPost]
         public async Task<IActionResult> ResetPassword([FromForm] string mechanicId)
         {
             var mechanic = await _userManager.FindByIdAsync(mechanicId);
@@ -193,7 +198,6 @@ namespace OtoTamir.WEBUI.Controllers
             {
                 string mailInfoText = "";
 
-                // 1. Mail varsa gönder ve bilgi metnini ayarla
                 if (!string.IsNullOrEmpty(mechanic.Email))
                 {
                     var body = $"Sayın <strong>{mechanic.UserName}</strong>;<br><br> Yönetici tarafından şifreniz sıfırlanmıştır.<br>Yeni şifreniz: <strong>{newPassword}</strong>";
@@ -201,13 +205,13 @@ namespace OtoTamir.WEBUI.Controllers
 
                     mailInfoText = $"<div class='text-success small mt-2'><i class='bi bi-envelope-check-fill'></i> Ayrıca <b>{mechanic.Email}</b> adresine de e-mail olarak iletildi.</div>";
                 }
-                // 2. Mail yoksa uyarı metni ayarla
+              
                 else
                 {
                     mailInfoText = "<div class='text-warning small mt-2'><i class='bi bi-exclamation-triangle-fill'></i> Kullanıcının e-mail adresi bulunmuyor, şifreyi iletmeyi unutmayın.</div>";
                 }
 
-                // 3. HER DURUMDA ŞİFREYİ EKRANDA GÖSTER
+               
                 TempData["SuccessMessage"] = $@"
             <div class='text-center mt-3'>
                 <p><strong>{mechanic.StoreName}</strong> adlı kullanıcının şifresi sıfırlandı.</p>
@@ -345,13 +349,13 @@ namespace OtoTamir.WEBUI.Controllers
             var mechanic = await _userManager.FindByIdAsync(mechanicId);
             if (mechanic == null) return RedirectToAction("Index");
 
-            // 1. GÜVENLİK: Eğer veritabanında "Admin" diye bir rol hiç oluşturulmadıysa, önce onu yarat.
+            
             if (!await _roleManager.RoleExistsAsync("Admin"))
             {
                 await _roleManager.CreateAsync(new IdentityRole("Admin"));
             }
 
-            // 2. Yetki veriliyorsa
+          
             if (isGranted)
             {
                 if (!await _userManager.IsInRoleAsync(mechanic, "Admin"))
@@ -360,7 +364,7 @@ namespace OtoTamir.WEBUI.Controllers
                 }
                 TempData["SuccessMessage"] = $"<i class='bi bi-star-fill text-warning'></i> <b>{mechanic.StoreName}</b> hesabına <b>Admin</b> yetkisi verildi!";
             }
-            // 3. Yetki alınıyorsa
+            
             else
             {
                 if (await _userManager.IsInRoleAsync(mechanic, "Admin"))

@@ -30,12 +30,12 @@ function addSymptomRow(containerId) {
 
         <div style="width: 100px;">
             <label class="form-label fw-semibold mb-1">Fiyat</label>
-            <input name="Symptoms[${index}].EstimatedCost" class="form-control form-control-sm" type="number" step="100" />
+            <input name="Symptoms[${index}].EstimatedCost" class="form-control form-control-sm" type="number" />
         </div>
 
         <div style="width: 70px;">
             <label class="form-label fw-semibold mb-1">Gün</label>
-            <input name="Symptoms[${index}].EstimatedDaysToFix" class="form-control form-control-sm" type="number" />
+            <input name="Symptoms[${index}].EstimatedDaysToFix" class="form-control form-control-sm" type="number" value="0" />
         </div>
 
         <div style="width: 250px;">

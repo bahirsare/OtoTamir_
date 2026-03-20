@@ -462,7 +462,7 @@ public class ServiceRecordController : Controller
             TempData["FailMessage"] = "Hata: " + ex.Message;
         }
 
-        return RedirectToAction("Ongoing"); // Veya uygun bir yere yönlendir
+        return RedirectToAction("Ongoing"); 
     }
 
     [HttpPost]
@@ -483,9 +483,7 @@ public class ServiceRecordController : Controller
         {
             try
             {
-                // 1. DTO Hazırla
-                // Toplu işlemde genelde varsayılan olarak "Cari Hesaba (Veresiye)" atılır.
-                // Çünkü her biri için tek tek "Nakit mi Kart mı" diye soramazsın.
+               
                 var completionModel = new ServiceCompletionDTO
                 {
                     ServiceRecordId = id,
@@ -521,7 +519,7 @@ public class ServiceRecordController : Controller
     }
     public async Task<IActionResult> Print(int id)
     {
-        // 1. Kaydı getir
+       
         var mechanic = await _userManager.GetUserAsync(User);
         var record = await _serviceRecordService.GetOneAsync(id, mechanic.Id,true,true);
         var client = await _clientService.GetOneAsync(record.Vehicle.ClientId,mechanic.Id);
@@ -529,22 +527,21 @@ public class ServiceRecordController : Controller
 
         if (mechanic != null)
         {
-            // Dükkan Adı (Yoksa Ad Soyad yazsın)
+            
             ViewBag.ShopName = !string.IsNullOrEmpty(mechanic.StoreName)
                 ? mechanic.StoreName
                 : $"{mechanic.UserName} Oto Servis";
 
-            // Adres
+            
             ViewBag.ShopAddress = !string.IsNullOrEmpty(mechanic.Adress)
                 ? mechanic.Adress
                 : "Adres Bilgisi Girilmedi";
 
-            // Telefon
+            
             ViewBag.ShopPhone = !string.IsNullOrEmpty(mechanic.PhoneNumber)
                 ? mechanic.PhoneNumber
                 : "Tel Yok";
 
-            // Vergi Bilgileri (İkisi de varsa birleştirip gönderelim)
             if (!string.IsNullOrEmpty(mechanic.TaxOffice) && !string.IsNullOrEmpty(mechanic.TaxNumber))
             {
                 ViewBag.TaxInfo = $"{mechanic.TaxOffice} VD. / {mechanic.TaxNumber}";

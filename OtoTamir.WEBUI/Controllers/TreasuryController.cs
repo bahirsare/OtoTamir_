@@ -527,12 +527,12 @@ namespace OtoTamir.WEBUI.Controllers
 
         [HttpPost]
         
-        public async Task<IActionResult> AddTransfer(decimal Amount, string Direction, int? SourceBankId, int? TargetBankId, string Description)
+        public async Task<IActionResult> AddTransfer(decimal Amount, string Direction, int? SourceBankId, int? TargetBankId, string Description,string Author)
         {
             var user = await _userManager.GetUserAsync(User);
             try
             {
-                await _transactionService.ProcessTransferAsync(user.Id, (int)user.TreasuryId, Amount, Direction, SourceBankId, TargetBankId, Description);
+                await _transactionService.ProcessTransferAsync(user.Id, (int)user.TreasuryId, Amount, Direction, SourceBankId, TargetBankId, Description,Author);
                 TempData["SuccessMessage"] = "Transfer işlemi başarılı.";
             }
             catch (Exception ex)
